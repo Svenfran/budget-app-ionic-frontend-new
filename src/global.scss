@@ -35,3 +35,20 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+@font-face {
+  font-family: 'Nunito';
+  src: url('assets/fonts/NunitoSans-Regular.ttf');
+}
+  
+[hidden] {
+  display: none !important;
+}
+
+ion-item-sliding {
+	border-radius: 6px;
+}
+
+ion-item, ion-list {
+	border-radius: 8px;
+}

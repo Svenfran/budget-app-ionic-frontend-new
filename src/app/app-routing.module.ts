@@ -1,16 +1,38 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from './auth/auth.guard';
 
 const routes: Routes = [
   {
-    path: 'home',
-    loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
-  },
-  {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'domains/tabs/overview',
     pathMatch: 'full'
   },
+  {
+    path: 'auth',
+    loadChildren: () => import('./auth/auth.module').then( m => m.AuthPageModule)
+  },
+  {
+    path: 'domains',
+    loadChildren: () => import('./domains/domains.module').then( m => m.DomainsPageModule),
+    canLoad: [AuthGuard]
+  },
+  {
+    path: 'overview',
+    loadChildren: () => import('./domains/overview/overview.module').then( m => m.OverviewPageModule),
+    canLoad: [AuthGuard]
+  },
+  {
+    path: 'cartlist',
+    loadChildren: () => import('./domains/cartlist/cartlist.module').then( m => m.CartlistPageModule),
+    canLoad: [AuthGuard]
+  },
+  {
+    path: 'shoppinglist',
+    loadChildren: () => import('./domains/shoppinglist/shoppinglist.module').then( m => m.ShoppinglistPageModule),
+    canLoad: [AuthGuard]
+  }
+
 ];
 
 @NgModule({

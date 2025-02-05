@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  // apiBaseUrl: 'http://localhost:8080',
+  apiBaseUrl: 'http://192.168.178.23:8080',
+  token: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTdmVuLmhhaWRlckB3ZWIuZGUiLCJpYXQiOjE3Mzc3MzIzMTEsImV4cCI6MTczOTU0NjcxMX0.uYHrsL8kFKx36V1_Ce-6zFmCZSQ6_5bsrNePejuGpjA'
 };
 
 /*

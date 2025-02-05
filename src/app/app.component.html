@@ -1,3 +1,26 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <ion-menu side="start" menuId="m1" contentId="main">
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title class="menu-header-title">Budget App</ion-title>
+        <ion-item>
+          <div class="menu-header">
+            <ion-label class="ion-text-wrap">Hallo {{ user?.name }}!</ion-label>
+            <ion-text>Schön dich zu sehen 😊</ion-text>
+            <ion-text color="medium"></ion-text>
+          </div>
+        </ion-item>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-footer class="ion-no-border">
+      <ion-menu-toggle>
+        <div class="menu-footer" (click)="onLogout()">
+          <ion-icon name="power-outline" color="dark"></ion-icon>
+          <ion-text color="dark"><small>Logout</small></ion-text>
+        </div>
+      </ion-menu-toggle>
+    </ion-footer>
+  </ion-menu>
+  <ion-router-outlet id="main"></ion-router-outlet>
 </ion-app>

@@ -1,2 +1,20 @@
 // For information on how to create your own theme, please see:
 // http://ionicframework.com/docs/theming/
+
+:root {
+    
+    --ion-font-family: "Nunito";
+
+    --ion-color-primary: #457eac;
+    --ion-color-primary-rgb: 69, 126, 172;
+    --ion-color-primary-contrast: #ffffff;
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade: #3d6f97;
+    --ion-color-primary-tint: #588bb4;
+
+    
+    @font-face {
+        font-family: 'Nunito';
+        src: url('../assets/fonts/NunitoSans-Regular.ttf');
+    }
+}
