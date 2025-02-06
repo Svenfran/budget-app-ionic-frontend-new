@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ShoppinglistService } from './shoppinglist.service';
 import { AddEditShoppinglistDto } from './add-edit-shoppinglist-dto';
 import { AlertService } from 'src/app/utils/alert.service';
@@ -14,11 +14,11 @@ import { ShoppingitemDto } from './shoppingitem-dto';
   standalone: false
 })
 export class ShoppinglistPage implements OnInit {
-  @ViewChild('shoppingItemInput', { static: false }) shoppingItemInput!: IonInput;
+  @ViewChildren(IonInput) inputFields!: QueryList<IonInput>; 
   public shoppingLists = this.shoppinglistService.getShoppingLists();
   public isLoading: boolean = true;
   public toggleLists: any = {};
-  public newItemName: string = '';
+  public newItemInputs: { [listId: number]: string } = {};
   // TODO: get groupId from the server
   public groupId: number = 14;
 
@@ -130,19 +130,28 @@ export class ShoppinglistPage implements OnInit {
     }).then(alertEl => alertEl.present());
   }
   
-  onCreateItem(list: ShoppinglistDto, value: string) {
+  onCreateItem(list: ShoppinglistDto) {
+    if (!this.newItemInputs[list.id]?.trim()) return;
+
     const newItem: AddEditShoppingItemDto = {
       id: null,
-      name: value.trim(),
+      name: this.newItemInputs[list.id].trim(),
       completed: false,
       shoppingListId: list.id,
       groupId: this.groupId,
     }
-    this.newItemName = '';
+    this.newItemInputs[list.id] = '';
     this.shoppinglistService.addItemToShoppingList(newItem);
-    setTimeout(() => {
-      this.shoppingItemInput.setFocus();
-    }, 200);
+    setTimeout(() => { this.focusInput(list.id); }, 100);
+  }
+
+  private focusInput(listId: number) {
+    const inputElement = this.inputFields.find((_, index) => this.shoppingLists()[index].id === listId);
+    if (inputElement) {
+      inputElement.setFocus();
+    } else {
+      console.warn('Kein passendes Input-Feld gefunden für List ID:', listId);
+    }
   }
 
   onUpdateItem(list: ShoppinglistDto, item: ShoppingitemDto) {

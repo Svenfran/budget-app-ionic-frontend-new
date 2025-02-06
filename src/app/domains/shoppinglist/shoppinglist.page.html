@@ -65,15 +65,15 @@
           <ion-item lines="none" [hidden]="!toggleLists['group' + i + '_' + 'j']">
             <ion-text color="medium" slot="start">{{ list.shoppingItems.length + 1}}</ion-text>
             <ion-input 
-                #shoppingItemInput 
-                (keyup.enter)="onCreateItem(list, newItemName)" 
+                #inputField
+                (keyup.enter)="onCreateItem(list)" 
                 class="input" 
-                [(ngModel)]="newItemName" 
+                [(ngModel)]="newItemInputs[list.id]" 
                 type="text" 
                 placeholder="Eintrag hinzufügen"></ion-input>
             <div class="ion-item-note">
               <ion-buttons>
-                <ion-button (click)="onCreateItem(list, newItemName)" [disabled]="!newItemName">
+                <ion-button (click)="onCreateItem(list)" [disabled]="!newItemInputs[list.id]">
                   <ion-icon name="checkmark" slot="icon-only"></ion-icon>
                 </ion-button>
               </ion-buttons>

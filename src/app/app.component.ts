@@ -9,7 +9,6 @@ import { ShoppinglistService } from './domains/shoppinglist/shoppinglist.service
 import { ShoppinglistDto } from './domains/shoppinglist/shoppinglist-dto';
 import { User } from './auth/user';
 import { ShoppingitemDto } from './domains/shoppinglist/shoppingitem-dto';
-import { WebSocketService } from './utils/web-socket-service.service';
 
 @Component({
   selector: 'app-root',
