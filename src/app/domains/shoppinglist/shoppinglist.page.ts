@@ -6,6 +6,9 @@ import { AlertController, IonInput, IonItemSliding, LoadingController } from '@i
 import { ShoppinglistDto } from './shoppinglist-dto';
 import { AddEditShoppingItemDto } from './add-edit-shopping-item-dto';
 import { ShoppingitemDto } from './shoppingitem-dto';
+import { Subscription } from 'rxjs';
+import { WebSocketService } from 'src/app/utils/websocket.service';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-shoppinglist',
@@ -19,6 +22,8 @@ export class ShoppinglistPage implements OnInit {
   public isLoading: boolean = true;
   public toggleLists: any = {};
   public newItemInputs: { [listId: number]: string } = {};
+  private subscriptions: Subscription[] = [];
+
   // TODO: get groupId from the server
   public groupId: number = 14;
 
@@ -26,22 +31,32 @@ export class ShoppinglistPage implements OnInit {
     private shoppinglistService: ShoppinglistService,
     private alertService: AlertService,
     private alertCtrl: AlertController,
-    private loadingCtrl: LoadingController
+    private loadingCtrl: LoadingController,
+    private webSocketService: WebSocketService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
+    this.subscriptions.push(
+      this.webSocketService.getConnectionState().subscribe((isConnected) => {
+        if (isConnected) {
+          this.authService.user.subscribe(user => {
+            if (user) {
+              this.subscribeToTopics(user.id);
+            }
+          });
+        }
+      })
+    );
   }
-  
+
   ionViewWillEnter() {
     this.shoppinglistService.getShoppingListsWithItems(this.groupId);
     this.isLoading = false;
   }
 
-  ionViewWillLeave() {
-
-  }
-
   ngOnDestroy() {
+    this.webSocketService.unsubscribeAll();
   }
 
   onCreateList() {
@@ -222,5 +237,112 @@ export class ShoppinglistPage implements OnInit {
         this.onDeleteItem(list, item);
       }
     })
+  }
+
+  private subscribeToTopics(userId: number) {
+
+    this.webSocketService.subscribe(
+      `/user/${userId}/notification/add-list`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        const shoppinglistDto: ShoppinglistDto = {
+          id: parsedData.id,
+          name: parsedData.name,
+          shoppingItems: []
+        } 
+        console.log(parsedData);
+        this.shoppingLists().push(shoppinglistDto);
+      }
+    )
+
+    this.webSocketService.subscribe(
+      `/user/${userId}/notification/update-list`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        console.log(parsedData);
+        const updatedList = this.shoppingLists().map(item => 
+          item.id === parsedData.id ? {...item, name: parsedData.name} : item
+        );
+        this.shoppingLists.set(updatedList);
+      }
+    )
+
+    this.webSocketService.subscribe(
+      `/user/${userId}/notification/delete-list`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        console.log(parsedData);
+        const updatedList = this.shoppingLists().filter(item => item.id !== parsedData.id);
+        this.shoppingLists.set(updatedList);
+      }
+    )
+
+    this.webSocketService.subscribe(
+      `/user/${userId}/notification/add-item`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        console.log(parsedData);
+        const newItem: ShoppingitemDto = {
+          id: parsedData.id!,
+          name: parsedData.name,
+          completed: parsedData.completed
+        }
+
+        const updatedList = this.shoppingLists().map(list => {
+          if (list.id === parsedData.shoppingListId) {
+            return {
+              ...list,  // Erstellt eine neue Kopie der Shoppingliste
+              shoppingItems: [...list.shoppingItems, newItem] // Fügt das neue Item hinzu
+            };
+          }
+          return list; // Unveränderte Listen zurückgeben
+        });
+
+        this.shoppingLists.set(updatedList);
+      }
+    )
+
+    this.webSocketService.subscribe(
+      `/user/${userId}/notification/update-item`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        console.log(parsedData);
+        const updatedItem: ShoppingitemDto = {
+          id: parsedData.id!,
+          name: parsedData.name,
+          completed: parsedData.completed
+        }
+        const updatedList = this.shoppingLists().map(list => {
+          if (list.shoppingItems.some(item => item.id === updatedItem.id)) {
+            return {
+              ...list,
+              shoppingItems: list.shoppingItems.map(item =>
+                item.id === updatedItem.id ? updatedItem : item
+              )
+            };
+          }
+          return list;
+        });
+        this.shoppingLists.set(updatedList);
+      }
+    )
+
+    this.webSocketService.subscribe(
+      `/user/${userId}/notification/delete-item`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        console.log(parsedData);
+        const updatedList = this.shoppingLists().map(list => {
+          if (list.id === parsedData.shoppingListId) {
+            return {
+              ...list,
+              shoppingItems: list.shoppingItems.filter(item => item.id !== parsedData.id)
+            };
+          }
+          return list;
+        });
+        this.shoppingLists.set(updatedList);
+      }
+    )
   }
 }
