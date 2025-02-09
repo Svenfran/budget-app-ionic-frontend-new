@@ -1,14 +1,15 @@
-import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { Component, effect, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ShoppinglistService } from './shoppinglist.service';
 import { AddEditShoppinglistDto } from './add-edit-shoppinglist-dto';
-import { AlertService } from 'src/app/utils/alert.service';
+import { AlertService } from 'src/app/service/alert.service';
 import { AlertController, IonInput, IonItemSliding, LoadingController } from '@ionic/angular';
 import { ShoppinglistDto } from './shoppinglist-dto';
 import { AddEditShoppingItemDto } from './add-edit-shopping-item-dto';
 import { ShoppingitemDto } from './shoppingitem-dto';
 import { Subscription } from 'rxjs';
-import { WebSocketService } from 'src/app/utils/websocket.service';
+import { WebSocketService } from 'src/app/service/websocket.service';
 import { AuthService } from 'src/app/auth/auth.service';
+import { GroupService } from 'src/app/service/group.service';
 
 @Component({
   selector: 'app-shoppinglist',
@@ -23,9 +24,8 @@ export class ShoppinglistPage implements OnInit {
   public toggleLists: any = {};
   public newItemInputs: { [listId: number]: string } = {};
   private subscriptions: Subscription[] = [];
+  public activeGroup = this.groupService.activeGroup();
 
-  // TODO: get groupId from the server
-  public groupId: number = 14;
 
   constructor(
     private shoppinglistService: ShoppinglistService,
@@ -33,8 +33,16 @@ export class ShoppinglistPage implements OnInit {
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
     private webSocketService: WebSocketService,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private groupService: GroupService
+  ) {
+    effect(() => {
+      this.activeGroup = this.groupService.activeGroup();
+      if (this.activeGroup) {
+        this.shoppinglistService.getShoppingListsWithItems(this.activeGroup.id);
+      }
+    });
+  }
 
   ngOnInit() {
     this.subscriptions.push(
@@ -43,15 +51,12 @@ export class ShoppinglistPage implements OnInit {
           this.authService.user.subscribe(user => {
             if (user) {
               this.subscribeToTopics(user.id);
+              this.shoppinglistService.getShoppingListsWithItems(this.activeGroup.id);
             }
           });
         }
       })
     );
-  }
-
-  ionViewWillEnter() {
-    this.shoppinglistService.getShoppingListsWithItems(this.groupId);
     this.isLoading = false;
   }
 
@@ -72,7 +77,7 @@ export class ShoppinglistPage implements OnInit {
         const newShoppingList: AddEditShoppinglistDto = {
           id: null,
           name: listName.trim(),
-          groupId: this.groupId,
+          groupId: this.activeGroup.id,
         };
         this.shoppinglistService.addShoppingList(newShoppingList);
         loading.dismiss();
@@ -96,7 +101,7 @@ export class ShoppinglistPage implements OnInit {
             const updateShoppingList: AddEditShoppinglistDto = {
               id: list.id, 
               name: data.listName.trim(), 
-              groupId: this.groupId
+              groupId: this.activeGroup.id
             };
 
             this.shoppinglistService.updateShoppingList(updateShoppingList)
@@ -135,7 +140,7 @@ export class ShoppinglistPage implements OnInit {
             const deletedShoppinglist: AddEditShoppinglistDto = {
               id: list.id,
               name: list.name,
-              groupId: this.groupId
+              groupId: this.activeGroup.id
             }
             this.shoppinglistService.deleteShoppingList(deletedShoppinglist);
             loadingEl.dismiss();
@@ -153,7 +158,7 @@ export class ShoppinglistPage implements OnInit {
       name: this.newItemInputs[list.id].trim(),
       completed: false,
       shoppingListId: list.id,
-      groupId: this.groupId,
+      groupId: this.activeGroup.id,
     }
     this.newItemInputs[list.id] = '';
     this.shoppinglistService.addItemToShoppingList(newItem);
@@ -185,7 +190,7 @@ export class ShoppinglistPage implements OnInit {
               id: item.id,
               name: data.itemName,
               completed: item.completed,
-              groupId: this.groupId,
+              groupId: this.activeGroup.id,
               shoppingListId: list.id
             };
             
@@ -214,7 +219,7 @@ export class ShoppinglistPage implements OnInit {
       name: item.name,
       completed: item.completed,
       shoppingListId: list.id,
-      groupId: this.groupId,
+      groupId: this.activeGroup.id,
     }
     this.shoppinglistService.deleteItemFromShoppingList(deletedItem);
   }
@@ -225,7 +230,7 @@ export class ShoppinglistPage implements OnInit {
       id: item.id,
       name: item.name,
       completed: item.completed,
-      groupId: this.groupId,
+      groupId: this.activeGroup.id,
       shoppingListId: list.id
     };
     this.shoppinglistService.updateItemOfShoppingList(updateShoppingItem);

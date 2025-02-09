@@ -1,8 +1,10 @@
-import { Injectable } from '@angular/core';
+import { effect, Injectable } from '@angular/core';
 import { Client, StompSubscription } from '@stomp/stompjs';
 import * as SockJS from 'sockjs-client';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { Group } from '../model/group';
+import { GroupService } from './group.service';
 
 @Injectable({ providedIn: 'root' })
 export class WebSocketService {
@@ -11,8 +13,13 @@ export class WebSocketService {
   private connectionState = new BehaviorSubject<boolean>(false);
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
+  private activeGroup: Group = this.groupService.activeGroup();
 
-  constructor() {}
+  constructor(private groupService: GroupService) {
+    effect(() => {
+      this.activeGroup = this.groupService.activeGroup();
+    })
+  }
 
   connect(token: string) {
     if (this.socketClient?.connected) {
@@ -57,6 +64,10 @@ export class WebSocketService {
 
   subscribe(topic: string, callback: (message: any) => void) {    
     const subscription = this.socketClient.subscribe(topic, (message) => {
+      const parsedData = JSON.parse(message.body);
+      if (!(parsedData.groupId === this.activeGroup.id)) {
+        return;
+      }
       callback(message);
     });
 

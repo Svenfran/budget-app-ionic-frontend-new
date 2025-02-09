@@ -3,7 +3,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, from } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { StorageService } from '../utils/storage.service';
+import { StorageService } from '../service/storage.service';
 import { User } from './user';
 
 export interface AuthResponseData {
@@ -68,8 +68,8 @@ export class AuthService implements OnDestroy {
     }
     this.userLogout().subscribe();
     this._user.next(null!);
-    this.storageService.removeData('authData');
     localStorage.removeItem('token');
+    this.storageService.clear();
   }
 
   ngOnDestroy(): void {

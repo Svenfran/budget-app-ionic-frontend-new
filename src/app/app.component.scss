@@ -22,3 +22,22 @@
 .menu-header-title {
     margin-top: 16px;
 }
+
+.active {
+    --ion-text-color: var(--ion-color-primary);
+    ion-icon {
+        --ion-text-color-rgb: var(--ion-color-primary);
+    }
+}
+
+.active-parent {
+    font-weight: 700;
+}
+
+.sub-item {
+    padding-left: 20px;
+    font-size: small;
+    ion-icon {
+        font-size: 1.2rem;
+    }
+}

@@ -4,7 +4,7 @@ import { AuthResponseData, AuthService } from './auth.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingController, MenuController, ToastController } from '@ionic/angular';
-import { AlertService } from '../utils/alert.service';
+import { AlertService } from '../service/alert.service';
 
 @Component({
   selector: 'app-auth',

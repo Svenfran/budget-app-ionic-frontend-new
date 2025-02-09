@@ -7,11 +7,45 @@
           <div class="menu-header">
             <ion-label class="ion-text-wrap">Hallo {{ user?.name }}!</ion-label>
             <ion-text>Schön dich zu sehen 😊</ion-text>
-            <ion-text color="medium"></ion-text>
+            <ion-text class="ion-text-wrap" color="medium">Gruppe: {{ activeGroup.name }}</ion-text>
           </div>
         </ion-item>
       </ion-toolbar>
     </ion-header>
+    <ion-content>
+      <ion-list>
+        <ion-list-header>
+          <ion-label color="medium">GRUPPEN</ion-label>
+        </ion-list-header>
+        <ion-item button lines="none" (click)="isOpen = !isOpen" [class.active-parent]="isOpen" detail="false">
+          <ion-icon slot="start" name="chevron-up" *ngIf="!isOpen"></ion-icon>
+          <ion-icon slot="start" name="chevron-down" *ngIf="isOpen"></ion-icon>
+          <ion-label>Meine Gruppen ({{ sideNavGroups().length }})</ion-label>
+        </ion-item>
+        <ion-list *ngIf="isOpen">
+          <ion-item *ngIf="sideNavGroups().length <= 0" class="sub-item" lines="none">
+            <p>Keine Gruppen gefunden.</p>
+          </ion-item>
+          <ion-menu-toggle>
+            <ion-item *ngFor="let group of sideNavGroups()"
+                      class="sub-item"
+                      (click)="setActiveGroup(group)"
+                      [class.active]="group.id === activeGroup.id"
+                      lines="none" 
+                      button>
+              <ion-icon name="folder-outline" slot="start"></ion-icon>
+              <ion-label class="ion-text-wrap">{{ group.name }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        </ion-list>
+        <ion-menu-toggle menu="m1">
+          <ion-item lines="none" (click)="onCreateGroup()" button>
+            <ion-icon name="add" slot="start"></ion-icon>
+            <ion-label>Gruppe hinzufügen</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      </ion-list>
+    </ion-content>
 
     <ion-footer class="ion-no-border">
       <ion-menu-toggle>
