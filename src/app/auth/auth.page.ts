@@ -57,6 +57,9 @@ export class AuthPage implements OnInit {
   }
 
   authenticate(userName: string, userEmail: string, password: string) {
+    const USER_NAME = userName.trim();
+    const USER_EMAIL = userEmail.trim();
+    
     this.isLoading = true;
     this.loadingCtrl
     .create({ keyboardClose: true, message: 'Anmelden...' })
@@ -64,9 +67,9 @@ export class AuthPage implements OnInit {
       loadingEl.present();
       let authObs: Observable<AuthResponseData>;
       if (this.isLogin) {
-        authObs = this.authService.login(userEmail, password);
+        authObs = this.authService.login(USER_EMAIL, password);
       } else {
-        authObs = this.authService.register(userName, userEmail, password);
+        authObs = this.authService.register(USER_NAME, USER_EMAIL, password);
       }
       authObs.subscribe(resData => {
         // console.log(resData);
@@ -84,9 +87,9 @@ export class AuthPage implements OnInit {
         if (errRes.status === 0) {
           loadingEl.dismiss();
           this.alertService.showAlertSeverUnavailable();
-        } else if (errRes.status !== 403 && errRes.error.includes(userEmail)) {
+        } else if (errRes.status !== 403 && errRes.error.includes(USER_EMAIL)) {
           message = 'Ein Benutzer mit dieser Email-Adresse existiert bereits.';
-        } else if (errRes.status !== 403 && errRes.error.includes(userName)) {
+        } else if (errRes.status !== 403 && errRes.error.includes(USER_NAME)) {
           message = 'Ein Benutzer mit diesem Benutzernamen existiert bereits.';
         }
         loadingEl.dismiss();

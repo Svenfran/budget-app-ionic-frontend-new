@@ -30,7 +30,7 @@ export class WebSocketService {
     this.socketClient = new Client({
       webSocketFactory: () => new SockJS(`${environment.apiBaseUrl}/ws`),
       connectHeaders: { Authorization: token },
-      debug: (str) => console.log(str),
+      debug: (str) => str.includes("Authorization") ? console.log(">>> AUTHENTICATION") : console.log(str),
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,

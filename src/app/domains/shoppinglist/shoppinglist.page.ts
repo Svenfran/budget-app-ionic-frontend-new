@@ -1,11 +1,11 @@
 import { Component, effect, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { ShoppinglistService } from './shoppinglist.service';
-import { AddEditShoppinglistDto } from './add-edit-shoppinglist-dto';
+import { ShoppinglistService } from './service/shoppinglist.service';
+import { AddEditShoppinglistDto } from './model/add-edit-shoppinglist-dto';
 import { AlertService } from 'src/app/service/alert.service';
 import { AlertController, IonInput, IonItemSliding, LoadingController } from '@ionic/angular';
-import { ShoppinglistDto } from './shoppinglist-dto';
-import { AddEditShoppingItemDto } from './add-edit-shopping-item-dto';
-import { ShoppingitemDto } from './shoppingitem-dto';
+import { ShoppinglistDto } from './model/shoppinglist-dto';
+import { AddEditShoppingItemDto } from './model/add-edit-shopping-item-dto';
+import { ShoppingitemDto } from './model/shoppingitem-dto';
 import { Subscription } from 'rxjs';
 import { WebSocketService } from 'src/app/service/websocket.service';
 import { AuthService } from 'src/app/auth/auth.service';
@@ -39,7 +39,7 @@ export class ShoppinglistPage implements OnInit {
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
       if (this.activeGroup) {
-        this.shoppinglistService.getShoppingListsWithItems(this.activeGroup.id);
+        this.shoppinglistService.getShoppingListsWithItems(this.activeGroup);
       }
     });
   }
@@ -51,7 +51,6 @@ export class ShoppinglistPage implements OnInit {
           this.authService.user.subscribe(user => {
             if (user) {
               this.subscribeToTopics(user.id);
-              this.shoppinglistService.getShoppingListsWithItems(this.activeGroup.id);
             }
           });
         }
@@ -62,6 +61,13 @@ export class ShoppinglistPage implements OnInit {
 
   ngOnDestroy() {
     this.webSocketService.unsubscribeAll();
+  }
+
+  refreshShoppingList(event: CustomEvent) {
+    setTimeout(() => {
+      this.shoppinglistService.getShoppingListsWithItems(this.activeGroup);
+      (event.target as HTMLIonRefresherElement).complete();
+    }, 2000);
   }
 
   onCreateList() {
@@ -256,7 +262,7 @@ export class ShoppinglistPage implements OnInit {
           shoppingItems: []
         } 
         console.log(parsedData);
-        this.shoppingLists().push(shoppinglistDto);
+        this.shoppingLists.update(lists => [...lists, shoppinglistDto])
       }
     )
 
@@ -265,10 +271,9 @@ export class ShoppinglistPage implements OnInit {
       (message: any) => {
         const parsedData = JSON.parse(message.body);
         console.log(parsedData);
-        const updatedList = this.shoppingLists().map(item => 
-          item.id === parsedData.id ? {...item, name: parsedData.name} : item
-        );
-        this.shoppingLists.set(updatedList);
+        this.shoppingLists.update(lists => lists.map(list => 
+          list.id === parsedData.id ? {...list, name: parsedData.name} : list
+        ))
       }
     )
 
@@ -277,8 +282,9 @@ export class ShoppinglistPage implements OnInit {
       (message: any) => {
         const parsedData = JSON.parse(message.body);
         console.log(parsedData);
-        const updatedList = this.shoppingLists().filter(item => item.id !== parsedData.id);
-        this.shoppingLists.set(updatedList);
+        this.shoppingLists.update(lists => lists.filter(list =>
+          list.id !== parsedData.id
+        ))
       }
     )
 
@@ -293,17 +299,16 @@ export class ShoppinglistPage implements OnInit {
           completed: parsedData.completed
         }
 
-        const updatedList = this.shoppingLists().map(list => {
-          if (list.id === parsedData.shoppingListId) {
-            return {
-              ...list,  // Erstellt eine neue Kopie der Shoppingliste
-              shoppingItems: [...list.shoppingItems, newItem] // Fügt das neue Item hinzu
-            };
-          }
-          return list; // Unveränderte Listen zurückgeben
-        });
-
-        this.shoppingLists.set(updatedList);
+        this.shoppingLists.update(lists => 
+          lists.map(list => 
+            list.id === parsedData.shoppingListId 
+              ? { 
+                  ...list, 
+                  shoppingItems: [...list.shoppingItems, newItem] 
+                } 
+              : list
+          )
+        );
       }
     )
 
@@ -317,18 +322,19 @@ export class ShoppinglistPage implements OnInit {
           name: parsedData.name,
           completed: parsedData.completed
         }
-        const updatedList = this.shoppingLists().map(list => {
-          if (list.shoppingItems.some(item => item.id === updatedItem.id)) {
-            return {
-              ...list,
-              shoppingItems: list.shoppingItems.map(item =>
-                item.id === updatedItem.id ? updatedItem : item
-              )
-            };
-          }
-          return list;
-        });
-        this.shoppingLists.set(updatedList);
+
+        this.shoppingLists.update(lists => 
+          lists.map(list => 
+            list.shoppingItems.some(item => item.id === updatedItem.id)
+              ? {
+                  ...list,
+                  shoppingItems: list.shoppingItems.map(item =>
+                    item.id === updatedItem.id ? updatedItem : item
+                  )
+                }
+              : list
+          )
+        )
       }
     )
 
@@ -337,16 +343,16 @@ export class ShoppinglistPage implements OnInit {
       (message: any) => {
         const parsedData = JSON.parse(message.body);
         console.log(parsedData);
-        const updatedList = this.shoppingLists().map(list => {
-          if (list.id === parsedData.shoppingListId) {
-            return {
-              ...list,
-              shoppingItems: list.shoppingItems.filter(item => item.id !== parsedData.id)
-            };
-          }
-          return list;
-        });
-        this.shoppingLists.set(updatedList);
+        this.shoppingLists.update(lists => 
+          lists.map(list => 
+            list.id === parsedData.shoppingListId
+              ? {
+                ...list,
+                shoppingItems: list.shoppingItems.filter(item => item.id !== parsedData.id)
+                }
+              : list
+          )
+        )
       }
     )
   }

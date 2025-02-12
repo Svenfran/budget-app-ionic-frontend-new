@@ -1,10 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { AddEditShoppinglistDto } from './add-edit-shoppinglist-dto';
-import { ShoppinglistDto } from './shoppinglist-dto';
-import { AddEditShoppingItemDto } from './add-edit-shopping-item-dto';
-import { ShoppingitemDto } from './shoppingitem-dto';
+import { AddEditShoppinglistDto } from '../model/add-edit-shoppinglist-dto';
+import { ShoppinglistDto } from '../model/shoppinglist-dto';
+import { AddEditShoppingItemDto } from '../model/add-edit-shopping-item-dto';
+import { ShoppingitemDto } from '../model/shoppingitem-dto';
+import { GROUP } from 'src/app/constants/default-values';
+import { Group } from 'src/app/model/group';
 
 @Injectable({
   providedIn: 'root'
@@ -29,10 +31,13 @@ export class ShoppinglistService {
     return this.shoppingLists;
   }
 
-  getShoppingListsWithItems(groupId: number, requestTimeStamp: number = this.INITIAL_REQUEST_TIMESTAMP): void{
+  getShoppingListsWithItems(group: Group, requestTimeStamp: number = this.INITIAL_REQUEST_TIMESTAMP): void{
+    if (group.flag?.includes(GROUP.DEFAULT)) {
+      return;
+    }
     const requestParam = `?requestTimeStamp=${requestTimeStamp}`;
     this.http
-      .get<ShoppinglistDto[]>(`${this.shoppingListsWithItemsUrl}/${groupId}${requestParam}`)
+      .get<ShoppinglistDto[]>(`${this.shoppingListsWithItemsUrl}/${group.id}${requestParam}`)
       .subscribe({
         next: (result) => {
           this.shoppingLists.set(result || []);
@@ -55,7 +60,7 @@ export class ShoppinglistService {
               name: result.name,
               shoppingItems: []
           }
-          this.shoppingLists().push(newList);
+          this.shoppingLists.update(items => [...items, newList]);
         },
         error: (err) => {
           console.error('Error adding shopping list:', err);
@@ -70,10 +75,9 @@ export class ShoppinglistService {
       .put<AddEditShoppinglistDto>(this.updateShoppingListUrl, updateShoppingList)
       .subscribe({
         next: (result) => {
-          const updatedList = this.shoppingLists().map(list => 
+          this.shoppingLists.update(items => items.map(list => 
             list.id === result.id ? {...list, name: result.name} : list
-          );
-          this.shoppingLists.set(updatedList);
+          ))
         },
         error: (err) => {
           console.error("Error updating shopping list:", err);
@@ -88,10 +92,9 @@ export class ShoppinglistService {
       .post<void>(this.deleteShoppingListUrl, deleteShoppingList)
       .subscribe({
         next: () => {
-          const updatedShoppingLists = this.shoppingLists().filter((list) => 
+          this.shoppingLists.update(items => items.filter(list => 
             list.id !== deleteShoppingList.id
-          )
-          this.shoppingLists.set(updatedShoppingLists);
+          ))
         },
         error: (err) => {
           console.error('Error deleting shopping list:', err);
@@ -114,16 +117,17 @@ export class ShoppinglistService {
             completed: result.completed
           }
 
-          const updatedList = this.shoppingLists().map(list => {
-            if (list.id === result.shoppingListId) {
-              return {
-                ...list,  // Erstellt eine neue Kopie der Shoppingliste
-                shoppingItems: [...list.shoppingItems, newItem] // Fügt das neue Item hinzu
-              };
-            }
-            return list; // Unveränderte Listen zurückgeben
-          });
-          this.shoppingLists.set(updatedList);
+          this.shoppingLists.update(lists => 
+            lists.map(list => 
+              list.id === result.shoppingListId 
+                ? { 
+                    ...list, 
+                    shoppingItems: [...list.shoppingItems, newItem] 
+                  } 
+                : list
+            )
+          );
+
         },
         error: (err) => {
           console.error("Error adding shopping item:", err);
@@ -143,19 +147,19 @@ export class ShoppinglistService {
               name: result.name,
               completed: result.completed
             }
-            const updatedList = this.shoppingLists().map(list => {
-              // Finden der Liste, zu der das Item gehört
-              if (list.shoppingItems.some(item => item.id === updatedItem.id)) {
-                return {
-                  ...list,
-                  shoppingItems: list.shoppingItems.map(item =>
-                    item.id === updatedItem.id ? updatedItem : item
-                  )
-                };
-              }
-              return list;
-            });
-            this.shoppingLists.set(updatedList);
+
+            this.shoppingLists.update(lists => 
+              lists.map(list => 
+                list.shoppingItems.some(item => item.id === updatedItem.id)
+                  ? {
+                      ...list,
+                      shoppingItems: list.shoppingItems.map(item =>
+                        item.id === updatedItem.id ? updatedItem : item
+                      )
+                    }
+                  : list
+              )
+            )
           },
           error: (err) => {
             console.error("Error updating shopping item:", err);
@@ -170,16 +174,16 @@ export class ShoppinglistService {
         .post<void>(this.deleteItemToShoppingListUrl, deleteShoppingItem)
         .subscribe({
           next: () => {
-            const updatedList = this.shoppingLists().map(list => {
-              if (list.id === deleteShoppingItem.shoppingListId) {
-                return {
-                  ...list,
-                  shoppingItems: list.shoppingItems.filter(item => item.id !== deleteShoppingItem.id)
-                };
-              }
-              return list;
-            });
-            this.shoppingLists.set(updatedList);
+            this.shoppingLists.update(lists => 
+              lists.map(list => 
+                list.id === deleteShoppingItem.shoppingListId
+                  ? {
+                    ...list,
+                    shoppingItems: list.shoppingItems.filter(item => item.id !== deleteShoppingItem.id)
+                    }
+                  : list
+              )
+            )
           },
           error: (err) => {
             console.error("Error deleting shopping item:", err);
