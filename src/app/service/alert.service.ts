@@ -65,7 +65,7 @@ export class AlertService {
     return loading;
   }
 
-  showAlert(header: string, message: string) {
+  showErrorAlert(header: string, message: string) {
     this.alertController
       .create({
         header: header,

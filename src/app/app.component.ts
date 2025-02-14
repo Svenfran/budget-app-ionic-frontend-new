@@ -18,7 +18,7 @@ export class AppComponent {
   private authSub!: Subscription;
   private previousAuthState: boolean = false;
   public shoppingLists: Group[] = [];
-  public sideNavGroups = this.groupService.getSideNavGroups();
+  public sideNavGroups = this.groupService.groupsSideNav;
   public user: User | undefined;
   public isOpen: boolean = false;
   public activeGroup = this.groupService.activeGroup();

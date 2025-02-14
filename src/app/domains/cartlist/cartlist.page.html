@@ -41,12 +41,12 @@
 <ion-list-header color="dark">
   <ion-label>
     <div class="total">
-      <ion-text>{{ filterTerm == "" ? "Gesamt" : (filterTerm.length > 12 ? (filterTerm | slice:0:12) + '...' : (filterTerm))  }} ({{ count }})</ion-text>
+      <ion-text>{{ filterTerm() == "" ? "Gesamt" : (filterTerm().length > 12 ? (filterTerm() | slice:0:12) + '...' : (filterTerm()))  }} ({{ count() }})</ion-text>
         <ion-chip color="primary" *ngIf="filterMode">
-          <!-- <ion-label (click)="filterModal()">filter</ion-label> -->
-          <!-- <ion-icon name="close" (click)="deleteFilter(activeGroup.id)"></ion-icon> -->
+          <ion-label>filter</ion-label>
+          <ion-icon name="close" (click)="deleteFilter(activeGroup)"></ion-icon>
         </ion-chip>
-      <ion-text>{{ sum | scientificCurrency }}</ion-text>
+      <ion-text>{{ sum() | scientificCurrency }}</ion-text>
     </div>
   </ion-label>
 </ion-list-header>
@@ -73,7 +73,7 @@
           <ion-list *ngIf="!isLoading && cartList().length > 0">
             <ion-item-sliding *cdkVirtualFor="let cart of cartList(), let i = index" #slidingItem>
               <ion-item>
-                <ion-avatar slot="start">
+                <ion-avatar slot="start" (click)="onFilter('category', cart.categoryDto.name)">
                   <div class="category-circle">
                     <p *ngIf="cart.categoryDto.name !== 'Ausgleichszahlung'">{{ cart.categoryDto.name.substring(0, 2) | uppercase }}</p>
                     <ion-icon *ngIf="cart.categoryDto.name === 'Ausgleichszahlung'" name="repeat-outline" color="medium"></ion-icon>
@@ -86,8 +86,8 @@
                   </div>
                   <p *ngIf="isDescriptionVisible(i)" class="ion-text-wrap">{{cart.description}}</p>
                   <div class="cart-details">
-                    <ion-text *ngIf="cart.userDto.userName !== user?.name" color="medium" >{{ cart.userDto.userName }}</ion-text>
-                    <ion-text *ngIf="cart.userDto.userName === user?.name" color="primary" ><strong>{{ cart.userDto.userName }}</strong></ion-text>
+                    <ion-text *ngIf="cart.userDto.userName !== user?.name" (click)="onFilter('user', cart.userDto.userName)" color="medium" >{{ cart.userDto.userName }}</ion-text>
+                    <ion-text *ngIf="cart.userDto.userName === user?.name" (click)="onFilter('user', cart.userDto.userName)" color="primary" ><strong>{{ cart.userDto.userName }}</strong></ion-text>
                     <div class="cart-name-date">
                       <ion-text color="medium">{{ cart.datePurchased | date: "dd.MM.yyyy" }}</ion-text>
                     </div>

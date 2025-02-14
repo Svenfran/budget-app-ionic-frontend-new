@@ -3,7 +3,7 @@ import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Group } from '../model/group';
 import { StorageService } from './storage.service';
-import { GROUP, Init } from '../constants/default-values';
+import { Init } from '../constants/default-values';
 import { Zeitraum } from '../domains/cartlist/new-edit-cart/model/gmh-zeitraum';
 
 @Injectable({
@@ -15,22 +15,14 @@ export class GroupService {
   private addGroupUrl = `${this.apiBaseUrl}/api/groups/add`;
   private gmhUrl = `${this.apiBaseUrl}/api/groups/history-by-group-and-user`;
 
-  private groupsSideNav: WritableSignal<Group[]> = signal<Group[]>([]);
+  public groupsSideNav: WritableSignal<Group[]> = signal<Group[]>([]);
   public activeGroup: WritableSignal<Group> = signal<Group>(Init.DEFAULT_GROUP)
-  private groupMembershipHistory: WritableSignal<Zeitraum[]> = signal<Zeitraum[]>([]);
+  public groupMembershipHistory: WritableSignal<Zeitraum[]> = signal<Zeitraum[]>([]);
 
   constructor(
     private http: HttpClient,
     private storageService: StorageService
   ) { }
-
-  public getSideNavGroups() {
-    return this.groupsSideNav;
-  }
-
-  public getGroupMembershipHistory() {
-    return this.groupMembershipHistory;
-  }
 
   public setActiveGroup(group: Group) {
     const activeGroup: Group = {

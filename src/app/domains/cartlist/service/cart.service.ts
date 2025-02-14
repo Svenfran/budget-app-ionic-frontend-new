@@ -4,26 +4,27 @@ import { environment } from 'src/environments/environment';
 import { Cart } from '../model/cart';
 import { Group } from 'src/app/model/group';
 import { GROUP } from 'src/app/constants/default-values';
+import { AlertService } from 'src/app/service/alert.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
 
-  private cartList: WritableSignal<Cart[]> = signal<Cart[]>([])
-  public sum = computed(() => this.cartList().reduce((s, c) => s + (+c.amount), 0));
-  public count = computed(() => this.cartList().length);
   private apiBaseUrl = environment.apiBaseUrl;
   private cartlistUrl = `${this.apiBaseUrl}/api/carts/carts-by-groupid`;
   private deleteCartUrl = `${this.apiBaseUrl}/api/carts/delete`;
   private addCartUrl = `${this.apiBaseUrl}/api/carts/add`;
   private updateCartUrl = `${this.apiBaseUrl}/api/carts/update`;
-
-  constructor(private http: HttpClient) { }
-
-  public getCartList() {
-    return this.cartList;
-  }
+  
+  public cartList: WritableSignal<Cart[]> = signal<Cart[]>([]);
+  public sum = computed(() => this.cartList().reduce((s, c) => s + (+c.amount), 0));
+  public count = computed(() => this.cartList().length);
+  
+  constructor(
+    private http: HttpClient, 
+    private alertService: AlertService
+  ) {}
 
   getCartListByGroupId(group: Group): void {
     if (group.flag?.includes(GROUP.DEFAULT)) {
@@ -68,6 +69,11 @@ export class CartService {
         error: (err) => {
           console.error('Error adding cart:', err);
           this.cartList.set(currentCartList);
+          if (err.error.includes('not within membership period')) {
+            const header = "Datum nicht im Zeitraum der Mitgliedschaft";
+            const message = "Du warst zu dem gewählten Zeitpunkt kein Mitglied der Gruppe. Bitte wähle ein anderes Datum."
+            this.alertService.showErrorAlert(header, message);
+          }
         }
       })
   }
@@ -97,6 +103,11 @@ export class CartService {
         error: (err) => {
           console.error('Error updating cart:', err);
           this.cartList.set(currentCartList);
+          if (err.error.includes('not within membership period')) {
+            const header = "Datum nicht im Zeitraum der Mitgliedschaft";
+            const message = "Du warst zu dem gewählten Zeitpunkt kein Mitglied der Gruppe. Bitte wähle ein anderes Datum."
+            this.alertService.showErrorAlert(header, message);
+          }
         }
       })
   }
@@ -109,7 +120,7 @@ export class CartService {
         next: () => {
           this.cartList.update(carts => carts.filter(cart => 
             cart.id !== cartId
-          ))
+          ));
         },
         error: (err) => {
           console.error('Error deleting cart:', err);

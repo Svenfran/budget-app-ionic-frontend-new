@@ -10,6 +10,7 @@ import { User } from 'src/app/auth/user';
 import { AuthService } from 'src/app/auth/auth.service';
 import * as moment from 'moment';
 import { CategoryDto } from 'src/app/model/category-dto';
+import { AlertService } from 'src/app/service/alert.service';
 
 
 @Component({
@@ -31,10 +32,10 @@ export class NewEditCartPage implements OnInit {
   public maxDate = "";
   public today = new Date();
   public user!: User;
-  public categories = this.categoryService.getCategories();
+  public categories = this.categoryService.categories;
   public activeGroup = this.groupService.activeGroup();
-  public cartList = this.cartService.getCartList();
-  public zeitraeume = this.groupService.getGroupMembershipHistory();
+  public cartList = this.cartService.cartList;
+  public zeitraeume = this.groupService.groupMembershipHistory;
 
   constructor(
     private route: ActivatedRoute,
@@ -45,7 +46,6 @@ export class NewEditCartPage implements OnInit {
     private authService: AuthService,
     private menuCtrl: MenuController,
     private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController,
     private router: Router
   ) {
     effect(() => {
@@ -205,7 +205,7 @@ export class NewEditCartPage implements OnInit {
     if (Array.isArray(value)) {
       value = value[0];
     }
-    
+
     if (value) {
       this.formattedString = moment(value).format('DD.MM.YYYY');
       this.dateValue = moment(value).startOf('day').format('YYYY-MM-DD') + 'T00:00:00';

@@ -93,7 +93,7 @@ export class AuthPage implements OnInit {
           message = 'Ein Benutzer mit diesem Benutzernamen existiert bereits.';
         }
         loadingEl.dismiss();
-        this.alertService.showAlert(header, message);
+        this.alertService.showErrorAlert(header, message);
       });
     });
   }

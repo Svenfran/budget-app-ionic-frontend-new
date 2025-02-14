@@ -1,4 +1,4 @@
-import { Component, effect, OnInit } from '@angular/core';
+import { Component, effect, OnInit, signal, untracked } from '@angular/core';
 import { CartService } from './service/cart.service';
 import { GroupService } from 'src/app/service/group.service';
 import { User } from 'src/app/auth/user';
@@ -6,6 +6,7 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { AlertController, IonItemSliding, LoadingController } from '@ionic/angular';
 import { Cart } from './model/cart';
 import { Router } from '@angular/router';
+import { Group } from 'src/app/model/group';
 
 @Component({
   selector: 'app-cartlist',
@@ -15,14 +16,14 @@ import { Router } from '@angular/router';
 })
 export class CartlistPage implements OnInit {
 
-  public cartList = this.cartService.getCartList();
+  public cartList = this.cartService.cartList;
   public activeGroup = this.groupService.activeGroup();
-  public sum = this.cartService.sum();
-  public count =  this.cartService.count();
+  public filterTerm = signal<string>('');
+  public sum = this.cartService.sum;
+  public count = this.cartService.count;
+  public filterMode: boolean = false;
   public isLoading: boolean = true;
   public user: User | undefined;
-  public filterTerm: string = "";
-  public filterMode = false;
   public visibleItems: Set<number> = new Set<number>();
   public hidden: boolean = true;
 
@@ -38,12 +39,10 @@ export class CartlistPage implements OnInit {
       this.activeGroup = this.groupService.activeGroup();
       if (this.activeGroup) {
         this.cartService.getCartListByGroupId(this.activeGroup);
-        this.sum = this.cartService.sum();
-        this.count = this.cartService.count();
         this.isLoading = false;
       }
     });
-
+  
   }
 
   ngOnInit() {
@@ -57,6 +56,8 @@ export class CartlistPage implements OnInit {
   refreshCartList(event: CustomEvent) {
     setTimeout(() => {
       this.cartService.getCartListByGroupId(this.activeGroup);
+      this.filterMode = false;
+      this.filterTerm.set("");
       (event.target as HTMLIonRefresherElement).complete();
     }, 2000);
   }
@@ -100,4 +101,21 @@ export class CartlistPage implements OnInit {
     this.router.navigate(['domains', 'tabs', 'cartlist', 'new-edit', cart.id?.toString()]);
   }
 
+
+  onFilter(action: string, filterTerm: string) {
+    this.filterMode = !this.filterMode;
+    if (this.filterMode) {
+      this.cartList.update(carts => carts.filter(cart => 
+        action === "user" ? cart.userDto.userName === filterTerm : cart.categoryDto.name === filterTerm))
+      this.filterTerm.set(filterTerm);
+    } else {
+      this.cartService.getCartListByGroupId(this.activeGroup);
+      this.filterTerm.set("");
+    }
+  }
+
+  deleteFilter(group: Group) {
+    this.cartService.getCartListByGroupId(group);
+    this.filterMode = false;
+  }
 }

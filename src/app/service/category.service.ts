@@ -1,4 +1,4 @@
-import { effect, Injectable, signal, WritableSignal } from '@angular/core';
+import { Injectable, signal, WritableSignal } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { CategoryDto } from '../model/category-dto';
 import { HttpClient } from '@angular/common/http';
@@ -9,15 +9,11 @@ import { Group } from '../model/group';
 })
 export class CategoryService {
 
-  private categories: WritableSignal<CategoryDto[]> = signal<CategoryDto[]>([]);
+  public categories: WritableSignal<CategoryDto[]> = signal<CategoryDto[]>([]);
   private apiBaseUrl = environment.apiBaseUrl;
   private getCategoriesUrl = `${this.apiBaseUrl}/api/groups/categories`;
 
   constructor(private http: HttpClient) {}
-
-  public getCategories() {
-    return this.categories;
-  }
 
   getCategoriesByGroup(group: Group): void {
     this.http
