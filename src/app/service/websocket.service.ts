@@ -28,7 +28,9 @@ export class WebSocketService {
     }
 
     this.socketClient = new Client({
-      webSocketFactory: () => new SockJS(`${environment.apiBaseUrl}/ws`),
+      webSocketFactory: () => new SockJS(`${environment.apiBaseUrl}/ws`, {
+        transports: ["websocket"],
+      }),
       connectHeaders: { Authorization: token },
       debug: (str) => str.includes("Authorization") ? console.log(">>> AUTHENTICATION") : console.log(str),
       reconnectDelay: 5000,

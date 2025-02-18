@@ -1,4 +1,4 @@
-import { Component, effect, OnInit, signal, untracked } from '@angular/core';
+import { Component, effect, OnInit, signal } from '@angular/core';
 import { CartService } from './service/cart.service';
 import { GroupService } from 'src/app/service/group.service';
 import { User } from 'src/app/auth/user';
@@ -6,7 +6,6 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { AlertController, IonItemSliding, LoadingController } from '@ionic/angular';
 import { Cart } from './model/cart';
 import { Router } from '@angular/router';
-import { Group } from 'src/app/model/group';
 
 @Component({
   selector: 'app-cartlist',
@@ -19,9 +18,9 @@ export class CartlistPage implements OnInit {
   public cartList = this.cartService.cartList;
   public activeGroup = this.groupService.activeGroup();
   public filterTerm = signal<string>('');
+  public filterMode = signal<boolean>(false);
   public sum = this.cartService.sum;
   public count = this.cartService.count;
-  public filterMode: boolean = false;
   public isLoading: boolean = true;
   public user: User | undefined;
   public visibleItems: Set<number> = new Set<number>();
@@ -56,7 +55,7 @@ export class CartlistPage implements OnInit {
   refreshCartList(event: CustomEvent) {
     setTimeout(() => {
       this.cartService.getCartListByGroupId(this.activeGroup);
-      this.filterMode = false;
+      this.filterMode.set(false);
       this.filterTerm.set("");
       (event.target as HTMLIonRefresherElement).complete();
     }, 2000);
@@ -103,19 +102,21 @@ export class CartlistPage implements OnInit {
 
 
   onFilter(action: string, filterTerm: string) {
-    this.filterMode = !this.filterMode;
-    if (this.filterMode) {
+    if (!this.filterMode()) {
+      this.filterMode.set(true);
       this.cartList.update(carts => carts.filter(cart => 
         action === "user" ? cart.userDto.userName === filterTerm : cart.categoryDto.name === filterTerm))
       this.filterTerm.set(filterTerm);
     } else {
       this.cartService.getCartListByGroupId(this.activeGroup);
+      this.filterMode.set(false);
       this.filterTerm.set("");
     }
   }
 
-  deleteFilter(group: Group) {
-    this.cartService.getCartListByGroupId(group);
-    this.filterMode = false;
+  deleteFilter() {
+    this.cartService.getCartListByGroupId(this.activeGroup);
+    this.filterMode.set(false);
+    this.filterTerm.set("");
   }
 }

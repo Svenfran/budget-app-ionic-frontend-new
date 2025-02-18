@@ -42,9 +42,9 @@
   <ion-label>
     <div class="total">
       <ion-text>{{ filterTerm() == "" ? "Gesamt" : (filterTerm().length > 12 ? (filterTerm() | slice:0:12) + '...' : (filterTerm()))  }} ({{ count() }})</ion-text>
-        <ion-chip color="primary" *ngIf="filterMode">
+        <ion-chip color="primary" *ngIf="filterMode()">
           <ion-label>filter</ion-label>
-          <ion-icon name="close" (click)="deleteFilter(activeGroup)"></ion-icon>
+          <ion-icon name="close" (click)="deleteFilter()"></ion-icon>
         </ion-chip>
       <ion-text>{{ sum() | scientificCurrency }}</ion-text>
     </div>
