@@ -29,6 +29,7 @@
     "@capacitor/keyboard": "7.0.0",
     "@capacitor/preferences": "^7.0.0",
     "@capacitor/status-bar": "7.0.0",
+    "@hugotomazi/capacitor-navigation-bar": "4.0.1",
     "@ionic/angular": "^8.0.0",
     "@stomp/stompjs": "^7.0.0",
     "@types/moment": "^2.11.29",

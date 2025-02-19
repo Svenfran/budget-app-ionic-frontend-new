@@ -38,7 +38,7 @@
 </ion-header>
 
 
-<ion-list-header color="dark">
+<ion-list-header color="light">
   <ion-label>
     <div class="total">
       <ion-text>{{ filterTerm() == "" ? "Gesamt" : (filterTerm().length > 12 ? (filterTerm() | slice:0:12) + '...' : (filterTerm()))  }} ({{ count() }})</ion-text>

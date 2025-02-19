@@ -69,7 +69,8 @@ export class AuthService implements OnDestroy {
     this.userLogout().subscribe();
     this._user.next(null!);
     localStorage.removeItem('token');
-    this.storageService.clear();
+    this.storageService.removeData('authData');
+    this.storageService.removeData('ACTIVE_GROUP');
   }
 
   ngOnDestroy(): void {
