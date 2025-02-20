@@ -20,11 +20,17 @@ export class CartService {
   public cartList: WritableSignal<Cart[]> = signal<Cart[]>([]);
   public sum = computed(() => this.cartList().reduce((s, c) => s + (+c.amount), 0));
   public count = computed(() => this.cartList().length);
+
+  public cartUpdated = signal(0);
   
   constructor(
     private http: HttpClient, 
     private alertService: AlertService
   ) {}
+
+  triggerUpdate() {
+    this.cartUpdated.set(this.cartUpdated() + 1)
+  }
 
   getCartListByGroupId(group: Group): void {
     if (group.flag?.includes(GROUP.DEFAULT)) {
@@ -65,6 +71,7 @@ export class CartService {
             return updatedCarts.sort((a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime());
           });
 
+          this.triggerUpdate();
         },
         error: (err) => {
           console.error('Error adding cart:', err);
@@ -99,6 +106,8 @@ export class CartService {
             const updatedCarts = carts.map(c => (c.id === result.id ? { ...c, ...updatedCart } : c));
             return updatedCarts.sort((a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime());
           });
+
+          this.triggerUpdate();
         },
         error: (err) => {
           console.error('Error updating cart:', err);
@@ -121,6 +130,8 @@ export class CartService {
           this.cartList.update(carts => carts.filter(cart => 
             cart.id !== cartId
           ));
+
+          this.triggerUpdate();
         },
         error: (err) => {
           console.error('Error deleting cart:', err);

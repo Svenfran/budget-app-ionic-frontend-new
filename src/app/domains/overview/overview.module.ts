@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { OverviewPageRoutingModule } from './overview-routing.module';
 
 import { OverviewPage } from './overview.page';
+import { ScientificCurrencyPipe } from 'src/app/pipe/scientific.pipe';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    OverviewPageRoutingModule
+    OverviewPageRoutingModule,
+    ScientificCurrencyPipe
   ],
   declarations: [OverviewPage]
 })
