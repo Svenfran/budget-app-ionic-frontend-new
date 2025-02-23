@@ -2,6 +2,8 @@ import { Component, effect, OnInit } from '@angular/core';
 import { GroupService } from 'src/app/service/group.service';
 import { OverviewService } from './service/overview.service';
 import { CartService } from '../cartlist/service/cart.service';
+import { User } from 'src/app/auth/user';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-overview',
@@ -27,11 +29,13 @@ export class OverviewPage implements OnInit {
   public isLoading: boolean = true;
   public currentYear = new Date().getFullYear();
   public hidden: boolean = true;
+  public user: User | undefined;
 
   constructor(
     private groupService: GroupService,
     private overviewService: OverviewService,
-    private cartService: CartService
+    private cartService: CartService,
+    private authService: AuthService
   ) { 
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
@@ -39,12 +43,17 @@ export class OverviewPage implements OnInit {
       if (this.activeGroup) {
         this.overviewService.getSpendingsOverview(this.currentYear, this.activeGroup);
         this.overviewService.getSpendingsOverviewYearly(this.activeGroup);
-        this.isLoading = false;
       }
-    })
+      this.isLoading = false;
+    });
   }
 
   ngOnInit() {
+    this.authService.user.subscribe(user => {
+      if (user) {
+        this.user = user;
+      }
+    })
   }
 
   getSpendingsOverview(year: number) {

@@ -38,8 +38,8 @@ export class CartlistPage implements OnInit {
       this.activeGroup = this.groupService.activeGroup();
       if (this.activeGroup) {
         this.cartService.getCartListByGroupId(this.activeGroup);
-        this.isLoading = false;
       }
+      this.isLoading = false;
     });
   
   }

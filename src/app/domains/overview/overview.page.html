@@ -6,7 +6,7 @@
     <ion-title>Übersicht</ion-title>
     <ion-buttons slot="primary">
       <ion-text class="ion-padding group-name" routerLink="/groupoverview"><small>{{ (activeGroup.name.length > 20)? (activeGroup.name | slice:0:20) + '...' : (activeGroup.name) }}</small></ion-text>
-      <ion-button id="popover-button" [class.hide]="availableYears().length <= 0">
+      <ion-button id="popover-button" [class.hide]="availableYears().length === 0">
         <ion-icon name="ellipsis-vertical"></ion-icon>
       </ion-button>
       <ion-popover trigger="popover-button" [dismissOnSelect]="true" side="bottom" alignment="start">
@@ -58,18 +58,16 @@
             <ion-label>
               <div class="spendings-details">
                 <div class="spendings-date">
-                  <ion-text *ngIf="segment == 'month' && spendingsPerMonth()?.length">
-                    {{ spendingsPerMonth()![spendingsPerMonth()!.length - 1].monthName }} - 
-                    {{ spendingsPerMonth()![0].monthName }}
+                  <ion-text class="month" *ngIf="segment == 'month' && spendingsPerMonth()?.length">
+                    {{ spendingsPerMonth()![spendingsPerMonth()!.length - 1].monthName }} - {{ spendingsPerMonth()![0].monthName }}
                   </ion-text>
                   
                   <ion-text *ngIf="segment == 'month'">
                     {{ year() }}
                   </ion-text>
                   
-                  <ion-text *ngIf="segment == 'year' && spendingsPerYear()?.length">
-                    {{ spendingsPerYear()![spendingsPerYear()!.length - 1].year }} - 
-                    {{ spendingsPerYear()![0].year }}
+                  <ion-text class="month" *ngIf="segment == 'year' && spendingsPerYear()?.length">
+                    {{ spendingsPerYear()![spendingsPerYear()!.length - 1].year }} - {{ spendingsPerYear()![0].year }}
                   </ion-text>
                 </div>
                             
@@ -77,7 +75,7 @@
                   <div [class.spendings-user-amount-single]="(segment === 'year' ? spendingsTotalYearYearly().spendingsTotalUser.length : spendingsTotalYearMonthly().spendingsTotalUser.length) <= 1" 
                        [class.spendings-user-amount]="(segment === 'year' ? spendingsTotalYearYearly().spendingsTotalUser.length : spendingsTotalYearMonthly().spendingsTotalUser.length) > 1">
                     <div class="space">
-                      <ion-text color="medium">
+                      <ion-text [attr.color]="userSpendings.userName === user?.name ? 'primary' : 'medium'">
                         {{ (userSpendings.userName.length > 8) ? (userSpendings.userName | slice:0:8) + '...' : userSpendings.userName }}
                       </ion-text>
                       <ion-text>
@@ -143,7 +141,7 @@
                       [class.spendings-user-amount]="spendingsTotalYearYearly().spendingsTotalUser.length > 1"
                     >
                       <div class="space">
-                        <ion-text color="medium">
+                        <ion-text [attr.color]="userSpendings.userName === user?.name ? 'primary' : 'medium'">
                           {{ (userSpendings.userName.length > 8) ? (userSpendings.userName | slice:0:8) + '...' : userSpendings.userName }}
                         </ion-text>
                         <ion-text>
@@ -196,7 +194,7 @@
                       [class.spendings-user-amount]="spendingsTotalYearMonthly().spendingsTotalUser.length > 1"
                     >
                       <div class="space">
-                        <ion-text color="medium">
+                        <ion-text [attr.color]="userSpendings.userName === user?.name ? 'primary' : 'medium'">
                           {{ (userSpendings.userName.length > 8) ? (userSpendings.userName | slice:0:8) + '...' : userSpendings.userName }}
                         </ion-text>
                         <ion-text>

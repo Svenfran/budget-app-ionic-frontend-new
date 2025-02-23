@@ -5,7 +5,6 @@ import { SpendingsOverviewDto } from '../model/spendings-overview-dto';
 import { SpendingsOverviewYearlyDto } from '../model/spendings-overview-yearly-dto';
 import { Group } from 'src/app/model/group';
 import { GROUP } from 'src/app/constants/default-values';
-import { SpendingsOverviewPerMonthDto } from '../model/spendings-overview-per-month-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -34,10 +33,14 @@ export class OverviewService {
     this.spendingsOverviewYearly()?.spendingsTotalYear ?? { spendingsTotalUser: [], sumTotalYear: 0 }
   );
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient
+  ) { }
+
 
   getSpendingsOverview(year: number, group: Group): void {
     if (group.flag?.includes(GROUP.DEFAULT)) {
+      this.spendingsOverview.set(null);
       return;
     };
 
@@ -56,6 +59,7 @@ export class OverviewService {
 
   getSpendingsOverviewYearly(group: Group): void {
     if (group.flag?.includes(GROUP.DEFAULT)) {
+      this.spendingsOverview.set(null);
       return;
     };
 

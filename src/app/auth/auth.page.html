@@ -14,8 +14,9 @@
               ></ion-input>
             </ion-item>
             <ion-item *ngIf="!isLogin && userName?.invalid && userName?.touched" lines="none">
-              <ion-label>
-                <small>Pflichtfeld!</small>
+              <ion-label color="danger">
+                <small *ngIf="userName?.errors?.['required']">Pflichtfeld!</small>
+                <small *ngIf="userName?.errors?.['minlength']">Mindestens 3 Zeichen erforderlich</small>
               </ion-label>
             </ion-item>
           </ion-list>

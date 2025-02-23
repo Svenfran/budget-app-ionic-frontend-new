@@ -51,14 +51,14 @@ export class AuthPage implements OnInit {
     if (this.isLogin) {
       this.form.controls['userName'].clearValidators();
     } else {
-      this.form.controls['userName'].setValidators([Validators.required]);
+      this.form.controls['userName'].setValidators([Validators.required, Validators.minLength(3)]);
     }
     this.form.controls['userName'].updateValueAndValidity();
   }
 
   authenticate(userName: string, userEmail: string, password: string) {
-    const USER_NAME = userName.trim();
     const USER_EMAIL = userEmail.trim();
+    const USER_NAME = userName ? userName.trim() : "";
     
     this.isLoading = true;
     this.loadingCtrl

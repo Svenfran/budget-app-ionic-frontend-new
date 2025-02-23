@@ -41,6 +41,7 @@ export class ShoppinglistPage implements OnInit {
       if (this.activeGroup) {
         this.shoppinglistService.getShoppingListsWithItems(this.activeGroup);
       }
+      this.isLoading = false;
     });
   }
 

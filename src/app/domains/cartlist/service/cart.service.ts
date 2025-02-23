@@ -34,8 +34,10 @@ export class CartService {
 
   getCartListByGroupId(group: Group): void {
     if (group.flag?.includes(GROUP.DEFAULT)) {
+      this.cartList.set([]);
       return;
-    }
+    };
+
     this.http
       .get<Cart[]>(`${this.cartlistUrl}/${group.id}`)
       .subscribe({

@@ -63,7 +63,7 @@
       <ion-col class="ion-text-center" size-md="6" offset-md="3" *ngIf="isLoading">
         <ion-spinner color="primary"></ion-spinner>
       </ion-col>
-      <ion-col class="ion-text-center" size-md="6" offset-md="3" *ngIf="!isLoading && (!cartList() || cartList().length <= 0)">
+      <ion-col class="ion-text-center" size-md="6" offset-md="3" *ngIf="!isLoading && cartList().length === 0">
         <p>Keine Ausgaben vorhanden!</p>
       </ion-col>
     </ion-row>

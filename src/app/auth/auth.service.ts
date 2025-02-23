@@ -5,6 +5,8 @@ import { map, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { StorageService } from '../service/storage.service';
 import { User } from './user';
+import { GroupService } from '../service/group.service';
+import { Init } from '../constants/default-values';
 
 export interface AuthResponseData {
   id: number,

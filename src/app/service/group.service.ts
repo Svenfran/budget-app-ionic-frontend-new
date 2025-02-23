@@ -22,7 +22,8 @@ export class GroupService {
   constructor(
     private http: HttpClient,
     private storageService: StorageService
-  ) { }
+  ) {
+  }
 
   public setActiveGroup(group: Group) {
     const activeGroup: Group = {
@@ -35,25 +36,33 @@ export class GroupService {
     this.activeGroup.set(activeGroup);
   }
 
+
+
   getGroupsForSideNav(): void {
     this.http
       .get<Group[]>(this.groupsSideNavUrl)
       .subscribe({
         next: async (result) => {
           this.groupsSideNav.set(result || []);
+          
           // Gruppe aus dem lokalen Speicher laden
           const activeGroup: Group = await this.storageService.getItem('ACTIVE_GROUP') as {id: number, name: string, dateCreated: Date, flag?: string};
-          // Keine active Gruppe im lokalen Speicher aber es sind Gruppen vorhanden => setActiveGroup(result[0])
-          if (!activeGroup && this.groupsSideNav().length > 0) {
-            this.setActiveGroup(result[0]);
+          const groups = this.groupsSideNav();
+          const hasGroups = groups.length > 0;
+
+          // Wenn es keine gespeicherte Gruppe gibt
+          if (!activeGroup) {
+            this.setActiveGroup(hasGroups ? result[0] : Init.DEFAULT_GROUP);
             return;
           }
-          // Keine active Gruppe im lokalen Speicher und es sind keine Gruppen vorhanden => setActiveGroup(Init.DEFAULT_GROUP)
-          if (!activeGroup && this.groupsSideNav().length <= 0) {
-            this.setActiveGroup(Init.DEFAULT_GROUP);
+          
+          // Wenn es Gruppen gibt und die gespeicherte Gruppe existiert in der Liste
+          if (hasGroups && groups.some(group => group.id === activeGroup.id)) {
+            this.setActiveGroup(activeGroup);
+          } else {
+            this.setActiveGroup(hasGroups ? result[0] : Init.DEFAULT_GROUP);
           }
-          // Es ist eine Gruppe lokal gespeichert => setActiveGroup(activeGroup)
-          this.setActiveGroup(activeGroup);
+
         },
         error: (err) => {
           console.error("Error fetching groups:", err);

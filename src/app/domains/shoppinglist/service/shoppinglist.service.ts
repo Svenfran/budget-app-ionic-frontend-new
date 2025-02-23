@@ -33,8 +33,10 @@ export class ShoppinglistService {
 
   getShoppingListsWithItems(group: Group, requestTimeStamp: number = this.INITIAL_REQUEST_TIMESTAMP): void{
     if (group.flag?.includes(GROUP.DEFAULT)) {
+      this.shoppingLists.set([]);
       return;
-    }
+    };
+
     const requestParam = `?requestTimeStamp=${requestTimeStamp}`;
     this.http
       .get<ShoppinglistDto[]>(`${this.shoppingListsWithItemsUrl}/${group.id}${requestParam}`)
