@@ -59,8 +59,8 @@ export class OverviewPage implements OnInit {
   getSpendingsOverview(year: number) {
     this.segment = 'month';
     this.isLoading = true;
-    this.overviewService.getSpendingsOverview(year, this.activeGroup);
-    this.overviewService.getSpendingsOverviewYearly(this.activeGroup);
+    this.overviewService.getSpendingsOverview(year, this.activeGroup, true);
+    this.overviewService.getSpendingsOverviewYearly(this.activeGroup, true);
     this.isLoading = false;
   }
 
@@ -74,8 +74,8 @@ export class OverviewPage implements OnInit {
 
   refreshSpendings(event: CustomEvent) {
     setTimeout(() => {
-      this.overviewService.getSpendingsOverview(this.currentYear, this.activeGroup);
-      this.overviewService.getSpendingsOverviewYearly(this.activeGroup);
+      this.overviewService.getSpendingsOverview(this.currentYear, this.activeGroup, true);
+      this.overviewService.getSpendingsOverviewYearly(this.activeGroup, true);
       (event.target as HTMLIonRefresherElement).complete();
     }, 2000);
   }

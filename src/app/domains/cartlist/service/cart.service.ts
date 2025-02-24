@@ -32,7 +32,7 @@ export class CartService {
     this.cartUpdated.set(this.cartUpdated() + 1)
   }
 
-  getCartListByGroupId(group: Group): void {
+  getCartListByGroupId(group: Group, refresh?: boolean): void {
     if (group.flag?.includes(GROUP.DEFAULT)) {
       this.cartList.set([]);
       return;
@@ -43,6 +43,7 @@ export class CartService {
       .subscribe({
         next: (result) => {
           this.cartList.set(result || []);
+          if (refresh) { this.triggerUpdate(); }
         },
         error: (err) => {
           console.error('Error fetching cartlist:', err);

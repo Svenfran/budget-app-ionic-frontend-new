@@ -33,12 +33,18 @@ export class OverviewService {
     this.spendingsOverviewYearly()?.spendingsTotalYear ?? { spendingsTotalUser: [], sumTotalYear: 0 }
   );
 
+  public overviewRefresh = signal(0);
+
   constructor(
     private http: HttpClient
   ) { }
 
+  triggerUpdate() {
+    this.overviewRefresh.set(this.overviewRefresh() + 1);
+  }
 
-  getSpendingsOverview(year: number, group: Group): void {
+
+  getSpendingsOverview(year: number, group: Group, refresh?: boolean): void {
     if (group.flag?.includes(GROUP.DEFAULT)) {
       this.spendingsOverview.set(null);
       return;
@@ -49,6 +55,7 @@ export class OverviewService {
       .subscribe({
         next: (result) => {
           this.spendingsOverview.set(result || null);
+          if (refresh) { this.triggerUpdate() };
         },
         error: (err) => {
           console.log('Error fetching spendings:', err);
@@ -57,7 +64,7 @@ export class OverviewService {
       })
   };
 
-  getSpendingsOverviewYearly(group: Group): void {
+  getSpendingsOverviewYearly(group: Group, refresh?: boolean): void {
     if (group.flag?.includes(GROUP.DEFAULT)) {
       this.spendingsOverview.set(null);
       return;
@@ -69,6 +76,7 @@ export class OverviewService {
         next: (result) => {
           this.spendingsOverviewYearly.set(result || null);
           this.availableYears.set(result.availableYears || [])
+          if (refresh) { this.triggerUpdate() };
         },
         error: (err) => {
           console.log('Error fetching yearly spendings:', err);

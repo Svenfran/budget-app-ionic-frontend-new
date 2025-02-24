@@ -6,6 +6,7 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { AlertController, IonItemSliding, LoadingController } from '@ionic/angular';
 import { Cart } from './model/cart';
 import { Router } from '@angular/router';
+import { OverviewService } from '../overview/service/overview.service';
 
 @Component({
   selector: 'app-cartlist',
@@ -32,10 +33,12 @@ export class CartlistPage implements OnInit {
     private authService: AuthService,
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
-    private router: Router
+    private router: Router,
+    private overviewService: OverviewService
   ) { 
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
+      this.overviewService.overviewRefresh();
       if (this.activeGroup) {
         this.cartService.getCartListByGroupId(this.activeGroup);
       }
@@ -54,7 +57,7 @@ export class CartlistPage implements OnInit {
 
   refreshCartList(event: CustomEvent) {
     setTimeout(() => {
-      this.cartService.getCartListByGroupId(this.activeGroup);
+      this.cartService.getCartListByGroupId(this.activeGroup, true);
       this.filterMode.set(false);
       this.filterTerm.set("");
       (event.target as HTMLIonRefresherElement).complete();
