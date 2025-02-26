@@ -4,6 +4,7 @@ import { User } from '../auth/user';
 import { AuthService } from '../auth/auth.service';
 import { AlertController, IonItemSliding, LoadingController } from '@ionic/angular';
 import { Group } from '../model/group';
+import { NewMemberDto } from './model/new-member-dto';
 
 @Component({
   selector: 'app-groupoverview',
@@ -115,6 +116,44 @@ export class GroupoverviewPage implements OnInit {
         }
       }]
     }).then(alertEl => alertEl.present());
+  }
+
+  onAddMember(group: Group, slidingItem: IonItemSliding) {
+    slidingItem.close();
+    this.alertCtrl.create({
+      header: "Neues Gruppenmitglied:",
+      buttons: [{
+        text: "Abbrechen",
+        role: "cancel"
+      }, {
+        text: "ok",
+        handler: (data) => {
+          this.loadingCtrl.create({
+            message: "Füge Benutzer hinzu..."
+          }).then(loadingEl => {
+            let newMember: NewMemberDto = {
+              id: group.id,
+              name: group.name,
+              newMemberEmail: data.memberEmail.trim()
+            }
+            this.groupService.addMemberToGroup(newMember);
+            loadingEl.dismiss();
+          })
+        }
+      }],
+      inputs: [
+        {
+          placeholder: "E-Mail Adresse",
+          name: "memberEmail",
+          type: "email"
+        }
+      ]
+    }).then(alertEl => alertEl.present().then(() => {
+      const inputField = document.querySelector("ion-alert input") as HTMLElement;
+      if (inputField) {
+        inputField.focus();
+      }
+    }));
   }
 
 }

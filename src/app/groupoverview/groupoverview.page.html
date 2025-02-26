@@ -48,7 +48,7 @@
               <ion-item-option color="secondary">
                 <ion-icon name="people" slot="icon-only"></ion-icon>
               </ion-item-option>
-              <ion-item-option *ngIf="group.ownerName == user?.name" color="secondary">
+              <ion-item-option *ngIf="group.ownerName == user?.name" color="secondary" (click)="onAddMember(group, slidingItem)">
                 <ion-icon  name="person-add" slot="icon-only"></ion-icon>
               </ion-item-option>
               <ion-item-option *ngIf="group.ownerName == user?.name" color="secondary" (click)="onUpdateGroup(group, slidingItem)">

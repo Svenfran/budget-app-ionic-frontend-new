@@ -8,6 +8,8 @@ import { Zeitraum } from '../domains/cartlist/new-edit-cart/model/gmh-zeitraum';
 import { GroupOverview } from '../groupoverview/model/group-overview';
 import { User } from '../auth/user';
 import { AuthService } from '../auth/auth.service';
+import { NewMemberDto } from '../groupoverview/model/new-member-dto';
+import { AlertService } from './alert.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,19 +22,20 @@ export class GroupService {
   private groupsOverviewUrl = `${this.apiBaseUrl}/api/groups/overview`;
   private updateGroupUrl = `${this.apiBaseUrl}/api/groups/update`;
   private deleteGroupUrl = `${this.apiBaseUrl}/api/groups/delete`;
+  private addNewMemberUrl = `${this.apiBaseUrl}/api/groups/add-new-member`;
 
   public groupsSideNav: WritableSignal<Group[]> = signal<Group[]>([]);
   public groupOverviewList: WritableSignal<GroupOverview[]> = signal<GroupOverview[]>([]);
   public activeGroup: WritableSignal<Group> = signal<Group>(Init.DEFAULT_GROUP)
   public groupMembershipHistory: WritableSignal<Zeitraum[]> = signal<Zeitraum[]>([]);
-  public groupName = signal<string>("");
 
   private user: User | undefined;
 
   constructor(
     private http: HttpClient,
     private storageService: StorageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertService: AlertService
   ) {
     this.authService.user.pipe().subscribe(user => {
       if (user) this.user = user;
@@ -48,10 +51,28 @@ export class GroupService {
     }
     this.storageService.setItem("ACTIVE_GROUP", activeGroup);
     this.activeGroup.set(activeGroup);
-    this.groupName.set(activeGroup.name);
   }
 
-
+  private updateActiveGroup(groups: Group[], activeGroup?: Group): void {
+    const hasGroups = groups.length > 0;
+    const foundGroup = groups.find(gr => activeGroup && gr.id === activeGroup.id);
+  
+    if (!activeGroup) {
+      this.setActiveGroup(hasGroups ? groups[0] : Init.DEFAULT_GROUP);
+      return;
+    }
+  
+    if (foundGroup) {
+      // Falls sich der Gruppenname geändert hat, setze den aktualisierten Namen
+      if (activeGroup.name !== foundGroup.name) {
+        this.setActiveGroup(foundGroup);
+      } else {
+        this.setActiveGroup(activeGroup);
+      }
+    } else {
+      this.setActiveGroup(hasGroups ? groups[0] : Init.DEFAULT_GROUP);
+    }
+  }
 
   getGroupsForSideNav(): void {
     this.http
@@ -59,25 +80,11 @@ export class GroupService {
       .subscribe({
         next: async (result) => {
           this.groupsSideNav.set(result || []);
-          
-          // Gruppe aus dem lokalen Speicher laden
+
           const activeGroup: Group = await this.storageService.getItem('ACTIVE_GROUP') as {id: number, name: string, dateCreated: Date, flag?: string};
           const groups = this.groupsSideNav();
-          const hasGroups = groups.length > 0;
 
-          // Wenn es keine gespeicherte Gruppe gibt
-          if (!activeGroup) {
-            this.setActiveGroup(hasGroups ? result[0] : Init.DEFAULT_GROUP);
-            return;
-          }
-          
-          // Wenn es Gruppen gibt und die gespeicherte Gruppe existiert in der Liste
-          if (hasGroups && groups.some(group => group.id === activeGroup.id)) {
-            this.setActiveGroup(activeGroup);
-          } else {
-            this.setActiveGroup(hasGroups ? result[0] : Init.DEFAULT_GROUP);
-          }
-
+          this.updateActiveGroup(groups, activeGroup);
         },
         error: (err) => {
           console.error("Error fetching groups:", err);
@@ -86,11 +93,12 @@ export class GroupService {
       });
   }
 
+
   getGroupsForOverview(): void {
     this.http
       .get<GroupOverview[]>(this.groupsOverviewUrl)
       .subscribe({
-        next: (result) => {
+        next: async (result) => {
           this.groupOverviewList.set(result || []);
         },
         error: (err) => {
@@ -148,6 +156,7 @@ export class GroupService {
           this.groupOverviewList.update(groups => groups.map(gr =>
             gr.id === result.id ? {...gr, name: result.name} : gr
           ));
+          
           // aktive Gruppe muss nochmal gesetzt werden, damit Überschriften der einzelnen Views aktualisiert wird.
           if (this.activeGroup().id === result.id)  this.setActiveGroup(result);
         },
@@ -200,6 +209,39 @@ export class GroupService {
         error: (err) => {
           console.error("Error fetching group membership history:", err);
           this.groupMembershipHistory.set([]);
+        }
+      })
+  }
+
+  addMemberToGroup(newMemberDto: NewMemberDto): void {
+    const currentGroupsOverview = this.groupOverviewList();
+
+    this.http
+      .post<NewMemberDto>(this.addNewMemberUrl, newMemberDto)
+      .subscribe({
+        next: (result) => {
+          this.groupOverviewList.update(groups => groups.map(gr => 
+            gr.id === result.id ? {...gr, memberCount: gr.memberCount + 1} : gr
+          ));
+
+          const message = "Benutzer wurde zur Gruppe hinzugefügt";
+          this.alertService.showToast(message);
+        },
+        error: (err) => {
+          console.error("Error adding member to group:", err);
+          this.groupOverviewList.set(currentGroupsOverview);
+          let message = "";
+
+          if (err.error.includes(newMemberDto.newMemberEmail)) {
+            message = "Benutzer existiert nicht."
+          } else if (err.error.includes("New member equals group owner")) {
+            message = "Neues Mitglied und Gruppenersteller sind identisch"
+          } else if (err.error.includes("Member already exists")) {
+            message = "Der Benutzer ist bereits Mitglied"
+          } else {
+            message = "Es ist ein Fehler aufgetreten"
+          }
+          this.alertService.showToast(message);
         }
       })
   }

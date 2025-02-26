@@ -27,6 +27,7 @@ export class AppComponent {
   public isOpen: boolean = false;
   public activeGroup = this.groupService.activeGroup();
   public darkMode: boolean = true;
+  private subscriptions: Subscription[] = [];
   
   constructor(
     private authService: AuthService,
@@ -38,7 +39,8 @@ export class AppComponent {
     private platform: Platform,
     private navCtrl: NavController,
     private renderer: Renderer2,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private websocketService: WebSocketService
   ) {
     this.initializeApp();
     effect(() => {
@@ -51,14 +53,24 @@ export class AppComponent {
       if (!isAuth && this.previousAuthState !== isAuth) {
         this.router.navigateByUrl('/auth', { replaceUrl: true });
       }
-    })
+    });
+
     this.authService.user.subscribe(user => {
       if (user) {
         this.user = user;
         this.webSocketService.connect(user.token!);
         this.groupService.getGroupsForSideNav();
+
+        this.subscriptions.push(
+          this.webSocketService.getConnectionState().subscribe(isConnected => {
+            if (isConnected) {
+              this.subscribeToTopics(user.id);
+            }
+          })
+        );
       }
-    })
+    });
+    
   }
 
   setActiveGroup(group: Group) {
@@ -164,6 +176,27 @@ export class AppComponent {
 
   ngOnDestroy() {
     this.authSub.unsubscribe();
+    this.webSocketService.unsubscribeAll();
     this.webSocketService.disconnect();
+  }
+
+  subscribeToTopics(userId: number) {
+    this.websocketService.subscribe(
+      `/user/${userId}/notification/update-group`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        const foundGroup = this.sideNavGroups().find(group => group.id === parsedData.id);
+        const group = { id: parsedData.id, name: parsedData.name, dateCreated: foundGroup!.dateCreated };
+        console.log(group);
+
+        this.sideNavGroups.update(groups => groups.map(group => 
+          group.id === parsedData.id ? { ...group, name: parsedData.name } : group
+        ));
+        
+        if (this.activeGroup.id === parsedData.id) {
+          this.groupService.setActiveGroup(group);
+        }
+      }
+    )
   }
 }

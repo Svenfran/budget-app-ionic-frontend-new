@@ -41,8 +41,8 @@ export class OverviewPage implements OnInit {
       this.activeGroup = this.groupService.activeGroup();
       this.cartService.cartUpdated();
       if (this.activeGroup) {
-        this.overviewService.getSpendingsOverview(this.currentYear, this.activeGroup);
         this.overviewService.getSpendingsOverviewYearly(this.activeGroup);
+        this.overviewService.getSpendingsOverview(this.currentYear, this.activeGroup);
       }
       this.isLoading = false;
     });
@@ -53,14 +53,14 @@ export class OverviewPage implements OnInit {
       if (user) {
         this.user = user;
       }
-    })
+    });
   }
 
   getSpendingsOverview(year: number) {
     this.segment = 'month';
     this.isLoading = true;
-    this.overviewService.getSpendingsOverview(year, this.activeGroup, true);
     this.overviewService.getSpendingsOverviewYearly(this.activeGroup, true);
+    this.overviewService.getSpendingsOverview(year, this.activeGroup, true);
     this.isLoading = false;
   }
 
@@ -74,8 +74,8 @@ export class OverviewPage implements OnInit {
 
   refreshSpendings(event: CustomEvent) {
     setTimeout(() => {
-      this.overviewService.getSpendingsOverview(this.currentYear, this.activeGroup, true);
       this.overviewService.getSpendingsOverviewYearly(this.activeGroup, true);
+      this.overviewService.getSpendingsOverview(this.currentYear, this.activeGroup, true);
       (event.target as HTMLIonRefresherElement).complete();
     }, 2000);
   }

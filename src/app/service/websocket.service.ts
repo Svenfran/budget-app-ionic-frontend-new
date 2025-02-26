@@ -67,7 +67,7 @@ export class WebSocketService {
   subscribe(topic: string, callback: (message: any) => void) {    
     const subscription = this.socketClient.subscribe(topic, (message) => {
       const parsedData = JSON.parse(message.body);
-      if (!(parsedData.groupId === this.activeGroup.id)) {
+      if ((parsedData.groupId !== this.activeGroup.id) && (!topic.includes('update-group'))) {
         return;
       }
       callback(message);

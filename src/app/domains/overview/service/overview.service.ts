@@ -75,7 +75,7 @@ export class OverviewService {
       .subscribe({
         next: (result) => {
           this.spendingsOverviewYearly.set(result || null);
-          this.availableYears.set(result.availableYears || [])
+          this.availableYears.set(result.availableYears || []);
           if (refresh) { this.triggerUpdate() };
         },
         error: (err) => {
