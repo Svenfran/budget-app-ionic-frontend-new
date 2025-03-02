@@ -5,7 +5,7 @@ import { AddEditShoppinglistDto } from '../model/add-edit-shoppinglist-dto';
 import { ShoppinglistDto } from '../model/shoppinglist-dto';
 import { AddEditShoppingItemDto } from '../model/add-edit-shopping-item-dto';
 import { ShoppingitemDto } from '../model/shoppingitem-dto';
-import { GROUP } from 'src/app/constants/default-values';
+import { INIT_VALUES } from 'src/app/constants/default-values';
 import { Group } from 'src/app/model/group';
 
 @Injectable({
@@ -32,7 +32,7 @@ export class ShoppinglistService {
   }
 
   getShoppingListsWithItems(group: Group, requestTimeStamp: number = this.INITIAL_REQUEST_TIMESTAMP): void{
-    if (group.flag?.includes(GROUP.DEFAULT)) {
+    if (group.flag?.includes(INIT_VALUES.DEFAULT)) {
       this.shoppingLists.set([]);
       return;
     };

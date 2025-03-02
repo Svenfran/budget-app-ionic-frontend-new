@@ -36,6 +36,11 @@ const routes: Routes = [
     path: 'groupoverview',
     loadChildren: () => import('./groupoverview/groupoverview.module').then( m => m.GroupoverviewPageModule),
     canLoad: [AuthGuard]
+  },
+  {
+    path: 'groupmembers',
+    loadChildren: () => import('./groupmembers/groupmembers.module').then( m => m.GroupmembersPageModule),
+    canLoad: [AuthGuard]
   }
 
 ];

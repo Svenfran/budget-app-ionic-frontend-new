@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, effect, OnInit } from '@angular/core';
 import { GroupService } from '../service/group.service';
 import { User } from '../auth/user';
 import { AuthService } from '../auth/auth.service';
-import { AlertController, IonItemSliding, LoadingController } from '@ionic/angular';
+import { AlertController, IonItemSliding, LoadingController, ModalController } from '@ionic/angular';
 import { Group } from '../model/group';
 import { NewMemberDto } from './model/new-member-dto';
+import { GroupmembersPage } from '../groupmembers/groupmembers.page';
 
 @Component({
   selector: 'app-groupoverview',
@@ -22,14 +23,22 @@ export class GroupoverviewPage implements OnInit {
     private groupService: GroupService,
     private authService: AuthService,
     private alertCtrl: AlertController,
-    private loadingCtrl: LoadingController
-  ) { }
+    private loadingCtrl: LoadingController,
+    private modalCtrl: ModalController
+  ) {}
 
   ngOnInit() {
     this.authService.user.pipe().subscribe(user => {
       if (user) this.user = user;
       this.groupService.getGroupsForOverview();
     })
+  }
+
+  refreshGroupList(event: CustomEvent) {
+    setTimeout(() => {
+      this.groupService.getGroupsForOverview();
+      (event.target as HTMLIonRefresherElement).complete();
+    }, 2000);
   }
 
   onCreateGroup() {
@@ -154,6 +163,25 @@ export class GroupoverviewPage implements OnInit {
         inputField.focus();
       }
     }));
+  }
+
+  async showGroupMembers(groupId: number, groupOwnerName: string, slidingItem: IonItemSliding) {
+    slidingItem.close();
+    const modal = this.modalCtrl.create({
+      component: GroupmembersPage,
+      componentProps: {
+        'groupId': groupId,
+        'groupOwnerName': groupOwnerName
+      }
+    });
+
+    (await modal).onWillDismiss().then(groupWithMembers => {
+      if (!groupWithMembers.data) {
+        return;
+      }
+    })
+
+    return (await modal).present();
   }
 
 }

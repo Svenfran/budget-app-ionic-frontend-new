@@ -38,6 +38,7 @@ export class ShoppinglistPage implements OnInit {
   ) {
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
+      this.isLoading = true;
       if (this.activeGroup) {
         this.shoppinglistService.getShoppingListsWithItems(this.activeGroup);
       }

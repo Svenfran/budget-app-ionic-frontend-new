@@ -40,6 +40,7 @@ export class OverviewPage implements OnInit {
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
       this.cartService.cartUpdated();
+      this.isLoading = true;
       if (this.activeGroup) {
         this.overviewService.getSpendingsOverviewYearly(this.activeGroup);
         this.overviewService.getSpendingsOverview(this.currentYear, this.activeGroup);

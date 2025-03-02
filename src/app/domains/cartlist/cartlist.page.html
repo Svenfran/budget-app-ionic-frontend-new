@@ -72,7 +72,7 @@
         <cdk-virtual-scroll-viewport itemSize="56" minBufferPx="900" maxBufferPx="1350">
           <ion-list *ngIf="!isLoading && cartList().length > 0">
             <ion-item-sliding *cdkVirtualFor="let cart of cartList(), let i = index" #slidingItem>
-              <ion-item>
+              <ion-item [lines]="i == cartList().length - 1 ? 'none' : 'inset'">
                 <ion-avatar slot="start" (click)="onFilter('category', cart.categoryDto.name)">
                   <div class="category-circle">
                     <p *ngIf="cart.categoryDto.name !== 'Ausgleichszahlung'">{{ cart.categoryDto.name.substring(0, 2) | uppercase }}</p>

@@ -39,6 +39,7 @@ export class CartlistPage implements OnInit {
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
       this.overviewService.overviewRefresh();
+      this.isLoading = true;
       if (this.activeGroup) {
         this.cartService.getCartListByGroupId(this.activeGroup);
       }

@@ -3,7 +3,7 @@ import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Cart } from '../model/cart';
 import { Group } from 'src/app/model/group';
-import { GROUP } from 'src/app/constants/default-values';
+import { INIT_VALUES } from 'src/app/constants/default-values';
 import { AlertService } from 'src/app/service/alert.service';
 
 @Injectable({
@@ -33,7 +33,7 @@ export class CartService {
   }
 
   getCartListByGroupId(group: Group, refresh?: boolean): void {
-    if (group.flag?.includes(GROUP.DEFAULT)) {
+    if (group.flag?.includes(INIT_VALUES.DEFAULT)) {
       this.cartList.set([]);
       return;
     };

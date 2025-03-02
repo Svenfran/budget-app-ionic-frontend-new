@@ -4,7 +4,7 @@ import { environment } from 'src/environments/environment';
 import { SpendingsOverviewDto } from '../model/spendings-overview-dto';
 import { SpendingsOverviewYearlyDto } from '../model/spendings-overview-yearly-dto';
 import { Group } from 'src/app/model/group';
-import { GROUP } from 'src/app/constants/default-values';
+import { INIT_VALUES } from 'src/app/constants/default-values';
 
 @Injectable({
   providedIn: 'root'
@@ -45,7 +45,7 @@ export class OverviewService {
 
 
   getSpendingsOverview(year: number, group: Group, refresh?: boolean): void {
-    if (group.flag?.includes(GROUP.DEFAULT)) {
+    if (group.flag?.includes(INIT_VALUES.DEFAULT)) {
       this.spendingsOverview.set(null);
       return;
     };
@@ -65,7 +65,7 @@ export class OverviewService {
   };
 
   getSpendingsOverviewYearly(group: Group, refresh?: boolean): void {
-    if (group.flag?.includes(GROUP.DEFAULT)) {
+    if (group.flag?.includes(INIT_VALUES.DEFAULT)) {
       this.spendingsOverview.set(null);
       return;
     };

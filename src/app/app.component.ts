@@ -11,6 +11,8 @@ import { App } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { NavigationBar } from '@hugotomazi/capacitor-navigation-bar';
 import { StorageService } from './service/storage.service';
+import { GroupOverview } from './groupoverview/model/group-overview';
+import { UserDto } from './model/user-dto';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +25,8 @@ export class AppComponent {
   private previousAuthState: boolean = false;
   public shoppingLists: Group[] = [];
   public sideNavGroups = this.groupService.groupsSideNav;
+  public groupOverviewList = this.groupService.groupOverviewList;
+  public groupMembers = this.groupService.groupMembers;
   public user: User | undefined;
   public isOpen: boolean = false;
   public activeGroup = this.groupService.activeGroup();
@@ -192,11 +196,126 @@ export class AppComponent {
         this.sideNavGroups.update(groups => groups.map(group => 
           group.id === parsedData.id ? { ...group, name: parsedData.name } : group
         ));
+
+        this.groupOverviewList.update(groups => groups.map(group => 
+          group.id === parsedData.id ? { ...group, name: parsedData.name } : group
+        ));
         
         if (this.activeGroup.id === parsedData.id) {
           this.groupService.setActiveGroup(group);
         }
       }
+    );
+
+    this.websocketService.subscribe(
+      `/user/${userId}/notification/delete-group`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        const foundGroup = this.sideNavGroups().find(group => group.id === parsedData.id);
+        const group = { id: parsedData.id, name: parsedData.name, dateCreated: foundGroup!.dateCreated };
+        console.log(group);
+        console.log(this.activeGroup);
+
+        this.sideNavGroups.update(groups => 
+          groups.filter(group => group.id !== parsedData.id)
+        );
+
+        this.groupOverviewList.update(groups => 
+          groups.filter(group => group.id !== parsedData.id)
+        );
+        
+        if (this.activeGroup.id === group.id) {
+          this.groupService.updateActiveGroup(this.sideNavGroups(), this.activeGroup);
+        }
+      }
+    );
+
+    this.webSocketService.subscribe(
+      `/user/${userId}/notification/remove-group-member`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        console.log(parsedData);
+      
+        if (parsedData.updatedMember.id === this.user?.id) {
+          this.sideNavGroups.update(
+            groups => groups.filter(group => group.id !== parsedData.id)
+          );
+          this.groupOverviewList.update(
+            groups => groups.filter(group => group.id !== parsedData.id)
+          );
+          this.groupService.updateActiveGroup(this.sideNavGroups(), this.activeGroup);
+        } else {
+          this.groupOverviewList.update(groups => {
+            return groups.map(group => 
+              group.id === parsedData.id
+                ? { ...group, memberCount: parsedData.members.length }
+                : group
+            );
+          });
+        }
+      
+      }
     )
+    
+    this.webSocketService.subscribe(
+      `/user/${userId}/notification/add-group-member`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        console.log(parsedData);
+        const group: Group = { id: parsedData.id, name: parsedData.name, dateCreated: parsedData.dateCreated };
+        const groupOverview: GroupOverview = { 
+          id: parsedData.id, 
+          name: parsedData.name, 
+          dateCreated: parsedData.dateCreated, 
+          ownerName: parsedData.ownerName, 
+          memberCount: parsedData.members.length
+        };
+        
+        if (parsedData.updatedMember.id === this.user?.id) {
+          this.sideNavGroups.update(groups => [...groups, group]);
+          this.groupOverviewList.update(groups => [ ...groups, groupOverview]);
+        } else {
+          this.groupOverviewList.update(groups => {
+            return groups.map(group => 
+              group.id === parsedData.id
+                ? { ...group, memberCount: parsedData.members.length }
+                : group
+            );
+          });
+        }
+      
+      }
+    )
+
+    this.webSocketService.subscribe(
+      `/user/${userId}/notification/change-group-owner`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        const previousOwner: UserDto = { id: this.groupMembers().id, userName: this.groupMembers().ownerName };
+        console.log(parsedData);
+
+        this.groupMembers.update(group => {
+        return {
+          ...group,
+          ownerName: parsedData.newOwner.userName,
+          ownerId: parsedData.newOwner.id,
+          members: [
+            ...group.members.filter(member => member.id !== parsedData.newOwner.id),
+            previousOwner
+          ]
+        };
+      });
+      
+      this.groupOverviewList.update(groups => {
+        return groups.map(group =>
+          group.id === parsedData.groupId 
+            ? { ...group, ownerName: parsedData.newOwner.userName }
+            : group
+        );
+      });
+
+      }
+    )
+
   }
 }

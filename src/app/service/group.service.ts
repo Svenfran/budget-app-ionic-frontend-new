@@ -3,13 +3,17 @@ import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Group } from '../model/group';
 import { StorageService } from './storage.service';
-import { Init } from '../constants/default-values';
+import { Init, INIT_VALUES } from '../constants/default-values';
 import { Zeitraum } from '../domains/cartlist/new-edit-cart/model/gmh-zeitraum';
 import { GroupOverview } from '../groupoverview/model/group-overview';
 import { User } from '../auth/user';
 import { AuthService } from '../auth/auth.service';
 import { NewMemberDto } from '../groupoverview/model/new-member-dto';
 import { AlertService } from './alert.service';
+import { GroupMembers } from '../groupmembers/model/groupmembers-dto';
+import { RemoveMemberDto } from '../groupoverview/model/remove-member';
+import { UserDto } from '../model/user-dto';
+import { ChangeGroupOwnerDto } from '../groupmembers/model/change-group-owner-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -22,12 +26,16 @@ export class GroupService {
   private groupsOverviewUrl = `${this.apiBaseUrl}/api/groups/overview`;
   private updateGroupUrl = `${this.apiBaseUrl}/api/groups/update`;
   private deleteGroupUrl = `${this.apiBaseUrl}/api/groups/delete`;
+  private groupMembersUrl = `${this.apiBaseUrl}/api/groups/members`;
   private addNewMemberUrl = `${this.apiBaseUrl}/api/groups/add-new-member`;
+  private removeMemberUrl = `${this.apiBaseUrl}/api/groups/remove-member-from-group`;
+  private changeGroupOwnerUrl = `${this.apiBaseUrl}/api/groups/change-groupowner`;
 
   public groupsSideNav: WritableSignal<Group[]> = signal<Group[]>([]);
   public groupOverviewList: WritableSignal<GroupOverview[]> = signal<GroupOverview[]>([]);
   public activeGroup: WritableSignal<Group> = signal<Group>(Init.DEFAULT_GROUP)
   public groupMembershipHistory: WritableSignal<Zeitraum[]> = signal<Zeitraum[]>([]);
+  public groupMembers: WritableSignal<GroupMembers> = signal<GroupMembers>(Init.DEFAULT_GROUP_MEMBERS);
 
   private user: User | undefined;
 
@@ -53,7 +61,7 @@ export class GroupService {
     this.activeGroup.set(activeGroup);
   }
 
-  private updateActiveGroup(groups: Group[], activeGroup?: Group): void {
+ updateActiveGroup(groups: Group[], activeGroup?: Group): void {
     const hasGroups = groups.length > 0;
     const foundGroup = groups.find(gr => activeGroup && gr.id === activeGroup.id);
   
@@ -242,6 +250,51 @@ export class GroupService {
             message = "Es ist ein Fehler aufgetreten"
           }
           this.alertService.showToast(message);
+        }
+      })
+  }
+
+  getGroupMembers(groupId: number): void {
+    this.http
+      .get<GroupMembers>(`${this.groupMembersUrl}/${groupId}`)
+      .subscribe({
+        next: (result) => {
+          this.groupMembers.set(result);
+        },
+        error: (err) => {
+          console.error("Error fetching group members:", err);
+          this.groupMembers.set(Init.DEFAULT_GROUP_MEMBERS);
+        }
+      })
+  }
+
+  removeMemberFromGroup(removeMemberDto: RemoveMemberDto): void {
+    const currentGroupMembers = this.groupMembers();
+
+    this.http
+      .post<RemoveMemberDto>(this.removeMemberUrl, removeMemberDto)
+      .subscribe({
+        next: (result) => {
+          this.groupOverviewList.update(groups => groups.map(gr =>
+            gr.id === result.id ? {...gr, memberCount: gr.memberCount - 1} : gr
+          ));
+        },
+        error: (err) => {
+          console.error("Error removing member from group:", err);
+          this.groupMembers.set(currentGroupMembers);
+        }
+      })
+  }
+
+  changeGroupOwner(newOwner: ChangeGroupOwnerDto): void {
+    this.http
+      .post<void>(this.changeGroupOwnerUrl, newOwner)
+      .subscribe({
+        next: () => {
+          console.log("Group owner successfully changed");
+        },
+        error: (err) => {
+          console.error("Error changing group owner:", err);
         }
       })
   }
