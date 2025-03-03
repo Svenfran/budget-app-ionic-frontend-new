@@ -8,6 +8,7 @@ import { Cart } from './model/cart';
 import { Router } from '@angular/router';
 import { OverviewService } from '../overview/service/overview.service';
 import { CategoryService } from 'src/app/service/category.service';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-cartlist',
@@ -107,6 +108,10 @@ export class CartlistPage implements OnInit {
     this.router.navigate(['domains', 'tabs', 'cartlist', 'new-edit', cart.id?.toString()]);
   }
 
+  download() {
+    let filename = "Ausgaben_" + this.activeGroup.name.replace(/ /g, "-") + "_" + moment().format('YYYYMMDDHHmmss') + ".xlsx";
+    this.cartService.getExcelFile(this.activeGroup, filename);
+  }
 
   onFilter(action: string, filterTerm: string) {
     if (!this.filterMode()) {

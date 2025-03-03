@@ -1,21 +1,26 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEventType } from '@angular/common/http';
 import { computed, Injectable, signal, WritableSignal } from '@angular/core';
+import { Directory, Filesystem } from '@capacitor/filesystem';
 import { environment } from 'src/environments/environment';
 import { Cart } from '../model/cart';
 import { Group } from 'src/app/model/group';
 import { INIT_VALUES } from 'src/app/constants/default-values';
 import { AlertService } from 'src/app/service/alert.service';
+import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
 
+  downloadProgress = 0;
+
   private apiBaseUrl = environment.apiBaseUrl;
   private cartlistUrl = `${this.apiBaseUrl}/api/carts/carts-by-groupid`;
   private deleteCartUrl = `${this.apiBaseUrl}/api/carts/delete`;
   private addCartUrl = `${this.apiBaseUrl}/api/carts/add`;
   private updateCartUrl = `${this.apiBaseUrl}/api/carts/update`;
+  private excelFileUrl = `${this.apiBaseUrl}/api/carts/download`;
   
   public cartList: WritableSignal<Cart[]> = signal<Cart[]>([]);
   public sum = computed(() => this.cartList().reduce((s, c) => s + (+c.amount), 0));
@@ -24,7 +29,7 @@ export class CartService {
   public cartUpdated = signal(0);
   
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private alertService: AlertService
   ) {}
 
@@ -143,4 +148,64 @@ export class CartService {
       })
   }
 
+  getExcelFile(group: Group, fileName: string) {
+    this.http
+      .get<any>(`${this.excelFileUrl}/${group.id}`, {
+        responseType: 'blob' as 'json',
+        reportProgress: true,
+        observe: 'events'
+      })
+      .subscribe({
+        next: async (event) => {
+          if (event.type === HttpEventType.DownloadProgress) {
+            this.downloadProgress = event.total ? Math.round((100 * event.loaded) / event.total) : 0;
+          } else if (event.type === HttpEventType.Response) {
+            this.downloadProgress = 0;
+            const base64 = await this.convertBlobToBase64(event.body) as string;
+    
+            const savedFile = await Filesystem.writeFile({
+              path: fileName,
+              data: base64,
+              directory: Directory.Documents,
+            });
+            const path = savedFile.uri;
+            const mimeType = this.getMimeType(fileName);
+            let message = "Datei erfolgreich heruntergeladen.";
+            this.alertService.showToast(message);
+            
+            try {
+              const fileOpenerOptions: FileOpenerOptions = {
+                filePath: path,
+                contentType: mimeType,
+                openWithDefault: true,
+              };
+              await FileOpener.open(fileOpenerOptions);
+            } catch (e) {
+              console.log('Error opening file', e);
+            }
+          }
+        },
+        error: (err) => {
+          console.error("Error downloading excel file:", err);
+        }
+      })
+  }
+
+  private convertBlobToBase64(blob: Blob) {
+    return new Promise ((resolve, reject) => {
+      const reader = new FileReader;
+      reader.onerror = reject;
+      reader.onload = () => {
+        resolve(reader.result);
+      };
+      reader.readAsDataURL(blob);
+    })
+  };
+
+  private getMimeType(name: string): string {
+    if (name.indexOf('xlsx') >= 0) {
+      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    }
+    return 'application/octet-stream'; // default MIME type
+  }
 }
