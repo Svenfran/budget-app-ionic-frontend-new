@@ -13,6 +13,8 @@ import { NavigationBar } from '@hugotomazi/capacitor-navigation-bar';
 import { StorageService } from './service/storage.service';
 import { GroupOverview } from './groupoverview/model/group-overview';
 import { UserDto } from './model/user-dto';
+import { CategoryDto } from './model/category-dto';
+import { CategoryService } from './service/category.service';
 
 @Component({
   selector: 'app-root',
@@ -44,7 +46,8 @@ export class AppComponent {
     private navCtrl: NavController,
     private renderer: Renderer2,
     private storageService: StorageService,
-    private websocketService: WebSocketService
+    private websocketService: WebSocketService,
+    private categoryService: CategoryService
   ) {
     this.initializeApp();
     effect(() => {
@@ -107,6 +110,40 @@ export class AppComponent {
       ]
     }).then(alertEl => alertEl.present().then(() => {
       const inputField = document.querySelector("ion-alert input") as HTMLElement;
+      if (inputField) {
+        inputField.focus();
+      }
+    }));
+  }
+
+  onCreateCategory() {
+    this.alertCtrl.create({
+      header: "Neue Kategorie:",
+      buttons: [{
+        text: "Abbrechen",
+        role: "cancel"
+      }, {
+        text: "ok",
+        handler: (data) => {
+          this.loadingCtrl.create({
+            message: "Erstelle Kategorie..."
+          }).then(loadingEl => {
+            const newCategory: CategoryDto = {
+              name: data.categoryName,
+              groupId: this.activeGroup.id
+            };
+            this.categoryService.addCategory(newCategory);
+          })
+        }
+      }],
+      inputs: [
+        {
+          name: "categoryName",
+          placeholder: "Name der Kategorie"
+        }
+      ]
+    }).then(alertEl => alertEl.present().then(() => {
+      const inputField = document.querySelector('ion-alert input') as HTMLElement;
       if (inputField) {
         inputField.focus();
       }
@@ -255,7 +292,7 @@ export class AppComponent {
         }
       
       }
-    )
+    );
     
     this.webSocketService.subscribe(
       `/user/${userId}/notification/add-group-member`,
@@ -285,7 +322,7 @@ export class AppComponent {
         }
       
       }
-    )
+    );
 
     this.webSocketService.subscribe(
       `/user/${userId}/notification/change-group-owner`,
@@ -315,7 +352,7 @@ export class AppComponent {
       });
 
       }
-    )
+    );
 
   }
 }

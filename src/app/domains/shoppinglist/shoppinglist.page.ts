@@ -51,9 +51,7 @@ export class ShoppinglistPage implements OnInit {
       this.webSocketService.getConnectionState().subscribe((isConnected) => {
         if (isConnected) {
           this.authService.user.subscribe(user => {
-            if (user) {
-              this.subscribeToTopics(user.id);
-            }
+            if (user) this.subscribeToTopics(user.id);
           });
         }
       })

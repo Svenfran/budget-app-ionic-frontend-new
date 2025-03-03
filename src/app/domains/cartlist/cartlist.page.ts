@@ -7,6 +7,7 @@ import { AlertController, IonItemSliding, LoadingController } from '@ionic/angul
 import { Cart } from './model/cart';
 import { Router } from '@angular/router';
 import { OverviewService } from '../overview/service/overview.service';
+import { CategoryService } from 'src/app/service/category.service';
 
 @Component({
   selector: 'app-cartlist',
@@ -34,11 +35,13 @@ export class CartlistPage implements OnInit {
     private loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
     private router: Router,
-    private overviewService: OverviewService
+    private overviewService: OverviewService,
+    private categoryService: CategoryService
   ) { 
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
       this.overviewService.overviewRefresh();
+      this.categoryService.categoryUpdate();
       this.isLoading = true;
       if (this.activeGroup) {
         this.cartService.getCartListByGroupId(this.activeGroup);
