@@ -3,12 +3,13 @@ import { CartService } from './service/cart.service';
 import { GroupService } from 'src/app/service/group.service';
 import { User } from 'src/app/auth/user';
 import { AuthService } from 'src/app/auth/auth.service';
-import { AlertController, IonItemSliding, LoadingController } from '@ionic/angular';
+import { AlertController, IonItemSliding, LoadingController, ModalController } from '@ionic/angular';
 import { Cart } from './model/cart';
 import { Router } from '@angular/router';
 import { OverviewService } from '../overview/service/overview.service';
 import { CategoryService } from 'src/app/service/category.service';
 import * as moment from 'moment';
+import { SettlementPaymentPage } from 'src/app/settlement-payment/settlement-payment.page';
 
 @Component({
   selector: 'app-cartlist',
@@ -37,7 +38,8 @@ export class CartlistPage implements OnInit {
     private alertCtrl: AlertController,
     private router: Router,
     private overviewService: OverviewService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private modalCtrl: ModalController
   ) { 
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
@@ -130,5 +132,18 @@ export class CartlistPage implements OnInit {
     this.cartService.getCartListByGroupId(this.activeGroup);
     this.filterMode.set(false);
     this.filterTerm.set("");
+  }
+
+  async settlementPayment() {
+    const modal = this.modalCtrl.create({
+      component: SettlementPaymentPage
+    });
+
+    (await modal).onDidDismiss().then((response) => {
+      if (response.data) {
+        this.cartService.addSettlementPayment(response.data);
+      }
+    });
+    return (await modal).present();
   }
 }

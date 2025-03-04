@@ -7,6 +7,7 @@ import { Group } from 'src/app/model/group';
 import { INIT_VALUES } from 'src/app/constants/default-values';
 import { AlertService } from 'src/app/service/alert.service';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
+import { SettlementPaymentDto } from 'src/app/settlement-payment/model/settlement-payment-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,7 @@ export class CartService {
   private addCartUrl = `${this.apiBaseUrl}/api/carts/add`;
   private updateCartUrl = `${this.apiBaseUrl}/api/carts/update`;
   private excelFileUrl = `${this.apiBaseUrl}/api/carts/download`;
+  private settlementPaymentUrl = `${this.apiBaseUrl}/api/carts/settlement-payment/add`;
   
   public cartList: WritableSignal<Cart[]> = signal<Cart[]>([]);
   public sum = computed(() => this.cartList().reduce((s, c) => s + (+c.amount), 0));
@@ -144,6 +146,29 @@ export class CartService {
         error: (err) => {
           console.error('Error deleting cart:', err);
           this.cartList.set(currentCartList);
+        }
+      })
+  }
+
+  addSettlementPayment(payment: SettlementPaymentDto): void {
+    this.http
+      .post<Cart[]>(this.settlementPaymentUrl, payment)
+      .subscribe({
+        next: (result) => {
+          this.cartList.update(carts => {
+            const updatedCarts = [...carts, ...result];
+            return updatedCarts.sort((a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime());
+          });
+          this.triggerUpdate();
+        },
+        error: (err) => {
+          console.error("Error adding settlement payment:", err);
+          if (err.error.includes('not within membership period')) {
+            this.alertService.showErrorAlert(
+              'Datum nicht im Zeitraum der Mitgliedschaft',
+              `Der Nutzer "${payment.member.userName}" war zu dem gewählten Zeitpunkt kein Mitglied der Gruppe. Bitte wähle ein anderes Datum.`
+            )
+          }
         }
       })
   }

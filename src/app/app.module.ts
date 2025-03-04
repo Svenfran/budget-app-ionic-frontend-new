@@ -29,6 +29,6 @@ import { ScientificCurrencyPipe } from './pipe/scientific.pipe';
     provideHttpClient(withInterceptorsFromDi()),
     ScientificCurrencyPipe
   ],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent]
 })
 export class AppModule {}

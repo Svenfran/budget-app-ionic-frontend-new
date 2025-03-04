@@ -46,6 +46,11 @@ const routes: Routes = [
     path: 'categoryoverview',
     loadChildren: () => import('./categoryoverview/categoryoverview.module').then( m => m.CategoryoverviewPageModule),
     canLoad: [AuthGuard]
+  },
+  {
+    path: 'settlement-payment',
+    loadChildren: () => import('./settlement-payment/settlement-payment.module').then( m => m.SettlementPaymentPageModule),
+    canLoad: [AuthGuard]
   }
 
 ];

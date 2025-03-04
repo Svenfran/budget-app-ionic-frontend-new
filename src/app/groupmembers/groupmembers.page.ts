@@ -23,7 +23,7 @@ export class GroupmembersPage implements OnInit {
   public activeGroup = this.groupService.activeGroup;
   public groupsSideNav = this.groupService.groupsSideNav;
   public groupOverviewList = this.groupService.groupOverviewList;
-  public user: User | undefined;
+  public user!: User;
   public isSelected: boolean = false;
   public isNotVisible: boolean = true;
   public form!: FormGroup;

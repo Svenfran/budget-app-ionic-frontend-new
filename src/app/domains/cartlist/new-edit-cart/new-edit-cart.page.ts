@@ -1,7 +1,7 @@
 import { Component, effect, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertController, IonDatetime, LoadingController, MenuController } from '@ionic/angular';
+import { IonDatetime, LoadingController, MenuController } from '@ionic/angular';
 import { CategoryService } from 'src/app/service/category.service';
 import { GroupService } from 'src/app/service/group.service';
 import { CartService } from '../service/cart.service';
@@ -10,7 +10,6 @@ import { User } from 'src/app/auth/user';
 import { AuthService } from 'src/app/auth/auth.service';
 import * as moment from 'moment';
 import { CategoryDto } from 'src/app/model/category-dto';
-import { AlertService } from 'src/app/service/alert.service';
 
 
 @Component({
