@@ -4,6 +4,7 @@ import { OverviewService } from './service/overview.service';
 import { CartService } from '../cartlist/service/cart.service';
 import { User } from 'src/app/auth/user';
 import { AuthService } from 'src/app/auth/auth.service';
+import { INIT_VALUES } from 'src/app/constants/default-values';
 
 @Component({
   selector: 'app-overview',
@@ -41,7 +42,7 @@ export class OverviewPage implements OnInit {
       this.activeGroup = this.groupService.activeGroup();
       this.cartService.cartUpdated();
       this.isLoading = true;
-      if (this.activeGroup) {
+      if (!this.activeGroup.flag?.includes(INIT_VALUES.DEFAULT)) {
         this.overviewService.getSpendingsOverviewYearly(this.activeGroup);
         this.overviewService.getSpendingsOverview(this.currentYear, this.activeGroup);
       }

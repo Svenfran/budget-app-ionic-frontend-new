@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 import { WebSocketService } from 'src/app/service/websocket.service';
 import { AuthService } from 'src/app/auth/auth.service';
 import { GroupService } from 'src/app/service/group.service';
+import { INIT_VALUES } from 'src/app/constants/default-values';
 
 @Component({
   selector: 'app-shoppinglist',
@@ -39,7 +40,7 @@ export class ShoppinglistPage implements OnInit {
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
       this.isLoading = true;
-      if (this.activeGroup) {
+      if (!this.activeGroup.flag?.includes(INIT_VALUES.DEFAULT)) {
         this.shoppinglistService.getShoppingListsWithItems(this.activeGroup);
       }
       this.isLoading = false;

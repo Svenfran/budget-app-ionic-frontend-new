@@ -1,4 +1,4 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Group } from '../model/group';
@@ -36,6 +36,7 @@ export class GroupService {
   public activeGroup: WritableSignal<Group> = signal<Group>(Init.DEFAULT_GROUP)
   public groupMembershipHistory: WritableSignal<Zeitraum[]> = signal<Zeitraum[]>([]);
   public groupMembers: WritableSignal<GroupMembers> = signal<GroupMembers>(Init.DEFAULT_GROUP_MEMBERS);
+  public groupMembersWithOwner = computed(() => [{id: this.groupMembers().ownerId, userName: this.groupMembers().ownerName }, ...this.groupMembers().members]);
 
   private user: User | undefined;
 

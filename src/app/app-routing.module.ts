@@ -51,6 +51,10 @@ const routes: Routes = [
     path: 'settlement-payment',
     loadChildren: () => import('./settlement-payment/settlement-payment.module').then( m => m.SettlementPaymentPageModule),
     canLoad: [AuthGuard]
+  },
+  {
+    path: 'filter-modal',
+    loadChildren: () => import('./filter-modal/filter-modal.module').then( m => m.FilterModalPageModule)
   }
 
 ];

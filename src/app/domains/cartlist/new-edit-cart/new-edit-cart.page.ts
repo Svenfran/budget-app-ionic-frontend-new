@@ -10,6 +10,7 @@ import { User } from 'src/app/auth/user';
 import { AuthService } from 'src/app/auth/auth.service';
 import * as moment from 'moment';
 import { CategoryDto } from 'src/app/model/category-dto';
+import { INIT_VALUES } from 'src/app/constants/default-values';
 
 
 @Component({
@@ -49,7 +50,7 @@ export class NewEditCartPage implements OnInit {
   ) {
     effect(() => {
       const activeGroup = this.groupService.activeGroup();
-      if (activeGroup) {
+      if (!activeGroup.flag?.includes(INIT_VALUES.DEFAULT)) {
         this.groupService.getGroupMembershipHistoryForGroupAndUser(activeGroup);
       }
     })

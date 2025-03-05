@@ -25,6 +25,7 @@ export class CartService {
   private settlementPaymentUrl = `${this.apiBaseUrl}/api/carts/settlement-payment/add`;
   
   public cartList: WritableSignal<Cart[]> = signal<Cart[]>([]);
+  public initCartList: WritableSignal<Cart[]> = signal<Cart[]>([]);
   public sum = computed(() => this.cartList().reduce((s, c) => s + (+c.amount), 0));
   public count = computed(() => this.cartList().length);
 
@@ -50,7 +51,8 @@ export class CartService {
       .subscribe({
         next: (result) => {
           this.cartList.set(result || []);
-          if (refresh) { this.triggerUpdate(); }
+          this.initCartList.set(result || [])
+          if (refresh) this.triggerUpdate();
         },
         error: (err) => {
           console.error('Error fetching cartlist:', err);

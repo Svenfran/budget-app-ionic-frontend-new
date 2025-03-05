@@ -10,6 +10,9 @@ import { OverviewService } from '../overview/service/overview.service';
 import { CategoryService } from 'src/app/service/category.service';
 import * as moment from 'moment';
 import { SettlementPaymentPage } from 'src/app/settlement-payment/settlement-payment.page';
+import { INIT_VALUES } from 'src/app/constants/default-values';
+import { FilterModalPage } from 'src/app/filter-modal/filter-modal.page';
+import { CartFilter } from 'src/app/filter-modal/model/CartFilter';
 
 @Component({
   selector: 'app-cartlist',
@@ -20,6 +23,7 @@ import { SettlementPaymentPage } from 'src/app/settlement-payment/settlement-pay
 export class CartlistPage implements OnInit {
 
   public cartList = this.cartService.cartList;
+  public initCartList = this.cartService.initCartList;
   public activeGroup = this.groupService.activeGroup();
   public filterTerm = signal<string>('');
   public filterMode = signal<boolean>(false);
@@ -29,6 +33,7 @@ export class CartlistPage implements OnInit {
   public user: User | undefined;
   public visibleItems: Set<number> = new Set<number>();
   public hidden: boolean = true;
+  public cartFilter: CartFilter = {};
 
   constructor(
     private cartService: CartService,
@@ -46,8 +51,9 @@ export class CartlistPage implements OnInit {
       this.overviewService.overviewRefresh();
       this.categoryService.categoryUpdate();
       this.isLoading = true;
-      if (this.activeGroup) {
+      if (!this.activeGroup.flag?.includes(INIT_VALUES.DEFAULT)) {
         this.cartService.getCartListByGroupId(this.activeGroup);
+        this.resetFilterParams();
       }
       this.isLoading = false;
     });
@@ -56,17 +62,20 @@ export class CartlistPage implements OnInit {
 
   ngOnInit() {
     this.authService.user.subscribe(user => {
-      if (user) {
-        this.user = user;
-      }
+      if (user) this.user = user;
     })
+  }
+
+  resetFilterParams() {
+    this.filterMode.set(false);
+    this.filterTerm.set("");
+    this.cartFilter = {};
   }
 
   refreshCartList(event: CustomEvent) {
     setTimeout(() => {
       this.cartService.getCartListByGroupId(this.activeGroup, true);
-      this.filterMode.set(false);
-      this.filterTerm.set("");
+      this.resetFilterParams();
       (event.target as HTMLIonRefresherElement).complete();
     }, 2000);
   }
@@ -116,27 +125,31 @@ export class CartlistPage implements OnInit {
   }
 
   onFilter(action: string, filterTerm: string) {
+    this.cartFilter = {};
     if (!this.filterMode()) {
       this.filterMode.set(true);
       this.cartList.update(carts => carts.filter(cart => 
-        action === "user" ? cart.userDto.userName === filterTerm : cart.categoryDto.name === filterTerm))
+        action === "user" ? cart.userDto.userName === filterTerm : cart.categoryDto.name === filterTerm)
+      );
+      action === "user" ? this.cartFilter.userName = [filterTerm] : this.cartFilter.category = [filterTerm];
       this.filterTerm.set(filterTerm);
     } else {
-      this.cartService.getCartListByGroupId(this.activeGroup);
-      this.filterMode.set(false);
-      this.filterTerm.set("");
+      // this.cartService.getCartListByGroupId(this.activeGroup);
+      this.resetFilterParams();
+      this.cartList.set(this.initCartList());
     }
   }
-
+  
   deleteFilter() {
-    this.cartService.getCartListByGroupId(this.activeGroup);
-    this.filterMode.set(false);
-    this.filterTerm.set("");
+    // this.cartService.getCartListByGroupId(this.activeGroup);
+    this.resetFilterParams();
+    this.cartList.set(this.initCartList());
   }
 
   async settlementPayment() {
     const modal = this.modalCtrl.create({
-      component: SettlementPaymentPage
+      component: SettlementPaymentPage,
+      backdropDismiss: true
     });
 
     (await modal).onDidDismiss().then((response) => {
@@ -145,5 +158,47 @@ export class CartlistPage implements OnInit {
       }
     });
     return (await modal).present();
+  }
+
+  async filterModal() {
+    const modal = this.modalCtrl.create({
+      component: FilterModalPage,
+      componentProps: { 
+        activeGroupId: this.activeGroup.id,
+        cartFilter: this.cartFilter
+      },
+      backdropDismiss: true
+    });
+
+    (await modal).onDidDismiss().then((response) => {
+      if (response.data) {
+        this.filterCarts(response.data);
+        this.cartFilter = response.data;
+      }
+    });
+
+    return (await modal).present();
+  }
+
+  filterCarts(cartFilter: CartFilter) {
+    if (Object.values(cartFilter).every(field => field == null)) {
+      this.resetFilterParams();
+      this.cartList.set(this.initCartList());
+      return;
+    }
+
+    this.filterTerm.set('');
+    this.cartList.set(this.initCartList());
+    this.cartList.update(carts => 
+      carts.filter(cart =>
+        (cartFilter.title ? cart.title?.toLowerCase().includes(cartFilter.title.toLowerCase()) : true) &&
+        (cartFilter.description ? cart.description?.toLowerCase().includes(cartFilter.description.toLowerCase()) : true) &&
+        (cartFilter.category && cartFilter.category.length > 0 ? cartFilter.category.includes(cart.categoryDto.name) : true) &&
+        (cartFilter.userName && cartFilter.userName.length > 0 ? cartFilter.userName.includes(cart.userDto.userName) : true) &&
+        (cartFilter.startDate ? new Date(cart.datePurchased) >= cartFilter.startDate : true) &&
+        (cartFilter.endDate ? new Date(cart.datePurchased) <= cartFilter.endDate : true)
+    ))
+
+    this.filterMode.set(true);
   }
 }
