@@ -3,8 +3,11 @@ import { Observable } from 'rxjs';
 import { AuthResponseData, AuthService } from './auth.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoadingController, MenuController, ToastController } from '@ionic/angular';
+import { AlertController, LoadingController, MenuController, ToastController } from '@ionic/angular';
 import { AlertService } from '../service/alert.service';
+import { ResetPasswordDto } from '../userprofile/model/reset-password-dto';
+import { EmailValidator } from '../Validator/email-validator';
+import { UserprofileService } from '../userprofile/service/userprofile.service';
 
 @Component({
   selector: 'app-auth',
@@ -19,13 +22,17 @@ export class AuthPage implements OnInit {
   isLoading = false;
   showPassword: boolean = false;
 
-  constructor(private authService: AuthService,
-              private loadingCtrl: LoadingController,
-              private router: Router,
-              private fb: FormBuilder,
-              private menuCtrl: MenuController,
-              private toastCtrl: ToastController,
-              private alertService: AlertService) { }
+  constructor(
+    private authService: AuthService,
+    private loadingCtrl: LoadingController,
+    private router: Router,
+    private fb: FormBuilder,
+    private menuCtrl: MenuController,
+    private toastCtrl: ToastController,
+    private alertService: AlertService,
+    private alertCtrl: AlertController,
+    private userProfileService: UserprofileService
+  ) { }
 
   ngOnInit() {
     this.form = this.fb.group({
@@ -41,9 +48,48 @@ export class AuthPage implements OnInit {
     this.menuCtrl.enable(true, 'm1');
   }
 
-
   toggleShow() {
     this.showPassword = !this.showPassword;
+  }
+
+  resetPassword() {
+    this.alertCtrl.create({
+      header: "Passwort vergessen?",
+      message: "Bitte gib eine gültige E-Mail-Adresse an.",
+      buttons: [{
+        text: "Abbrechen",
+        role: "cancel"
+      }, {
+        text: "reset",
+        handler: (data) => {
+          let email = data.email.trim();
+          const resetDto: ResetPasswordDto = {email: email};
+          if (EmailValidator.isNotValid(email)) {
+            let header = "Fehlerhafte E-Mail-Adresse!";
+            let message = "Bitte gib eine gültige E-mail-Adresse an.";
+            this.alertService.showErrorAlert(header, message);
+            return
+          }
+          this.loadingCtrl.create({
+            message: "Reset Passwort..."
+          }).then(loadingEl => {
+            loadingEl.present();
+            this.userProfileService.resetPassword(resetDto);
+            loadingEl.dismiss();
+          })
+        }
+      }],
+      inputs: [
+        {
+          name: "email",
+          placeholder: "E-Mail-Adresse",
+          type: "email"
+        }
+      ]
+    }).then(alertEl => alertEl.present().then(() => {
+      const inputField = document.querySelector("ion-alert input") as HTMLElement;
+      if (inputField) inputField.focus();
+    }));
   }
 
   onSwitchAuthMode() {
@@ -124,20 +170,5 @@ export class AuthPage implements OnInit {
   get userName() {return this.form.get('userName');}
   get userEmail() {return this.form.get('userEmail');}
   get password() {return this.form.get('password');}
-
-}
-
-class EmailValidator {
-  static isNotValid(email: string){
-    let pattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    let result = pattern.test(email);
-    
-    if (!result) {
-      return {
-        'email:validation:fail' : true
-      }
-    }
-    return null;
-  }
 
 }

@@ -54,7 +54,18 @@ const routes: Routes = [
   },
   {
     path: 'filter-modal',
-    loadChildren: () => import('./filter-modal/filter-modal.module').then( m => m.FilterModalPageModule)
+    loadChildren: () => import('./filter-modal/filter-modal.module').then( m => m.FilterModalPageModule),
+    canLoad: [AuthGuard]
+  },
+  {
+    path: 'userprofile',
+    loadChildren: () => import('./userprofile/userprofile.module').then( m => m.UserprofilePageModule),
+    canLoad: [AuthGuard]
+  },
+  {
+    path: 'password-change',
+    loadChildren: () => import('./password-change/password-change.module').then( m => m.PasswordChangePageModule),
+    canLoad: [AuthGuard]
   }
 
 ];
