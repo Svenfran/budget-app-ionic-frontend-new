@@ -8,6 +8,7 @@ import { AlertService } from '../service/alert.service';
 import { ResetPasswordDto } from '../userprofile/model/reset-password-dto';
 import { EmailValidator } from '../Validator/email-validator';
 import { UserprofileService } from '../userprofile/service/userprofile.service';
+import { INIT_NUMBERS } from '../constants/default-values';
 
 @Component({
   selector: 'app-auth',
@@ -83,7 +84,10 @@ export class AuthPage implements OnInit {
         {
           name: "email",
           placeholder: "E-Mail-Adresse",
-          type: "email"
+          type: "email",
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH_50
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {

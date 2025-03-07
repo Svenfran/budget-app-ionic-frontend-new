@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
 import { WebSocketService } from 'src/app/service/websocket.service';
 import { AuthService } from 'src/app/auth/auth.service';
 import { GroupService } from 'src/app/service/group.service';
-import { INIT_VALUES } from 'src/app/constants/default-values';
+import { INIT_NUMBERS, INIT_VALUES } from 'src/app/constants/default-values';
 
 @Component({
   selector: 'app-shoppinglist',
@@ -119,7 +119,10 @@ export class ShoppinglistPage implements OnInit {
       inputs: [
         {
           name: "listName",
-          value: list.name
+          value: list.name,
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {
@@ -209,7 +212,10 @@ export class ShoppinglistPage implements OnInit {
       inputs: [
         {
           name: "itemName",
-          value: item.name
+          value: item.name,
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {
@@ -244,11 +250,19 @@ export class ShoppinglistPage implements OnInit {
   }
 
   deleteListOfItems(list: ShoppinglistDto) {
+    let items: AddEditShoppingItemDto[] = [];
     list.shoppingItems.forEach(item => {
       if (item.completed) {
-        this.onDeleteItem(list, item);
+        items.push({
+          id: item.id,
+          name: item.name,
+          completed: item.completed,
+          shoppingListId: list.id,
+          groupId: this.activeGroup.id
+        });
       }
     })
+    this.shoppinglistService.deleteAllCompletedShoppingItems(items);
   }
 
   private subscribeToTopics(userId: number) {
@@ -352,6 +366,26 @@ export class ShoppinglistPage implements OnInit {
                 shoppingItems: list.shoppingItems.filter(item => item.id !== parsedData.id)
                 }
               : list
+          )
+        )
+      }
+    )
+    
+    this.webSocketService.subscribe(
+      `/user/${userId}/notification/delete-all-items`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        console.log(parsedData);
+        this.shoppingLists.update(lists => 
+          lists.map(list =>
+            list.id === parsedData[0].shoppingListId
+            ? {
+                ...list,
+                shoppingItems: list.shoppingItems.filter(items =>
+                  !parsedData.some((deletedItem: { id: number }) => deletedItem.id === items.id)
+                )
+              } 
+            : list
           )
         )
       }

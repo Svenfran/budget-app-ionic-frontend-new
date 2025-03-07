@@ -41,7 +41,7 @@
 <ion-list-header color="light">
   <ion-label>
     <div class="total">
-      <ion-text>{{ filterTerm() == "" ? "Gesamt" : (filterTerm().length > 12 ? (filterTerm() | slice:0:12) + '...' : (filterTerm()))  }} ({{ count() }})</ion-text>
+      <ion-text>{{ filterTerm() == "" ? "Gesamt" : (filterTerm().length > 10 ? (filterTerm() | slice:0:10) + '...' : (filterTerm()))  }} ({{ count() }})</ion-text>
         <ion-chip color="primary" *ngIf="filterMode()">
           <ion-label (click)="filterModal()">filter</ion-label>
           <ion-icon name="close" (click)="deleteFilter()"></ion-icon>
@@ -89,8 +89,12 @@
                   </div>
                   <p *ngIf="isDescriptionVisible(i)" class="ion-text-wrap">{{cart.description}}</p>
                   <div class="cart-details">
-                    <ion-text *ngIf="cart.userDto.userName !== user?.name" (click)="onFilter('user', cart.userDto.userName)" color="medium" >{{ cart.userDto.userName }}</ion-text>
-                    <ion-text *ngIf="cart.userDto.userName === user?.name" (click)="onFilter('user', cart.userDto.userName)" color="primary" ><strong>{{ cart.userDto.userName }}</strong></ion-text>
+                    <ion-text *ngIf="cart.userDto.userName !== user?.name" (click)="onFilter('user', cart.userDto.userName)" color="medium" >
+                      {{ (cart.userDto.userName.length > 10) ? (cart.userDto.userName | slice:0:10) + '...' : cart.userDto.userName }}
+                    </ion-text>
+                    <ion-text *ngIf="cart.userDto.userName === user?.name" (click)="onFilter('user', cart.userDto.userName)" color="primary" >
+                      <strong>{{ (cart.userDto.userName.length > 10) ? (cart.userDto.userName | slice:0:10) + '...' : cart.userDto.userName }}</strong>
+                    </ion-text>
                     <div class="cart-name-date">
                       <ion-text color="medium">{{ cart.datePurchased | date: "dd.MM.yyyy" }}</ion-text>
                     </div>

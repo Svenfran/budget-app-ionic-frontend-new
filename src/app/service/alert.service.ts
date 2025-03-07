@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { INIT_NUMBERS } from '../constants/default-values';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +35,9 @@ export class AlertService {
         {
           name: 'inputValue',
           placeholder,
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH
+          }
         },
       ],
       buttons: [

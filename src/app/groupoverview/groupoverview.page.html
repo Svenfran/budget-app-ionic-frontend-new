@@ -39,7 +39,9 @@
                 <div class="group-details">
                   <div class="admin">
                     <ion-text class="ion-text-wrap" color="medium">Admin: </ion-text>
-                    <ion-text class="ion-text-wrap" [attr.color]="group.ownerName === user?.name ? 'primary' : 'medium'">{{ group.ownerName }}</ion-text>
+                    <ion-text class="ion-text-wrap" [attr.color]="group.ownerName === user?.name ? 'primary' : 'medium'">
+                      {{ (group.ownerName.length > 10) ? (group.ownerName | slice:0:10) + '...' : group.ownerName}}
+                    </ion-text>
                   </div>
                   <div class="group-members">
                     <ion-text color="medium">Mitglieder: {{ group.memberCount }}</ion-text>

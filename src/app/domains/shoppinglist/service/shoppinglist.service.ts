@@ -22,8 +22,9 @@ export class ShoppinglistService {
   private INITIAL_REQUEST_TIMESTAMP: number = new Date('1900-01-01').getTime();
 
   private addItemToShoppingListUrl = `${this.apiBaseUrl}/api/groups/shopping-list/add-item`;
-  private updateItemToShoppingListUrl = `${this.apiBaseUrl}/api/groups/shopping-list/update-item`;
-  private deleteItemToShoppingListUrl = `${this.apiBaseUrl}/api/groups/shopping-list/delete-item`;
+  private updateItemOfShoppingListUrl = `${this.apiBaseUrl}/api/groups/shopping-list/update-item`;
+  private deleteItemFromShoppingListUrl = `${this.apiBaseUrl}/api/groups/shopping-list/delete-item`;
+  private deleteAllItemsFromShoppingListUrl = `${this.apiBaseUrl}/api/groups/shopping-list/delete-all-items`;
 
   constructor(private http: HttpClient) {}
 
@@ -141,7 +142,7 @@ export class ShoppinglistService {
     updateItemOfShoppingList(updateShoppingItem: AddEditShoppingItemDto): void {
       const currentShoppingLists = this.shoppingLists();
       this.http
-        .put<AddEditShoppingItemDto>(this.updateItemToShoppingListUrl, updateShoppingItem)
+        .put<AddEditShoppingItemDto>(this.updateItemOfShoppingListUrl, updateShoppingItem)
         .subscribe({
           next: (result) => {
             const updatedItem: ShoppingitemDto = {
@@ -173,7 +174,7 @@ export class ShoppinglistService {
     deleteItemFromShoppingList(deleteShoppingItem: AddEditShoppingItemDto): void {
       const currentShoppingLists = this.shoppingLists();
       this.http
-        .post<void>(this.deleteItemToShoppingListUrl, deleteShoppingItem)
+        .post<void>(this.deleteItemFromShoppingListUrl, deleteShoppingItem)
         .subscribe({
           next: () => {
             this.shoppingLists.update(lists => 
@@ -189,6 +190,33 @@ export class ShoppinglistService {
           },
           error: (err) => {
             console.error("Error deleting shopping item:", err);
+            this.shoppingLists.set(currentShoppingLists);
+          }
+        })
+    }
+
+    deleteAllCompletedShoppingItems(deleteShoppingItems: AddEditShoppingItemDto[]): void {
+      const currentShoppingLists = this.shoppingLists();
+      this.http
+        .post<void>(this.deleteAllItemsFromShoppingListUrl, deleteShoppingItems)
+        .subscribe({
+          next: () => {
+            this.shoppingLists.update(lists => 
+              lists.map(list =>
+                list.id === deleteShoppingItems[0].shoppingListId
+                ? {
+                    ...list,
+                    shoppingItems: list.shoppingItems.filter(items =>
+                      !deleteShoppingItems.some(deletedItem => deletedItem.id === items.id)
+                    )
+                  } 
+                : list
+              )
+            )
+
+          },
+          error: (err) => {
+            console.error("Error deleting completed items:", err);
             this.shoppingLists.set(currentShoppingLists);
           }
         })

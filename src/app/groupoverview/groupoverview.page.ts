@@ -6,6 +6,7 @@ import { AlertController, IonItemSliding, LoadingController, ModalController } f
 import { Group } from '../model/group';
 import { NewMemberDto } from './model/new-member-dto';
 import { GroupmembersPage } from '../groupmembers/groupmembers.page';
+import { INIT_NUMBERS } from '../constants/default-values';
 
 @Component({
   selector: 'app-groupoverview',
@@ -62,7 +63,10 @@ export class GroupoverviewPage implements OnInit {
       inputs: [
         {
           name: "groupName",
-          placeholder: "Gruppenname"
+          placeholder: "Gruppenname",
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {
@@ -95,7 +99,10 @@ export class GroupoverviewPage implements OnInit {
       inputs: [
         {
           name: "groupName",
-          value: this.groupOverviewList().find(gr => gr.id === group.id)?.name
+          value: this.groupOverviewList().find(gr => gr.id === group.id)?.name,
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {
@@ -154,7 +161,10 @@ export class GroupoverviewPage implements OnInit {
         {
           placeholder: "E-Mail Adresse",
           name: "memberEmail",
-          type: "email"
+          type: "email",
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {

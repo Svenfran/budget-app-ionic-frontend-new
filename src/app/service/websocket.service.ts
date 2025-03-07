@@ -68,9 +68,12 @@ export class WebSocketService {
     const subscription = this.socketClient.subscribe(topic, (message) => {
       const parsedData = JSON.parse(message.body);
 
-      if ((parsedData.groupId !== this.activeGroup.id) && (topic.includes('list') || topic.includes('item'))) {
+      const pattern = /list|item|items/;
+      const groupId = parsedData instanceof Array ? parsedData[0].groupId : parsedData.groupId;
+
+      if (groupId !== this.activeGroup.id && pattern.test(topic)) {
         return;
-      };
+      }
 
       callback(message);
     });

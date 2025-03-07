@@ -70,6 +70,7 @@
             <ion-text color="medium" slot="start">{{ list.shoppingItems.length + 1}}</ion-text>
             <ion-input 
                 #inputField
+                maxlength="200"
                 (keyup.enter)="onCreateItem(list)" 
                 class="input" 
                 [(ngModel)]="newItemInputs[list.id]" 

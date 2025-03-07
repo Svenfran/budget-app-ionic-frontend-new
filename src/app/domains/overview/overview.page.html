@@ -76,7 +76,7 @@
                        [class.spendings-user-amount]="(segment === 'year' ? spendingsTotalYearYearly().spendingsTotalUser.length : spendingsTotalYearMonthly().spendingsTotalUser.length) > 1">
                     <div class="space">
                       <ion-text [attr.color]="userSpendings.userName === user?.name ? 'primary' : 'medium'">
-                        {{ (userSpendings.userName.length > 8) ? (userSpendings.userName | slice:0:8) + '...' : userSpendings.userName }}
+                        {{ (userSpendings.userName.length > 10) ? (userSpendings.userName | slice:0:10) + '...' : userSpendings.userName }}
                       </ion-text>
                       <ion-text>
                         {{ userSpendings.sum | scientificCurrency }}
@@ -142,7 +142,7 @@
                     >
                       <div class="space">
                         <ion-text [attr.color]="userSpendings.userName === user?.name ? 'primary' : 'medium'">
-                          {{ (userSpendings.userName.length > 8) ? (userSpendings.userName | slice:0:8) + '...' : userSpendings.userName }}
+                          {{ (userSpendings.userName.length > 10) ? (userSpendings.userName | slice:0:10) + '...' : userSpendings.userName }}
                         </ion-text>
                         <ion-text>
                           {{ userSpendings.sum | scientificCurrency }}
@@ -195,7 +195,7 @@
                     >
                       <div class="space">
                         <ion-text [attr.color]="userSpendings.userName === user?.name ? 'primary' : 'medium'">
-                          {{ (userSpendings.userName.length > 8) ? (userSpendings.userName | slice:0:8) + '...' : userSpendings.userName }}
+                          {{ (userSpendings.userName.length > 10) ? (userSpendings.userName | slice:0:10) + '...' : userSpendings.userName }}
                         </ion-text>
                         <ion-text>
                           {{ userSpendings.sum | scientificCurrency }}

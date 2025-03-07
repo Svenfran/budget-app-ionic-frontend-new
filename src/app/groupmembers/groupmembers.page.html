@@ -37,7 +37,9 @@
                 *ngIf="groupOwnerName === user?.name"
                 [class.isNotVisible]="isNotVisible"
               ></ion-radio>
-              <h2 class="ion-text-wrap">{{ member.userName | titlecase }}</h2>
+              <h2 class="ion-text-wrap">
+                {{ (member.userName.length > 10) ? (member.userName | slice:0:10) + '...' : member.userName }}
+              </h2>
               <ion-text class="ion-text-wrap" color="medium" *ngIf="isSelected && memberIndex === i"><small>(Admin)</small></ion-text>
             </div>
           </ion-label>

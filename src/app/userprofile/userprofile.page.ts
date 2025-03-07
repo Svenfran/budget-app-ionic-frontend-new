@@ -3,11 +3,10 @@ import { AuthService } from '../auth/auth.service';
 import { User } from '../auth/user';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { UserprofileService } from './service/userprofile.service';
-import { Router } from '@angular/router';
 import { AlertService } from '../service/alert.service';
-import { StorageService } from '../service/storage.service';
 import { UserDto } from '../model/user-dto';
 import { EmailValidator } from '../Validator/email-validator';
+import { INIT_NUMBERS } from '../constants/default-values';
 
 @Component({
   selector: 'app-userprofile',
@@ -24,8 +23,6 @@ export class UserprofilePage implements OnInit {
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
     private userProfileService: UserprofileService,
-    private router: Router,
-    private storageService: StorageService,
     private alertService: AlertService
   ) { }
 
@@ -67,7 +64,10 @@ export class UserprofilePage implements OnInit {
       inputs: [
         {
           name: "userName",
-          placeholder: "Benutzername"
+          placeholder: "Benutzername",
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH_50
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {
@@ -112,7 +112,10 @@ export class UserprofilePage implements OnInit {
         {
           name: "email",
           placeholder: "E-Mail-Adresse",
-          type: "email"
+          type: "email",
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH_50
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {

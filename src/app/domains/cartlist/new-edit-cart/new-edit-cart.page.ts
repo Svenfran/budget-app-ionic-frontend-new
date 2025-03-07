@@ -10,7 +10,7 @@ import { User } from 'src/app/auth/user';
 import { AuthService } from 'src/app/auth/auth.service';
 import * as moment from 'moment';
 import { CategoryDto } from 'src/app/model/category-dto';
-import { INIT_VALUES } from 'src/app/constants/default-values';
+import { INIT_NUMBERS, INIT_VALUES } from 'src/app/constants/default-values';
 
 
 @Component({
@@ -82,7 +82,7 @@ export class NewEditCartPage implements OnInit {
     this.form = this.fb.group({
       id:[''],
       title: ['',[ Validators.required ]],
-      amount: ['',[ Validators.required, Validators.pattern('[+-]?([0-9]*[.])?[0-9]+')]],
+      amount: ['',[ Validators.required, Validators.pattern('[+-]?([0-9]*[.])?[0-9]+') ]],
       description: [''],
       datePurchased: ['',[ Validators.required, Validators.pattern('(0[1-9]|1[0-9]|2[0-9]|3[01]).(0[1-9]|1[012]).[0-9]{4}')]],
       categoryId: ['',[ Validators.required ]]

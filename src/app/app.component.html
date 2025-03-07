@@ -5,7 +5,9 @@
         <ion-title color="primary" class="menu-header-title">DIVVY</ion-title>
         <ion-item>
           <div class="menu-header">
-            <ion-label class="ion-text-wrap">Hallo {{ user?.name }}!</ion-label>
+            <ion-label class="ion-text-wrap" *ngIf="user">
+              Hallo {{ (user.name.length > 10) ? (user.name | slice:0:10) + '...' : user.name }}!
+            </ion-label>
             <ion-text>Schön dich zu sehen 😊</ion-text>
             <ion-text class="ion-text-wrap" color="medium">Gruppe: {{ activeGroup.name }}</ion-text>
           </div>

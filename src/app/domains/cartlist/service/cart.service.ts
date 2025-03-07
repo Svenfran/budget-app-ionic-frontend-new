@@ -43,6 +43,7 @@ export class CartService {
   getCartListByGroupId(group: Group, refresh?: boolean): void {
     if (group.flag?.includes(INIT_VALUES.DEFAULT)) {
       this.cartList.set([]);
+      this.initCartList.set([]);
       return;
     };
 
@@ -57,12 +58,14 @@ export class CartService {
         error: (err) => {
           console.error('Error fetching cartlist:', err);
           this.cartList.set([]);
+          this.initCartList.set([]);
         }
       });
   }
 
   addCart(cart: Cart): void {
     const currentCartList = this.cartList();
+    const currentInitCartList = this.initCartList();
     this.http
       .post<Cart>(this.addCartUrl, cart)
       .subscribe({
@@ -83,11 +86,18 @@ export class CartService {
             return updatedCarts.sort((a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime());
           });
 
+          this.initCartList.update(carts => {
+            const updatedCarts = [...carts, newCart];
+            return updatedCarts.sort((a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime());
+          });
+
           this.triggerUpdate();
         },
         error: (err) => {
           console.error('Error adding cart:', err);
           this.cartList.set(currentCartList);
+          this.initCartList.set(currentInitCartList);
+
           if (err.error.includes('not within membership period')) {
             const header = "Datum nicht im Zeitraum der Mitgliedschaft";
             const message = "Du warst zu dem gewählten Zeitpunkt kein Mitglied der Gruppe. Bitte wähle ein anderes Datum."
@@ -99,6 +109,7 @@ export class CartService {
 
   updateCart(cart: Cart): void {
     const currentCartList = this.cartList();
+    const currentInitCartList = this.initCartList();
     this.http
       .put<Cart>(this.updateCartUrl, cart)
       .subscribe({
@@ -119,11 +130,18 @@ export class CartService {
             return updatedCarts.sort((a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime());
           });
 
+          this.initCartList.update(carts => {
+            const updatedCarts = carts.map(c => (c.id === result.id ? { ...c, ...updatedCart } : c));
+            return updatedCarts.sort((a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime());
+          });
+
           this.triggerUpdate();
         },
         error: (err) => {
           console.error('Error updating cart:', err);
           this.cartList.set(currentCartList);
+          this.initCartList.set(currentInitCartList);
+
           if (err.error.includes('not within membership period')) {
             const header = "Datum nicht im Zeitraum der Mitgliedschaft";
             const message = "Du warst zu dem gewählten Zeitpunkt kein Mitglied der Gruppe. Bitte wähle ein anderes Datum."
@@ -135,6 +153,7 @@ export class CartService {
 
   deleteCart(cartId: number): void {
     const currentCartList = this.cartList();
+    const currentInitCartList = this.initCartList();
     this.http
       .delete<void>(`${this.deleteCartUrl}/${cartId}`)
       .subscribe({
@@ -143,16 +162,23 @@ export class CartService {
             cart.id !== cartId
           ));
 
+          this.initCartList.update(carts => carts.filter(cart => 
+            cart.id !== cartId
+          ));
+
           this.triggerUpdate();
         },
         error: (err) => {
           console.error('Error deleting cart:', err);
           this.cartList.set(currentCartList);
+          this.initCartList.set(currentInitCartList);
         }
       })
   }
 
   addSettlementPayment(payment: SettlementPaymentDto): void {
+    const currentCartList = this.cartList();
+    const currentInitCartList = this.initCartList();
     this.http
       .post<Cart[]>(this.settlementPaymentUrl, payment)
       .subscribe({
@@ -161,10 +187,19 @@ export class CartService {
             const updatedCarts = [...carts, ...result];
             return updatedCarts.sort((a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime());
           });
+          
+          this.initCartList.update(carts => {
+            const updatedCarts = [...carts, ...result];
+            return updatedCarts.sort((a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime());
+          });
+          
           this.triggerUpdate();
         },
         error: (err) => {
           console.error("Error adding settlement payment:", err);
+          this.cartList.set(currentCartList);
+          this.initCartList.set(currentInitCartList);
+
           if (err.error.includes('not within membership period')) {
             this.alertService.showErrorAlert(
               'Datum nicht im Zeitraum der Mitgliedschaft',

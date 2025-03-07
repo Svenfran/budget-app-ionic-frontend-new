@@ -15,6 +15,7 @@ import { GroupOverview } from './groupoverview/model/group-overview';
 import { UserDto } from './model/user-dto';
 import { CategoryDto } from './model/category-dto';
 import { CategoryService } from './service/category.service';
+import { INIT_NUMBERS } from './constants/default-values';
 
 @Component({
   selector: 'app-root',
@@ -29,7 +30,7 @@ export class AppComponent {
   public sideNavGroups = this.groupService.groupsSideNav;
   public groupOverviewList = this.groupService.groupOverviewList;
   public groupMembers = this.groupService.groupMembers;
-  public user: User | undefined;
+  public user!: User;
   public isOpen: boolean = false;
   public activeGroup = this.groupService.activeGroup();
   public darkMode: boolean = true;
@@ -105,7 +106,10 @@ export class AppComponent {
       inputs: [
         {
           name: "groupName",
-          placeholder: "Gruppenname"
+          placeholder: "Gruppenname",
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {
@@ -133,13 +137,17 @@ export class AppComponent {
               groupId: this.activeGroup.id
             };
             this.categoryService.addCategory(newCategory);
+            loadingEl.dismiss();
           })
         }
       }],
       inputs: [
         {
           name: "categoryName",
-          placeholder: "Name der Kategorie"
+          placeholder: "Name der Kategorie",
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {
