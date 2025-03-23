@@ -5,6 +5,10 @@ import { CartService } from '../cartlist/service/cart.service';
 import { User } from 'src/app/auth/user';
 import { AuthService } from 'src/app/auth/auth.service';
 import { INIT_VALUES } from 'src/app/constants/default-values';
+import { SpendingsOverviewUserDto } from './model/spendings-overview-user-dto';
+
+const DELETED = "gelöscht";
+const REMOVED = "entfernt";
 
 @Component({
   selector: 'app-overview',
@@ -26,7 +30,7 @@ export class OverviewPage implements OnInit {
   public spendingsTotalYearYearly = this.overviewService.spendingsTotalYearYearly;
   public availableYears = this.overviewService.availableYears;
 
-  public segment: string = 'year';
+  public segment: 'year' | 'month' = 'year';
   public isLoading: boolean = true;
   public currentYear = new Date().getFullYear();
   public hidden: boolean = true;
@@ -41,6 +45,7 @@ export class OverviewPage implements OnInit {
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
       this.cartService.cartUpdated();
+      this.groupService.memberUpdated();
       this.isLoading = true;
       if (!this.activeGroup.flag?.includes(INIT_VALUES.DEFAULT)) {
         this.overviewService.getSpendingsOverviewYearly(this.activeGroup);
@@ -56,6 +61,28 @@ export class OverviewPage implements OnInit {
         this.user = user;
       }
     });
+  }
+
+  get spendingsUsers(): SpendingsOverviewUserDto[] {
+    return this.segment === 'year' ? this.spendingsTotalYearYearly().spendingsTotalUser : this.spendingsTotalYearMonthly().spendingsTotalUser;
+  }
+
+  isDeletedUser(userName: string): boolean {
+    return userName.includes(DELETED) || userName.includes(REMOVED);
+  }
+
+  getShortUserName(userName: string): string {
+    if (userName.includes(DELETED)) {
+      return `${userName.slice(0, 10)}.`;
+    } else if (userName.includes(REMOVED)) {
+      return `${userName.slice(0, 11)}.`;
+    } else {
+      return userName.length > 10 ? `${userName.slice(0, 10)}...` : userName;
+    }
+  }
+
+  getShortGroupName(groupName: string): string {
+    return groupName.length > 20 ? `${groupName.slice(0, 20)}...` : groupName;
   }
 
   getSpendingsOverview(year: number) {

@@ -54,7 +54,11 @@ export class GroupoverviewPage implements OnInit {
           this.loadingCtrl.create({
             message: "Erstelle Gruppe..."
           }).then(loadingEl => {
-            const newGroup: Group = { id: new Date().getTime(), name: data.groupName, dateCreated: new Date() };
+            if (!data) return;
+            const trimmedGroupName = data.groupName.trim();
+            if (trimmedGroupName === "") return;
+
+            const newGroup: Group = { id: new Date().getTime(), name: trimmedGroupName, dateCreated: new Date() };
             this.groupService.addGroup(newGroup);
             loadingEl.dismiss();
           })
@@ -90,7 +94,11 @@ export class GroupoverviewPage implements OnInit {
           this.loadingCtrl.create({
             message: "Bearbeite Gruppe..."
           }).then(loadingEl => {
-            const newGroup: Group = { id: group.id, name: data.groupName, dateCreated: new Date() };
+            if (!data) return;
+            const trimmedGroupName = data.groupName.trim();
+            if (trimmedGroupName === "") return;
+
+            const newGroup: Group = { id: group.id, name: trimmedGroupName, dateCreated: new Date() };
             this.groupService.updateGroup(newGroup);
             loadingEl.dismiss();
           })

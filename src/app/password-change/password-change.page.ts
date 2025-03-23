@@ -36,10 +36,11 @@ export class PasswordChangePage implements OnInit {
     });
 
     this.form = this.fb.group({
-      oldPassword: ['',[ Validators.required, Validators.minLength(6) ]],
-      newPassword: ['',[ Validators.required, Validators.minLength(6) ]],
-      newPasswordConfirmed: ['',[ Validators.required, Validators.minLength(6) ]],
-    });    
+      oldPassword: ['', [Validators.required, Validators.minLength(6), Validators.pattern(/^\S*$/)]],
+      newPassword: ['', [Validators.required, Validators.minLength(6), Validators.pattern(/^\S*$/)]],
+      newPasswordConfirmed: ['', [Validators.required, Validators.minLength(6), Validators.pattern(/^\S*$/)]],
+    });
+    
   }
 
   get oldPassword() {return this.form.get('oldPassword');}

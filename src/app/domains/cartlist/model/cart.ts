@@ -10,4 +10,5 @@ export interface Cart {
     groupId: number;
     userDto: UserDto;
     categoryDto: CategoryDto;
+    deleted?: boolean;
 }

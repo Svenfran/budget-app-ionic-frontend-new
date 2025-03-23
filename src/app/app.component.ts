@@ -16,6 +16,7 @@ import { UserDto } from './model/user-dto';
 import { CategoryDto } from './model/category-dto';
 import { CategoryService } from './service/category.service';
 import { INIT_NUMBERS } from './constants/default-values';
+import { Device } from '@capacitor/device';
 
 @Component({
   selector: 'app-root',
@@ -35,6 +36,7 @@ export class AppComponent {
   public activeGroup = this.groupService.activeGroup();
   public darkMode: boolean = true;
   private subscriptions: Subscription[] = [];
+  public backendStatus: "UP" | "DOWN" = "UP";
   
   constructor(
     private authService: AuthService,
@@ -78,7 +80,7 @@ export class AppComponent {
         );
       }
     });
-    
+
   }
 
   setActiveGroup(group: Group) {
@@ -97,7 +99,11 @@ export class AppComponent {
           this.loadingCtrl.create({
             message: "Erstelle Gruppe..."
           }).then(loadingEl => {
-            const newGroup: Group = { id: new Date().getTime(), name: data.groupName, dateCreated: new Date() };
+            if (!data) return;
+            const trimmedGroupName = data.groupName.trim();
+            if (trimmedGroupName === "") return;
+
+            const newGroup: Group = { id: new Date().getTime(), name: trimmedGroupName, dateCreated: new Date() };
             this.groupService.addGroup(newGroup);
             loadingEl.dismiss();
           })
@@ -132,8 +138,12 @@ export class AppComponent {
           this.loadingCtrl.create({
             message: "Erstelle Kategorie..."
           }).then(loadingEl => {
+            if (!data) return;
+            const trimmedCategoryName = data.categoryName.trim();
+            if (trimmedCategoryName === "") return;
+
             const newCategory: CategoryDto = {
-              name: data.categoryName,
+              name: trimmedCategoryName,
               groupId: this.activeGroup.id
             };
             this.categoryService.addCategory(newCategory);

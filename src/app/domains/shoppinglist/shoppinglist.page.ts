@@ -81,6 +81,7 @@ export class ShoppinglistPage implements OnInit {
         const loading = await this.alertService.presentLoading(
           'Erstelle Einkaufsliste...'
         );
+
         const newShoppingList: AddEditShoppinglistDto = {
           id: null,
           name: listName.trim(),
@@ -105,9 +106,14 @@ export class ShoppinglistPage implements OnInit {
           this.loadingCtrl.create({
             message: "Bearbeite Einkaufsliste..."
           }).then(loadingEl => {
+
+            if (!data) return;
+            const trimmedListName = data.listName.trim();
+            if (trimmedListName === "") return;
+
             const updateShoppingList: AddEditShoppinglistDto = {
               id: list.id, 
-              name: data.listName.trim(), 
+              name: trimmedListName, 
               groupId: this.activeGroup.id
             };
 
@@ -162,10 +168,12 @@ export class ShoppinglistPage implements OnInit {
   
   onCreateItem(list: ShoppinglistDto) {
     if (!this.newItemInputs[list.id]?.trim()) return;
+    const trimmedItemName = this.newItemInputs[list.id]?.trim();
+    if (trimmedItemName === "") return;
 
     const newItem: AddEditShoppingItemDto = {
       id: null,
-      name: this.newItemInputs[list.id].trim(),
+      name: trimmedItemName,
       completed: false,
       shoppingListId: list.id,
       groupId: this.activeGroup.id,
@@ -196,9 +204,13 @@ export class ShoppinglistPage implements OnInit {
           this.loadingCtrl.create({
             message: "Bearbeite Eintrag..."
           }).then(loadingEl => {
+            if (!data) return;
+            const trimmedItemName = data.itemName.trim();
+            if (trimmedItemName === "") return;
+
             const updateShoppingItem: AddEditShoppingItemDto = {
               id: item.id,
-              name: data.itemName,
+              name: trimmedItemName,
               completed: item.completed,
               groupId: this.activeGroup.id,
               shoppingListId: list.id

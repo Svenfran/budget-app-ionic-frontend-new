@@ -48,7 +48,7 @@ export class AlertService {
         {
           text: okText,
           handler: (data) => {
-            if (data.inputValue && onConfirm) {
+            if (data.inputValue && onConfirm && data.inputValue.trim() != "") {
               onConfirm(data.inputValue);
             }
           },

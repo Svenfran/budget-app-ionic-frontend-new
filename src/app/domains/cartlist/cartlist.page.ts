@@ -22,6 +22,8 @@ import { CartFilter } from 'src/app/filter-modal/model/CartFilter';
 })
 export class CartlistPage implements OnInit {
 
+  public DELETED: string = "gelöscht";
+  
   public cartList = this.cartService.cartList;
   public initCartList = this.cartService.initCartList;
   public activeGroup = this.groupService.activeGroup();
@@ -34,6 +36,7 @@ export class CartlistPage implements OnInit {
   public visibleItems: Set<number> = new Set<number>();
   public hidden: boolean = true;
   public cartFilter: CartFilter = {};
+  public cartVisible: boolean = false;
 
   constructor(
     private cartService: CartService,
@@ -50,12 +53,14 @@ export class CartlistPage implements OnInit {
       this.activeGroup = this.groupService.activeGroup();
       this.overviewService.overviewRefresh();
       this.categoryService.categoryUpdate();
+      this.groupService.memberUpdated();
       this.isLoading = true;
       if (!this.activeGroup.flag?.includes(INIT_VALUES.DEFAULT)) {
         this.cartService.getCartListByGroupId(this.activeGroup);
         this.resetFilterParams();
       }
       this.isLoading = false;
+      this.cartVisible = false;
     });
   
   }
@@ -66,12 +71,28 @@ export class CartlistPage implements OnInit {
     })
   }
 
+  // TODO: Evtl. nur option in Filtermodal -> Gelöschte Nutzer -> if true -> filter carts?!
+  toggleCartVisability() {
+    if (!this.cartVisible) {
+      this.cartList.set(this.initCartList());
+      this.cartVisible = true;
+    } else {
+      this.cartList.update(carts => 
+        carts.filter(cart => 
+          cart.deleted === false
+        )
+      )
+      this.cartVisible = false;
+    }
+  }
+
   resetFilterParams() {
     this.filterMode.set(false);
     this.filterTerm.set("");
     this.cartFilter = {};
+    this.cartVisible = false;
   }
-
+  
   refreshCartList(event: CustomEvent) {
     setTimeout(() => {
       this.cartService.getCartListByGroupId(this.activeGroup, true);

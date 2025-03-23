@@ -45,7 +45,7 @@ export class WebSocketService {
       onWebSocketClose: () => {
         console.warn('WebSocket geschlossen');
         this.connectionState.next(false);
-        this.handleReconnect(token);
+        // this.handleReconnect(token);
       },
     });
 

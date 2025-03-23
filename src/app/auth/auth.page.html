@@ -54,8 +54,9 @@
             </ion-item>
             <ion-item *ngIf="password?.invalid && (password?.dirty || password?.touched)" lines="none">
               <ion-label color="danger">
-                <small *ngIf="password?.errors?.['required']">Pflichtfeld!</small>
-                <small *ngIf="password?.errors?.['minlength']">Mindestens 6 Zeichen erforderlich</small>
+                <small *ngIf="password?.errors?.['required']">Pflichtfeld!<br></small>
+                <small *ngIf="password?.errors?.['minlength']">Mindestens 6 Zeichen erforderlich<br></small>
+                <small *ngIf="password?.errors?.['pattern']">Das Password darf keine Leerzeichen enthalten<br></small>
               </ion-label>
             </ion-item>
           </ion-list>

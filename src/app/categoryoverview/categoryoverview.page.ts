@@ -3,7 +3,7 @@ import { CategoryService } from '../service/category.service';
 import { CategoryDto } from '../model/category-dto';
 import { GroupService } from '../service/group.service';
 import { AlertController, LoadingController } from '@ionic/angular';
-import { INIT_VALUES } from '../constants/default-values';
+import { INIT_NUMBERS, INIT_VALUES } from '../constants/default-values';
 import { CartService } from '../domains/cartlist/service/cart.service';
 import { AlertService } from '../service/alert.service';
 
@@ -58,8 +58,12 @@ export class CategoryoverviewPage implements OnInit {
           this.loadingCtrl.create({
             message: "Erstelle Kategorie..."
           }).then(loadingEl => {
+            if (!data) return;
+            const trimmedCategoryName = data.categoryName.trim();
+            if (trimmedCategoryName === "") return;
+
             const newCategory: CategoryDto = {
-              name: data.categoryName,
+              name: trimmedCategoryName,
               groupId: this.activeGroup().id
             };
             this.categoryService.addCategory(newCategory);
@@ -70,7 +74,10 @@ export class CategoryoverviewPage implements OnInit {
       inputs: [
         {
           name: "categoryName",
-          placeholder: "Name der Kategorie"
+          placeholder: "Name der Kategorie",
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {
@@ -94,9 +101,14 @@ export class CategoryoverviewPage implements OnInit {
             message: "Bearbeite Kategorie..."
           }).then(loadingEl => {
             const foundCategory = this.categories().find(c => c.id === category.id);
+
+            if (!data) return;
+            const trimmedCategoryName = data.categoryName.trim();
+            if (trimmedCategoryName === "") return;
+
             const updatedCategory: CategoryDto = {
               id: foundCategory?.id,
-              name: data.categoryName,
+              name: trimmedCategoryName,
               groupId: foundCategory?.groupId!
             };
             this.categoryService.updateCategory(updatedCategory);
@@ -108,7 +120,10 @@ export class CategoryoverviewPage implements OnInit {
       inputs: [
         {
           name: "categoryName",
-          value: category.name
+          value: category.name,
+          attributes: {
+            maxlength: INIT_NUMBERS.MAX_LENGTH
+          }
         }
       ]
     }).then(alertEl => alertEl.present().then(() => {

@@ -39,7 +39,7 @@ export class AuthPage implements OnInit {
     this.form = this.fb.group({
       userName: [''],
       userEmail: ['',[ Validators.required, Validators.pattern(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i) ]],
-      password: ['',[ Validators.required, Validators.minLength(6) ]],
+      password: ['',[ Validators.required, Validators.minLength(6), Validators.pattern(/^\S*$/) ]],
     });
     
     this.menuCtrl.enable(false, 'm1');

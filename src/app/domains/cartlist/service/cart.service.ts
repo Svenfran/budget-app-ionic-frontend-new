@@ -51,6 +51,7 @@ export class CartService {
       .get<Cart[]>(`${this.cartlistUrl}/${group.id}`)
       .subscribe({
         next: (result) => {
+          // this.cartList.set(result.filter(cart => cart.deleted === false) || []);
           this.cartList.set(result || []);
           this.initCartList.set(result || [])
           if (refresh) this.triggerUpdate();
@@ -78,7 +79,8 @@ export class CartService {
             datePurchased: result.datePurchased,
             groupId: result.groupId,
             userDto: result.userDto,
-            categoryDto: result.categoryDto
+            categoryDto: result.categoryDto,
+            deleted: result.deleted
           }
 
           this.cartList.update(carts => {
@@ -122,7 +124,8 @@ export class CartService {
             datePurchased: result.datePurchased,
             groupId: result.groupId,
             userDto: result.userDto,
-            categoryDto: result.categoryDto
+            categoryDto: result.categoryDto,
+            deleted: result.deleted,
           }
 
           this.cartList.update(carts => {

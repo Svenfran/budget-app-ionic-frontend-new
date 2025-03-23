@@ -1,4 +1,11 @@
-<ion-app>
+<ng-container *ngIf="backendStatus === 'DOWN'">
+  <ion-content class="ion-padding ion-text-center">
+    <h1>🚨 Backend nicht erreichbar</h1>
+    <p>Bitte versuche es später erneut.</p>
+  </ion-content>
+</ng-container>
+
+<ion-app *ngIf="backendStatus === 'UP'">
   <ion-menu side="start" menuId="m1" contentId="main">
     <ion-header class="ion-no-border">
       <ion-toolbar>  

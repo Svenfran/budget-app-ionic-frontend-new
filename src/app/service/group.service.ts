@@ -37,6 +37,7 @@ export class GroupService {
   public groupMembershipHistory: WritableSignal<Zeitraum[]> = signal<Zeitraum[]>([]);
   public groupMembers: WritableSignal<GroupMembers> = signal<GroupMembers>(Init.DEFAULT_GROUP_MEMBERS);
   public groupMembersWithOwner = computed(() => [{id: this.groupMembers().ownerId, userName: this.groupMembers().ownerName }, ...this.groupMembers().members]);
+  public memberUpdated = signal(0);
 
   private user: User | undefined;
 
@@ -49,6 +50,10 @@ export class GroupService {
     this.authService.user.pipe().subscribe(user => {
       if (user) this.user = user;
     })
+  }
+
+  triggerUpdate() {
+    this.memberUpdated.set(this.memberUpdated() + 1);
   }
 
   public setActiveGroup(group: Group) {
@@ -235,6 +240,7 @@ export class GroupService {
 
           const message = "Benutzer wurde zur Gruppe hinzugefügt";
           this.alertService.showToast(message);
+          this.triggerUpdate();
         },
         error: (err) => {
           console.error("Error adding member to group:", err);
@@ -279,6 +285,7 @@ export class GroupService {
           this.groupOverviewList.update(groups => groups.map(gr =>
             gr.id === result.id ? {...gr, memberCount: gr.memberCount - 1} : gr
           ));
+          this.triggerUpdate();
         },
         error: (err) => {
           console.error("Error removing member from group:", err);

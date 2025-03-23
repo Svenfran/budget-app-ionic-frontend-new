@@ -29,6 +29,11 @@
                 <ion-icon class="pop-icon" name="filter-circle-outline" slot="start"></ion-icon>
                 <ion-label>Filter</ion-label>
               </ion-item>
+              <!-- <ion-item size="small" [button]="true" [detail]="false" (click)="toggleCartVisability()">
+                <ion-icon *ngIf="!cartVisible" class="pop-icon" name="chevron-expand-outline" slot="start"></ion-icon>
+                <ion-icon *ngIf="cartVisible" class="pop-icon" name="chevron-collapse-outline" slot="start"></ion-icon>
+                <ion-label>gelöschte Einkäufe {{ cartVisible ? 'ausblenden' : 'einblenden' }}</ion-label>
+              </ion-item> -->
             </ion-list>
           </ion-content>
         </ng-template>
@@ -75,7 +80,7 @@
         <cdk-virtual-scroll-viewport itemSize="56" minBufferPx="900" maxBufferPx="1350">
           <ion-list *ngIf="!isLoading && cartList().length > 0">
             <ion-item-sliding *cdkVirtualFor="let cart of cartList(), let i = index" #slidingItem>
-              <ion-item [lines]="i == cartList().length - 1 ? 'none' : 'inset'">
+              <ion-item [lines]="i == cartList().length - 1 ? 'none' : 'inset'"  [disabled]="cart.deleted === true">
                 <ion-avatar slot="start" (click)="onFilter('category', cart.categoryDto.name)">
                   <div class="category-circle">
                     <p *ngIf="cart.categoryDto.name !== 'Ausgleichszahlung'">{{ cart.categoryDto.name.substring(0, 2) | uppercase }}</p>
@@ -89,11 +94,15 @@
                   </div>
                   <p *ngIf="isDescriptionVisible(i)" class="ion-text-wrap">{{cart.description}}</p>
                   <div class="cart-details">
-                    <ion-text *ngIf="cart.userDto.userName !== user?.name" (click)="onFilter('user', cart.userDto.userName)" color="medium" >
+                    <ion-text *ngIf="cart.userDto.userName !== user?.name && cart.deleted === false" (click)="onFilter('user', cart.userDto.userName)" color="medium" >
                       {{ (cart.userDto.userName.length > 10) ? (cart.userDto.userName | slice:0:10) + '...' : cart.userDto.userName }}
                     </ion-text>
-                    <ion-text *ngIf="cart.userDto.userName === user?.name" (click)="onFilter('user', cart.userDto.userName)" color="primary" >
+                    <ion-text *ngIf="cart.userDto.userName === user?.name && cart.deleted === false" (click)="onFilter('user', cart.userDto.userName)" color="primary" >
                       <strong>{{ (cart.userDto.userName.length > 10) ? (cart.userDto.userName | slice:0:10) + '...' : cart.userDto.userName }}</strong>
+                    </ion-text>
+                    <ion-text *ngIf="cart.deleted === true" (click)="onFilter('user', cart.userDto.userName)" color="medium" >
+                      <!-- <em>{{ cart.userDto.userName.includes(DELETED) ? cart.userDto.userName : cart.userDto.userName + ' entfernt' }}</em> -->
+                      <em>{{ cart.userDto.userName.includes(DELETED) ? cart.userDto.userName : 'Nutzer entfernt' }}</em>
                     </ion-text>
                     <div class="cart-name-date">
                       <ion-text color="medium">{{ cart.datePurchased | date: "dd.MM.yyyy" }}</ion-text>

@@ -119,10 +119,11 @@ export class NewEditCartPage implements OnInit {
         name: category.name,
         groupId: category.groupId
       }
+
       const newCart: Cart = {
         id: null,
-        title: this.form.value.title,
-        description: this.form.value.description,
+        title: this.form.value.title.trim(),
+        description: this.form.value.description.trim(),
         amount: this.form.value.amount,
         datePurchased: this.getDateFromString(this.form.value.datePurchased),
         groupId: this.activeGroup.id,
@@ -148,8 +149,8 @@ export class NewEditCartPage implements OnInit {
       }
       const updatedCart: Cart = {
         id: this.form.value.id,
-        title: this.form.value.title,
-        description: this.form.value.description,
+        title: this.form.value.title.trim(),
+        description: this.form.value.description.trim(),
         amount: this.form.value.amount,
         datePurchased: this.getDateFromString(this.form.value.datePurchased),
         groupId: this.activeGroup.id,
