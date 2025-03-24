@@ -41,9 +41,13 @@ export class ShoppinglistPage implements OnInit {
       this.activeGroup = this.groupService.activeGroup();
       this.isLoading = true;
       if (!this.activeGroup.flag?.includes(INIT_VALUES.DEFAULT)) {
-        this.shoppinglistService.getShoppingListsWithItems(this.activeGroup);
+        this.shoppingLists.set([]);
+        this.shoppinglistService.getShoppingListsWithItems(this.activeGroup, () => {
+          this.isLoading = false;
+        });
+      } else {
+        this.isLoading = false;
       }
-      this.isLoading = false;
     });
   }
 
@@ -57,9 +61,8 @@ export class ShoppinglistPage implements OnInit {
         }
       })
     );
-    this.isLoading = false;
   }
-
+  
   ngOnDestroy() {
     this.webSocketService.unsubscribeAll();
   }

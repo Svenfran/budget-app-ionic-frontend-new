@@ -32,22 +32,25 @@ export class ShoppinglistService {
     return this.shoppingLists;
   }
 
-  getShoppingListsWithItems(group: Group, requestTimeStamp: number = this.INITIAL_REQUEST_TIMESTAMP): void{
+  getShoppingListsWithItems(group: Group, onComplete?: () => void): void{
     if (group.flag?.includes(INIT_VALUES.DEFAULT)) {
       this.shoppingLists.set([]);
+      onComplete?.();
       return;
     };
 
-    const requestParam = `?requestTimeStamp=${requestTimeStamp}`;
+    const requestParam = `?requestTimeStamp=${this.INITIAL_REQUEST_TIMESTAMP}`;
     this.http
       .get<ShoppinglistDto[]>(`${this.shoppingListsWithItemsUrl}/${group.id}${requestParam}`)
       .subscribe({
         next: (result) => {
           this.shoppingLists.set(result || []);
+          onComplete?.();
         },
         error: (err) => {
           console.error('Error fetching shoppinglists:', err);
           this.shoppingLists.set([]);
+          onComplete?.();
         },
       });
   }

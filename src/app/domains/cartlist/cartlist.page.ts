@@ -56,10 +56,14 @@ export class CartlistPage implements OnInit {
       this.groupService.memberUpdated();
       this.isLoading = true;
       if (!this.activeGroup.flag?.includes(INIT_VALUES.DEFAULT)) {
-        this.cartService.getCartListByGroupId(this.activeGroup);
-        this.resetFilterParams();
+        this.cartList.set([]);
+        this.cartService.getCartListByGroupId(this.activeGroup, false, () => {
+          this.isLoading = false;
+          this.resetFilterParams();
+        });
+      } else {
+        this.isLoading = false;
       }
-      this.isLoading = false;
       this.cartVisible = false;
     });
   

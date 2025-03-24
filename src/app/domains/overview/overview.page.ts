@@ -48,10 +48,15 @@ export class OverviewPage implements OnInit {
       this.groupService.memberUpdated();
       this.isLoading = true;
       if (!this.activeGroup.flag?.includes(INIT_VALUES.DEFAULT)) {
-        this.overviewService.getSpendingsOverviewYearly(this.activeGroup);
+        this.spendingsOverviewMonthly.set(null);
+        this.spendingsOverviewYearly.set(null);
+        this.overviewService.getSpendingsOverviewYearly(this.activeGroup, false, () => {
+          this.isLoading = false;
+        });
         this.overviewService.getSpendingsOverview(this.currentYear, this.activeGroup);
+      } else {
+        this.isLoading = false;
       }
-      this.isLoading = false;
     });
   }
 
@@ -88,9 +93,15 @@ export class OverviewPage implements OnInit {
   getSpendingsOverview(year: number) {
     this.segment = 'month';
     this.isLoading = true;
-    this.overviewService.getSpendingsOverviewYearly(this.activeGroup, true);
-    this.overviewService.getSpendingsOverview(year, this.activeGroup, true);
-    this.isLoading = false;
+
+    this.spendingsOverviewMonthly.set(null);
+    this.spendingsOverviewYearly.set(null);
+
+    this.overviewService.getSpendingsOverviewYearly(this.activeGroup, false, () => {
+      this.isLoading = false;
+    });
+    this.overviewService.getSpendingsOverview(year, this.activeGroup);
+
   }
 
   ionViewWillEnter() {

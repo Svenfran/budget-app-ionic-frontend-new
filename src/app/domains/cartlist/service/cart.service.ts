@@ -40,10 +40,11 @@ export class CartService {
     this.cartUpdated.set(this.cartUpdated() + 1)
   }
 
-  getCartListByGroupId(group: Group, refresh?: boolean): void {
+  getCartListByGroupId(group: Group, refresh?: boolean, onComplete?: () => void): void {
     if (group.flag?.includes(INIT_VALUES.DEFAULT)) {
       this.cartList.set([]);
       this.initCartList.set([]);
+      onComplete?.();
       return;
     };
 
@@ -51,15 +52,16 @@ export class CartService {
       .get<Cart[]>(`${this.cartlistUrl}/${group.id}`)
       .subscribe({
         next: (result) => {
-          // this.cartList.set(result.filter(cart => cart.deleted === false) || []);
           this.cartList.set(result || []);
-          this.initCartList.set(result || [])
+          this.initCartList.set(result || []);
+          onComplete?.();
           if (refresh) this.triggerUpdate();
         },
         error: (err) => {
           console.error('Error fetching cartlist:', err);
           this.cartList.set([]);
           this.initCartList.set([]);
+          onComplete?.();
         }
       });
   }

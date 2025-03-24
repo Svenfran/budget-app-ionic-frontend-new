@@ -64,9 +64,10 @@ export class OverviewService {
       })
   };
 
-  getSpendingsOverviewYearly(group: Group, refresh?: boolean): void {
+  getSpendingsOverviewYearly(group: Group, refresh?: boolean, onComplete?: () => void): void {
     if (group.flag?.includes(INIT_VALUES.DEFAULT)) {
       this.spendingsOverview.set(null);
+      onComplete?.();
       return;
     };
 
@@ -76,12 +77,14 @@ export class OverviewService {
         next: (result) => {
           this.spendingsOverviewYearly.set(result || null);
           this.availableYears.set(result.availableYears || []);
+          onComplete?.();
           if (refresh) { this.triggerUpdate() };
         },
         error: (err) => {
           console.log('Error fetching yearly spendings:', err);
           this.spendingsOverviewYearly.set(null);
           this.availableYears.set([]);
+          onComplete?.();
         }
       })
   }
