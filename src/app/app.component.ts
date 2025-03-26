@@ -80,6 +80,7 @@ export class AppComponent {
         this.user = user;
         this.webSocketService.connect(user.token!);
         this.groupService.getGroupsForSideNav();
+        this.groupService.getGroupsForOverview();
 
         this.subscriptions.push(
           this.webSocketService.getConnectionState().subscribe(isConnected => {
@@ -103,6 +104,11 @@ export class AppComponent {
 
   setActiveGroup(group: Group) {
     this.groupService.setActiveGroup(group);
+  }
+
+  groupHasMembers(group: Group): boolean {
+    const foundGroup = this.groupOverviewList().find(gr => gr.id === group.id);
+    return foundGroup?.memberCount! > 0;
   }
 
   onCreateGroup() {

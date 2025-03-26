@@ -42,7 +42,8 @@
                       [class.active]="group.id === activeGroup.id"
                       lines="none" 
                       button>
-              <ion-icon name="folder-outline" slot="start"></ion-icon>
+              <ion-icon *ngIf="groupHasMembers(group)" name="people-outline" slot="start"></ion-icon>
+              <ion-icon *ngIf="!groupHasMembers(group)" name="person-outline" slot="start"></ion-icon>
               <ion-label class="ion-text-wrap">{{ group.name }}</ion-label>
             </ion-item>
           </ion-menu-toggle>
