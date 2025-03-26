@@ -1,4 +1,4 @@
-import { Component, effect, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { GroupService } from '../service/group.service';
 import { User } from '../auth/user';
 import { AuthService } from '../auth/auth.service';
@@ -8,6 +8,8 @@ import { NewMemberDto } from './model/new-member-dto';
 import { GroupmembersPage } from '../groupmembers/groupmembers.page';
 import { INIT_NUMBERS } from '../constants/default-values';
 import { Router } from '@angular/router';
+import { EmailValidator } from '../Validator/email-validator';
+import { AlertService } from '../service/alert.service';
 
 @Component({
   selector: 'app-groupoverview',
@@ -28,7 +30,7 @@ export class GroupoverviewPage implements OnInit {
     private loadingCtrl: LoadingController,
     private modalCtrl: ModalController,
     private router: Router,
-    private platform: Platform
+    private alertService: AlertService
   ) {}
 
   ngOnInit() {
@@ -162,10 +164,19 @@ export class GroupoverviewPage implements OnInit {
           this.loadingCtrl.create({
             message: "Füge Benutzer hinzu..."
           }).then(loadingEl => {
+            if (!data) return;
+            const trimmedEmail = data.memberEmail.trim();
+            if (EmailValidator.isNotValid(trimmedEmail)) {
+              let header = "Fehlerhafte E-Mail-Adresse!";
+              let message = "Bitte gib eine gültige E-mail-Adresse an.";
+              this.alertService.showErrorAlert(header, message);
+              return
+            }
+
             let newMember: NewMemberDto = {
               id: group.id,
               name: group.name,
-              newMemberEmail: data.memberEmail.trim()
+              newMemberEmail: trimmedEmail
             }
             this.groupService.addMemberToGroup(newMember);
             loadingEl.dismiss();
