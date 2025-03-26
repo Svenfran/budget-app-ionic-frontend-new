@@ -66,6 +66,16 @@ const routes: Routes = [
     path: 'password-change',
     loadChildren: () => import('./password-change/password-change.module').then( m => m.PasswordChangePageModule),
     canLoad: [AuthGuard]
+  },
+  {
+    path: 'no-group',
+    loadChildren: () => import('./error-page/no-group/no-group.module').then( m => m.NoGroupPageModule),
+    canLoad: [AuthGuard]
+  },
+  {
+    path: 'server-unavailable',
+    loadChildren: () => import('./error-page/server-unavailable/server-unavailable.module').then( m => m.ServerUnavailablePageModule),
+    canLoad: [AuthGuard]
   }
 
 ];

@@ -5,7 +5,6 @@ import { GroupService } from '../service/group.service';
 import { AlertController, LoadingController } from '@ionic/angular';
 import { INIT_NUMBERS, INIT_VALUES } from '../constants/default-values';
 import { CartService } from '../domains/cartlist/service/cart.service';
-import { AlertService } from '../service/alert.service';
 
 @Component({
   selector: 'app-categoryoverview',

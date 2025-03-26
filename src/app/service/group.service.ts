@@ -12,8 +12,9 @@ import { NewMemberDto } from '../groupoverview/model/new-member-dto';
 import { AlertService } from './alert.service';
 import { GroupMembers } from '../groupmembers/model/groupmembers-dto';
 import { RemoveMemberDto } from '../groupoverview/model/remove-member';
-import { UserDto } from '../model/user-dto';
 import { ChangeGroupOwnerDto } from '../groupmembers/model/change-group-owner-dto';
+import { Router } from '@angular/router';
+import { AppComponent } from '../app.component';
 
 @Injectable({
   providedIn: 'root'
@@ -45,7 +46,8 @@ export class GroupService {
     private http: HttpClient,
     private storageService: StorageService,
     private authService: AuthService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private router: Router
   ) {
     this.authService.user.pipe().subscribe(user => {
       if (user) this.user = user;
@@ -99,6 +101,12 @@ export class GroupService {
           const groups = this.groupsSideNav();
 
           this.updateActiveGroup(groups, activeGroup);
+
+          if (groups.length === 0) {
+            this.router.navigateByUrl('/no-group', { replaceUrl: true });
+          } else {
+            this.router.navigateByUrl('/domains/tabs/overview', { replaceUrl: true });
+          }
         },
         error: (err) => {
           console.error("Error fetching groups:", err);
@@ -122,7 +130,7 @@ export class GroupService {
       })
   }
 
-  addGroup(group: Group): void {
+  addGroup(group: Group, callingPage?: string): void {
     const currentGroupsSidenav = this.groupsSideNav();
     const currentGroupsOverview = this.groupOverviewList();
     this.http
@@ -147,6 +155,11 @@ export class GroupService {
             memberCount: 0
           }
           this.groupOverviewList.update(groups => [...groups, newGroupOverview]);
+
+          // navigate to overview page if called from no-group page
+          if (callingPage?.includes("no-group")) {
+            this.router.navigateByUrl('/domains/tabs/overview', { replaceUrl: true });
+          };
         },
         error: (err) => {
           console.error("Error adding group:", err);
@@ -286,6 +299,10 @@ export class GroupService {
             gr.id === result.id ? {...gr, memberCount: gr.memberCount - 1} : gr
           ));
           this.triggerUpdate();
+
+          if (this.groupOverviewList().length === 0) {
+            this.router.navigateByUrl('/no-group', { replaceUrl: true });
+          }
         },
         error: (err) => {
           console.error("Error removing member from group:", err);

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController, MenuController } from '@ionic/angular';
 import { AlertService } from '../service/alert.service';
 import { UserprofileService } from '../userprofile/service/userprofile.service';
 import { User } from '../auth/user';
@@ -27,7 +27,8 @@ export class PasswordChangePage implements OnInit {
     private fb: FormBuilder,
     private userprofileService: UserprofileService,
     private loadingCtrl: LoadingController,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private menuCtrl: MenuController
   ) { }
 
   ngOnInit() {
@@ -41,6 +42,10 @@ export class PasswordChangePage implements OnInit {
       newPasswordConfirmed: ['', [Validators.required, Validators.minLength(6), Validators.pattern(/^\S*$/)]],
     });
     
+  }
+
+  ionViewDidEnter() {
+    this.menuCtrl.enable(false);
   }
 
   get oldPassword() {return this.form.get('oldPassword');}

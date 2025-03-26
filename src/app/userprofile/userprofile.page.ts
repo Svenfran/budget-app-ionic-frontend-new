@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { User } from '../auth/user';
-import { AlertController, LoadingController } from '@ionic/angular';
+import { AlertController, LoadingController, MenuController } from '@ionic/angular';
 import { UserprofileService } from './service/userprofile.service';
 import { AlertService } from '../service/alert.service';
 import { UserDto } from '../model/user-dto';
 import { EmailValidator } from '../Validator/email-validator';
 import { INIT_NUMBERS } from '../constants/default-values';
+import { AppComponent } from '../app.component';
 
 @Component({
   selector: 'app-userprofile',
@@ -23,13 +24,25 @@ export class UserprofilePage implements OnInit {
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
     private userProfileService: UserprofileService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private appComponent: AppComponent,
+    private menuCtrl: MenuController
   ) { }
 
   ngOnInit() {
     this.authService.user.pipe().subscribe(user => {
       if (user) this.user = user;
     })
+  }
+
+  ionViewDidEnter() {
+    this.menuCtrl.enable(false);
+  }
+
+  ionViewWillLeave() {
+    if (!this.appComponent.getNextUrl()?.includes("no-group")) {
+      this.menuCtrl.enable(true);
+    }
   }
 
   changeUserName() {

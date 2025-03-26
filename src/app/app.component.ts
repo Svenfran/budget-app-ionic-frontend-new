@@ -1,7 +1,7 @@
 import { Component, effect, Renderer2 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from './auth/auth.service';
-import { Router } from '@angular/router';
+import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { User } from './auth/user';
 import { WebSocketService } from './service/websocket.service';
 import { GroupService } from './service/group.service';
@@ -16,7 +16,6 @@ import { UserDto } from './model/user-dto';
 import { CategoryDto } from './model/category-dto';
 import { CategoryService } from './service/category.service';
 import { INIT_NUMBERS } from './constants/default-values';
-import { Device } from '@capacitor/device';
 
 @Component({
   selector: 'app-root',
@@ -36,8 +35,11 @@ export class AppComponent {
   public activeGroup = this.groupService.activeGroup();
   public darkMode: boolean = true;
   private subscriptions: Subscription[] = [];
+  private backButtonSubscription: any;
   public backendStatus: "UP" | "DOWN" = "UP";
-  
+  private previousUrl: string | null = null;
+  private currentUrl: string | null = null;
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -53,6 +55,14 @@ export class AppComponent {
     private categoryService: CategoryService
   ) {
     this.initializeApp();
+
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.previousUrl = this.currentUrl;
+        this.currentUrl = event.url;
+      }
+    });
+
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
     });
@@ -81,6 +91,14 @@ export class AppComponent {
       }
     });
 
+  }
+
+  getNextUrl(): string | null {
+    return this.currentUrl;
+  }
+
+  getPreviousUrl(): string | null {
+    return this.previousUrl;
   }
 
   setActiveGroup(group: Group) {
@@ -190,14 +208,28 @@ export class AppComponent {
   }
 
   initBackButton() {
-    this.platform.backButton.subscribeWithPriority(10, () => {
+    // Falls es bereits eine Subscription gibt, diese zuerst entfernen
+    if (this.backButtonSubscription) {
+      this.backButtonSubscription.unsubscribe();
+    }
+
+    this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(10, () => {
       const currentUrl = this.router.url;
-      if (currentUrl === "/auth" || currentUrl === "/domains/tabs/overview") {
+      const pattern = new RegExp('auth|domains/tabs/overview|no-group');
+
+      if (pattern.test(currentUrl)) {
         App.exitApp();
-      } else {
-        this.navCtrl.back();
+      } 
+      
+      this.navCtrl.back();
+    });
+
+    // Stelle sicher, dass der Back-Button-Handler nach Navigation aktualisiert wird
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.initBackButton();
       }
-    })
+    });
   }
 
   onToggleColorTheme(event: any) {
@@ -235,8 +267,6 @@ export class AppComponent {
 
   ngOnDestroy() {
     this.authSub.unsubscribe();
-    this.webSocketService.unsubscribeAll();
-    this.webSocketService.disconnect();
   }
 
   subscribeToTopics(userId: number) {
@@ -282,6 +312,10 @@ export class AppComponent {
         if (this.activeGroup.id === group.id) {
           this.groupService.updateActiveGroup(this.sideNavGroups(), this.activeGroup);
         }
+
+        if (this.sideNavGroups().length === 0) {
+          this.router.navigateByUrl("/no-group", { replaceUrl: true });
+        }
       }
     );
 
@@ -307,6 +341,10 @@ export class AppComponent {
                 : group
             );
           });
+        }
+
+        if (this.sideNavGroups().length === 0) {
+          this.router.navigateByUrl("/no-group", { replaceUrl: true });
         }
       
       }
@@ -337,6 +375,11 @@ export class AppComponent {
                 : group
             );
           });
+        }
+
+        if (this.currentUrl?.includes("/no-group")) {
+          this.groupService.setActiveGroup(group);
+          this.router.navigateByUrl("/domains/tabs/overview", { replaceUrl: true });
         }
       
       }

@@ -1,0 +1,28 @@
+<ion-header class="ion-no-border ion-text-center">
+  <ion-toolbar>
+    <ion-title></ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-grid class="h-full ion-text-center">
+    <ion-row class="h-full ion-align-items-center ion-justify-content-center">
+      <ion-col>
+        <ion-icon name="people-outline" size="large" color="medium"></ion-icon>
+        <h2>Oops! Keine Gruppen</h2>
+        <p>Füge eine neue Gruppe hinzu, um loszulegen..</p>
+        <ion-button shape="round" (click)="onCreateGroup()">
+          <ion-icon slot="start" name="add-circle"></ion-icon>
+          Gruppe erstellen
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <ion-toolbar class="ion-padding-horizontal">
+    <ion-text slot="start" routerLink="/userprofile">Profil</ion-text>
+    <ion-text slot="end" (click)="exitApp()">Exit</ion-text>
+  </ion-toolbar>
+</ion-footer>

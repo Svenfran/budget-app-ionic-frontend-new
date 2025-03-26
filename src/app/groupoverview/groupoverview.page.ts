@@ -2,11 +2,12 @@ import { Component, effect, OnInit } from '@angular/core';
 import { GroupService } from '../service/group.service';
 import { User } from '../auth/user';
 import { AuthService } from '../auth/auth.service';
-import { AlertController, IonItemSliding, LoadingController, ModalController } from '@ionic/angular';
+import { AlertController, IonItemSliding, LoadingController, ModalController, Platform } from '@ionic/angular';
 import { Group } from '../model/group';
 import { NewMemberDto } from './model/new-member-dto';
 import { GroupmembersPage } from '../groupmembers/groupmembers.page';
 import { INIT_NUMBERS } from '../constants/default-values';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-groupoverview',
@@ -25,7 +26,9 @@ export class GroupoverviewPage implements OnInit {
     private authService: AuthService,
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private router: Router,
+    private platform: Platform
   ) {}
 
   ngOnInit() {
@@ -136,6 +139,10 @@ export class GroupoverviewPage implements OnInit {
           }).then(loadingEl => {
             this.groupService.deleteGroup(group);
             loadingEl.dismiss();
+            // Redirect to no-group page if last group is deleted
+            if (this.groupOverviewList().length === 1 && this.groupOverviewList()[0].id === group.id) {
+              this.router.navigate(['/no-group'], { replaceUrl: true });
+            }
           })
         }
       }]
