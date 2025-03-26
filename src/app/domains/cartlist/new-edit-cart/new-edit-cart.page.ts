@@ -168,7 +168,8 @@ export class NewEditCartPage implements OnInit {
     this.setToday();
 
     this.minDate = moment(this.activeGroup.dateCreated).format('YYYY-MM-DD') + 'T00:00:00';
-    this.maxDate = moment().add(1, 'year').format('YYYY-MM-DD') + 'T00:00:00';
+    // maxDate is today because adding a cart in the future and leaving the group before the date leads to a problem
+    this.maxDate = moment().format('YYYY-MM-DD') + 'T00:00:00';
 
     if (!this.isAddMode) {
       const cart: Cart = this.cartList().find(c => c.id === +this.cartId!)!;

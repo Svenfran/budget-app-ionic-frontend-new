@@ -22,7 +22,7 @@ export class SettlementPaymentPage implements OnInit {
   public groupMembers = this.groupService.groupMembers;
   public formattedString = moment().format("DD.MM.YYYY");
   public minDate = moment(this.activeGroup().dateCreated).format('YYYY-MM-DD') + 'T00:00:00';
-  public maxDate = moment().add(1, 'year').format('YYYY-MM-DD') + 'T00:00:00';
+  public maxDate = moment().format('YYYY-MM-DD') + 'T00:00:00';
   public showPicker = false;
   public dateValue = "";
   public zeitraeume = this.groupService.groupMembershipHistory;
