@@ -7,7 +7,7 @@ import { AlertService } from '../service/alert.service';
 import { UserDto } from '../model/user-dto';
 import { EmailValidator } from '../Validator/email-validator';
 import { INIT_NUMBERS } from '../constants/default-values';
-import { AppComponent } from '../app.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-userprofile',
@@ -25,8 +25,8 @@ export class UserprofilePage implements OnInit {
     private loadingCtrl: LoadingController,
     private userProfileService: UserprofileService,
     private alertService: AlertService,
-    private appComponent: AppComponent,
-    private menuCtrl: MenuController
+    private menuCtrl: MenuController,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -40,7 +40,7 @@ export class UserprofilePage implements OnInit {
   }
 
   ionViewWillLeave() {
-    if (!this.appComponent.getNextUrl()?.includes("no-group")) {
+    if (!this.router.url.includes("no-group")) {
       this.menuCtrl.enable(true);
     }
   }

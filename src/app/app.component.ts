@@ -56,13 +56,6 @@ export class AppComponent {
   ) {
     this.initializeApp();
 
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationStart) {
-        this.previousUrl = this.currentUrl;
-        this.currentUrl = event.url;
-      }
-    });
-
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
     });
@@ -92,14 +85,6 @@ export class AppComponent {
       }
     });
 
-  }
-
-  getNextUrl(): string | null {
-    return this.currentUrl;
-  }
-
-  getPreviousUrl(): string | null {
-    return this.previousUrl;
   }
 
   setActiveGroup(group: Group) {
@@ -230,12 +215,6 @@ export class AppComponent {
       this.navCtrl.back();
     });
 
-    // Stelle sicher, dass der Back-Button-Handler nach Navigation aktualisiert wird
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        this.initBackButton();
-      }
-    });
   }
 
   onToggleColorTheme(event: any) {

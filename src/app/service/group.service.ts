@@ -3,7 +3,7 @@ import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Group } from '../model/group';
 import { StorageService } from './storage.service';
-import { Init, INIT_VALUES } from '../constants/default-values';
+import { Init } from '../constants/default-values';
 import { Zeitraum } from '../domains/cartlist/new-edit-cart/model/gmh-zeitraum';
 import { GroupOverview } from '../groupoverview/model/group-overview';
 import { User } from '../auth/user';
@@ -14,7 +14,6 @@ import { GroupMembers } from '../groupmembers/model/groupmembers-dto';
 import { RemoveMemberDto } from '../groupoverview/model/remove-member';
 import { ChangeGroupOwnerDto } from '../groupmembers/model/change-group-owner-dto';
 import { Router } from '@angular/router';
-import { AppComponent } from '../app.component';
 
 @Injectable({
   providedIn: 'root'
@@ -104,8 +103,6 @@ export class GroupService {
 
           if (groups.length === 0) {
             this.router.navigateByUrl('/no-group', { replaceUrl: true });
-          } else {
-            this.router.navigateByUrl('/domains/tabs/overview', { replaceUrl: true });
           }
         },
         error: (err) => {
