@@ -30,6 +30,10 @@ export class NoGroupPage implements OnInit {
     this.menuCtrl.enable(true);
   }
 
+  ionViewDidEnter() {
+    this.menuCtrl.enable(false);
+  }
+
   exitApp() {
     App.exitApp();
   }

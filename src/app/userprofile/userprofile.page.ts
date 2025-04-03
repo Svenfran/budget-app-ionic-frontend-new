@@ -8,6 +8,7 @@ import { UserDto } from '../model/user-dto';
 import { EmailValidator } from '../Validator/email-validator';
 import { INIT_NUMBERS } from '../constants/default-values';
 import { Router } from '@angular/router';
+import { GroupService } from '../service/group.service';
 
 @Component({
   selector: 'app-userprofile',
@@ -18,6 +19,7 @@ import { Router } from '@angular/router';
 export class UserprofilePage implements OnInit {
 
   public user!: User;
+  public noGroups = this.groupService.hasNoGroups;
 
   constructor(
     private authService: AuthService,
@@ -26,7 +28,8 @@ export class UserprofilePage implements OnInit {
     private userProfileService: UserprofileService,
     private alertService: AlertService,
     private menuCtrl: MenuController,
-    private router: Router
+    private router: Router,
+    private groupService: GroupService
   ) { }
 
   ngOnInit() {
@@ -160,4 +163,8 @@ export class UserprofilePage implements OnInit {
     }).then(alertEl => alertEl.present());
   }
 
+  onLogout() {
+    this.authService.logout();
+    this.router.navigateByUrl("/auth", { replaceUrl: true });
+  }
 }

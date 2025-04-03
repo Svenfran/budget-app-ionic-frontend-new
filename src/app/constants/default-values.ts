@@ -2,7 +2,11 @@ import { Group } from "../model/group";
 import { GroupMembers } from '../groupmembers/model/groupmembers-dto';
 
 export enum INIT_VALUES {
-    DEFAULT = "DEFAULT"
+    DEFAULT = "DEFAULT",
+    NO_GROUP = "no-group",
+    SERVER_UNAVAILABLE = "server-unavailable",
+    HEALTH_UP = "UP",
+    HEALTH_DOWN = "DOWN"
 }
 
 export class Init {

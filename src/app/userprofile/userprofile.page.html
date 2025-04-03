@@ -70,3 +70,10 @@
     </ion-row>
   </ion-grid>
 </ion-content>
+
+<ion-footer *ngIf="noGroups()" class="ion-no-border">
+    <div class="menu-footer" (click)="onLogout()">
+      <ion-icon name="power-outline" color="dark"></ion-icon>
+      <ion-text color="dark"><small>Logout</small></ion-text>
+    </div>
+</ion-footer>

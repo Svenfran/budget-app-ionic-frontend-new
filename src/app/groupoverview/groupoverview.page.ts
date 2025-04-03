@@ -143,6 +143,7 @@ export class GroupoverviewPage implements OnInit {
             loadingEl.dismiss();
             // Redirect to no-group page if last group is deleted
             if (this.groupOverviewList().length === 1 && this.groupOverviewList()[0].id === group.id) {
+              this.groupService.hasNoGroups.set(true);
               this.router.navigate(['/no-group'], { replaceUrl: true });
             }
           })

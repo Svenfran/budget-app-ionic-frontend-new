@@ -1,7 +1,7 @@
 import { Component, effect, Renderer2 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from './auth/auth.service';
-import { NavigationEnd, NavigationStart, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { User } from './auth/user';
 import { WebSocketService } from './service/websocket.service';
 import { GroupService } from './service/group.service';
@@ -15,7 +15,8 @@ import { GroupOverview } from './groupoverview/model/group-overview';
 import { UserDto } from './model/user-dto';
 import { CategoryDto } from './model/category-dto';
 import { CategoryService } from './service/category.service';
-import { INIT_NUMBERS } from './constants/default-values';
+import { INIT_NUMBERS, INIT_VALUES } from './constants/default-values';
+import { HealthCheckService } from './service/healthcheck.service';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,7 @@ import { INIT_NUMBERS } from './constants/default-values';
 })
 export class AppComponent {
   private authSub!: Subscription;
+  private userSub!: Subscription;
   private previousAuthState: boolean = false;
   public shoppingLists: Group[] = [];
   public sideNavGroups = this.groupService.groupsSideNav;
@@ -36,9 +38,7 @@ export class AppComponent {
   public darkMode: boolean = true;
   private subscriptions: Subscription[] = [];
   private backButtonSubscription: any;
-  public backendStatus: "UP" | "DOWN" = "UP";
-  private previousUrl: string | null = null;
-  private currentUrl: string | null = null;
+  public backendStatus = this.healthService.backendStatus;
 
   constructor(
     private authService: AuthService,
@@ -52,12 +52,16 @@ export class AppComponent {
     private renderer: Renderer2,
     private storageService: StorageService,
     private websocketService: WebSocketService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private healthService: HealthCheckService
   ) {
     this.initializeApp();
 
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
+      if (this.healthService.backendStatus() === INIT_VALUES.HEALTH_UP && this.router.url.includes(INIT_VALUES.SERVER_UNAVAILABLE)) {
+        this.router.navigateByUrl('/domains/tabs/overview', { replaceUrl: true });
+      }
     });
   }
 
@@ -65,23 +69,6 @@ export class AppComponent {
     this.authSub = this.authService.userIsAuthenticated.subscribe(isAuth => {
       if (!isAuth && this.previousAuthState !== isAuth) {
         this.router.navigateByUrl('/auth', { replaceUrl: true });
-      }
-    });
-
-    this.authService.user.subscribe(user => {
-      if (user) {
-        this.user = user;
-        this.webSocketService.connect(user.token!);
-        this.groupService.getGroupsForSideNav();
-        this.groupService.getGroupsForOverview();
-
-        this.subscriptions.push(
-          this.webSocketService.getConnectionState().subscribe(isConnected => {
-            if (isConnected) {
-              this.subscribeToTopics(user.id);
-            }
-          })
-        );
       }
     });
 
@@ -196,10 +183,34 @@ export class AppComponent {
       });
     });
     this.initBackButton();
+    this.initUser();
+  }
+
+  initUser() {
+    if (this.userSub) {
+      this.userSub.unsubscribe();
+    }
+
+    this.userSub = this.authService.user.subscribe(user => {
+      if (user) {
+        this.user = user;
+        this.webSocketService.connect(user.token!);
+        this.groupService.getGroupsForSideNav();
+        this.groupService.getGroupsForOverview();
+        this.healthService.getHealthStatus();
+
+        this.subscriptions.push(
+          this.webSocketService.getConnectionState().subscribe(isConnected => {
+            if (isConnected) {
+              this.subscribeToTopics(user.id);
+            }
+          })
+        );
+      }
+    });
   }
 
   initBackButton() {
-    // Falls es bereits eine Subscription gibt, diese zuerst entfernen
     if (this.backButtonSubscription) {
       this.backButtonSubscription.unsubscribe();
     }
@@ -252,6 +263,7 @@ export class AppComponent {
 
   ngOnDestroy() {
     this.authSub.unsubscribe();
+    this.userSub.unsubscribe();
   }
 
   subscribeToTopics(userId: number) {
@@ -299,6 +311,7 @@ export class AppComponent {
         }
 
         if (this.sideNavGroups().length === 0) {
+          this.groupService.hasNoGroups.set(true);
           this.router.navigateByUrl("/no-group", { replaceUrl: true });
         }
       }
@@ -329,6 +342,7 @@ export class AppComponent {
         }
 
         if (this.sideNavGroups().length === 0) {
+          this.groupService.hasNoGroups.set(true);
           this.router.navigateByUrl("/no-group", { replaceUrl: true });
         }
       
@@ -362,7 +376,7 @@ export class AppComponent {
           });
         }
 
-        if (this.currentUrl?.includes("/no-group")) {
+        if (this.router.url.includes(INIT_VALUES.NO_GROUP)) {
           this.groupService.setActiveGroup(group);
           this.router.navigateByUrl("/domains/tabs/overview", { replaceUrl: true });
         }
@@ -397,6 +411,23 @@ export class AppComponent {
         );
       });
 
+      }
+    );
+
+    this.webSocketService.subscribe(
+      `/notification/health`,
+      (message: any) => {
+        const parsedData = JSON.parse(message.body);
+        this.backendStatus.set(parsedData.status);
+        // this.backendStatus.set(INIT_VALUES.HEALTH_DOWN);
+
+        if (this.backendStatus() === INIT_VALUES.HEALTH_DOWN) {
+          this.router.navigateByUrl("/server-unavailable", { replaceUrl: true });
+        } else if (this.backendStatus() === INIT_VALUES.HEALTH_UP && this.router.url.includes(INIT_VALUES.SERVER_UNAVAILABLE)) {
+          this.router.navigateByUrl("/domains/tabs/overview", { replaceUrl: true });
+        }
+
+        console.log(parsedData);
       }
     );
 

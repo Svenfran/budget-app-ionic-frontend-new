@@ -38,6 +38,7 @@ export class GroupService {
   public groupMembers: WritableSignal<GroupMembers> = signal<GroupMembers>(Init.DEFAULT_GROUP_MEMBERS);
   public groupMembersWithOwner = computed(() => [{id: this.groupMembers().ownerId, userName: this.groupMembers().ownerName }, ...this.groupMembers().members]);
   public memberUpdated = signal(0);
+  public hasNoGroups = signal<boolean>(false);
 
   private user: User | undefined;
 
@@ -103,6 +104,7 @@ export class GroupService {
 
           if (groups.length === 0) {
             this.router.navigateByUrl('/no-group', { replaceUrl: true });
+            this.hasNoGroups.set(true);
           }
         },
         error: (err) => {
@@ -155,6 +157,7 @@ export class GroupService {
 
           // navigate to overview page if called from no-group page
           if (callingPage?.includes("no-group")) {
+            this.hasNoGroups.set(false);
             this.router.navigateByUrl('/domains/tabs/overview', { replaceUrl: true });
           };
         },
@@ -241,11 +244,11 @@ export class GroupService {
     const currentGroupsOverview = this.groupOverviewList();
 
     this.http
-      .post<NewMemberDto>(this.addNewMemberUrl, newMemberDto)
+      .post<any>(this.addNewMemberUrl, newMemberDto)
       .subscribe({
         next: (result) => {
           this.groupOverviewList.update(groups => groups.map(gr => 
-            gr.id === result.id ? {...gr, memberCount: gr.memberCount + 1} : gr
+            gr.id === result.id ? {...gr, memberCount: result.members.length} : gr
           ));
 
           const message = "Benutzer wurde zur Gruppe hinzugefügt";
@@ -289,11 +292,11 @@ export class GroupService {
     const currentGroupMembers = this.groupMembers();
 
     this.http
-      .post<RemoveMemberDto>(this.removeMemberUrl, removeMemberDto)
+      .post<any>(this.removeMemberUrl, removeMemberDto)
       .subscribe({
         next: (result) => {
           this.groupOverviewList.update(groups => groups.map(gr =>
-            gr.id === result.id ? {...gr, memberCount: gr.memberCount - 1} : gr
+            gr.id === result.id ? {...gr, memberCount: result.members.length} : gr
           ));
           this.triggerUpdate();
 
