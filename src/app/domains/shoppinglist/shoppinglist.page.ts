@@ -183,7 +183,7 @@ export class ShoppinglistPage implements OnInit {
     }
     this.newItemInputs[list.id] = '';
     this.shoppinglistService.addItemToShoppingList(newItem);
-    setTimeout(() => { this.focusInput(list.id); }, 100);
+    setTimeout(() => { this.focusInput(list.id); }, 300);
   }
 
   private focusInput(listId: number) {

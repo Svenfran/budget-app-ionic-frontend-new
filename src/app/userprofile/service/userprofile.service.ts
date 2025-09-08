@@ -126,7 +126,8 @@ export class UserprofileService {
         next: () => {
           console.log("Password reset successfully");
           let header = "Passwort Reset";
-          let message = `Wir haben eine E-Mail mit einem temporären Passwort an die E-Mail-Adresse ${resetPasswordDto.email} gesendet. Bitte melde dich an und ändere dein Passwort.`;
+          let message = `Wir haben eine E-Mail mit einem temporären Passwort an die E-Mail-Adresse ${resetPasswordDto.email} gesendet. 
+          Es ist durchaus möglich, dass die E-Mail im Spam-Ordner gelandet ist. Bitte melde dich an und ändere dein Passwort.`;
           this.alertService.showErrorAlert(header, message);
 
         },

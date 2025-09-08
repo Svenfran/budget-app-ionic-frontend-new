@@ -1,4 +1,6 @@
+import { BASE_URL } from "src/app/constants/default-values";
+
 export const environment = {
   production: true,
-  apiBaseUrl: 'http://192.168.178.23:8080',
+  apiBaseUrl: BASE_URL
 };

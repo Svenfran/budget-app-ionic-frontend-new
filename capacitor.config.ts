@@ -5,8 +5,8 @@ const config: CapacitorConfig = {
   appName: 'Divvy',
   webDir: 'www',
   server: {
-    cleartext: true,
-    androidScheme: "http"
+    cleartext: false,
+    androidScheme: "https"
   },
   plugins: {
     StatusBar: {

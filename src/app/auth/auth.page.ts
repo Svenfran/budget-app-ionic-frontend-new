@@ -61,7 +61,7 @@ export class AuthPage implements OnInit {
         text: "Abbrechen",
         role: "cancel"
       }, {
-        text: "reset",
+        text: "senden",
         handler: (data) => {
           let email = data.email.trim();
           const resetDto: ResetPasswordDto = {email: email};

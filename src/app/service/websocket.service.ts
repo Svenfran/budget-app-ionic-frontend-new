@@ -28,7 +28,7 @@ export class WebSocketService {
     }
 
     this.socketClient = new Client({
-      webSocketFactory: () => new SockJS(`${environment.apiBaseUrl}/ws`, {
+      webSocketFactory: () => new SockJS(`${environment.apiBaseUrl}/wss`, {
         transports: ["websocket"],
       }),
       connectHeaders: { Authorization: token },
