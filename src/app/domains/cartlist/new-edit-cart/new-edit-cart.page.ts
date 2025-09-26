@@ -1,4 +1,4 @@
-import { Component, effect, OnInit, ViewChild } from '@angular/core';
+import { Component, effect, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonDatetime, LoadingController, MenuController } from '@ionic/angular';
@@ -10,7 +10,8 @@ import { User } from 'src/app/auth/user';
 import { AuthService } from 'src/app/auth/auth.service';
 import * as moment from 'moment';
 import { CategoryDto } from 'src/app/model/category-dto';
-import { INIT_NUMBERS, INIT_VALUES } from 'src/app/constants/default-values';
+import { INIT_VALUES } from 'src/app/constants/default-values';
+import { RECURRENCE_TYPE } from 'src/app/constants/recurrence-type';
 
 
 @Component({
@@ -36,6 +37,15 @@ export class NewEditCartPage implements OnInit {
   public activeGroup = this.groupService.activeGroup();
   public cartList = this.cartService.cartList;
   public zeitraeume = this.groupService.groupMembershipHistory;
+  public recurrenceTypes = [
+    { value: RECURRENCE_TYPE.DAILY, label: 'täglich' },
+    { value: RECURRENCE_TYPE.WEEKLY, label: 'wöchentlich' },
+    { value: RECURRENCE_TYPE.MONTHLY, label: 'monatlich' },
+    { value: RECURRENCE_TYPE.YEARLY, label: 'jährlich' },
+    { value: RECURRENCE_TYPE.NONE, label: 'keine Wiederholung' }
+  ];
+  public hasActiveTemplate: boolean = false;
+  public nextExecutionDate: Date | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -85,7 +95,9 @@ export class NewEditCartPage implements OnInit {
       amount: ['',[ Validators.required, Validators.pattern('[+-]?([0-9]*[.])?[0-9]+') ]],
       description: [''],
       datePurchased: ['',[ Validators.required, Validators.pattern('(0[1-9]|1[0-9]|2[0-9]|3[01]).(0[1-9]|1[012]).[0-9]{4}')]],
-      categoryId: ['',[ Validators.required ]]
+      categoryId: ['',[ Validators.required ]],
+      recurrenceType: [''],
+      templateUpdateSelected: [false]
     });
   }
 
@@ -94,6 +106,8 @@ export class NewEditCartPage implements OnInit {
   get amount() {return this.form.get('amount');}
   get datePurchased() {return this.form.get('datePurchased');}
   get categoryId() {return this.form.get('category');}
+  get recurrenceType() {return this.form.get('recurrenceType');}
+  get templateUpdateSelected() {return this.form.get('templateUpdateSelected');}
 
 
   onSubmit() {
@@ -128,7 +142,8 @@ export class NewEditCartPage implements OnInit {
         datePurchased: this.getDateFromString(this.form.value.datePurchased),
         groupId: this.activeGroup.id,
         userDto: null!,
-        categoryDto: categoryDto
+        categoryDto: categoryDto,
+        recurrenceType: this.form.value.recurrenceType
       }
       this.cartService.addCart(newCart);
       loadingEl.dismiss();
@@ -155,7 +170,10 @@ export class NewEditCartPage implements OnInit {
         datePurchased: this.getDateFromString(this.form.value.datePurchased),
         groupId: this.activeGroup.id,
         userDto: null!,
-        categoryDto: categoryDto
+        categoryDto: categoryDto,
+        recurrenceType: this.form.value.recurrenceType,
+        hasActiveTemplate: this.hasActiveTemplate,
+        templateUpdateSelected: this.form.value.templateUpdateSelected
       }
       this.cartService.updateCart(updatedCart);
       loadingEl.dismiss();
@@ -173,6 +191,10 @@ export class NewEditCartPage implements OnInit {
 
     if (!this.isAddMode) {
       const cart: Cart = this.cartList().find(c => c.id === +this.cartId!)!;
+      this.hasActiveTemplate = cart.hasActiveTemplate || false;
+      if (cart.recurrenceType && cart.hasActiveTemplate && cart.recurrenceType !== RECURRENCE_TYPE.NONE) {
+        this.nextExecutionDate = cart.nextExecutionDate!;
+      }
       this.setDate(cart.datePurchased)
       this.form.patchValue({
         id: cart.id,
@@ -180,11 +202,13 @@ export class NewEditCartPage implements OnInit {
         amount: cart.amount.toFixed(2),
         description: cart.description,
         datePurchased: this.formattedString,
-        categoryId: cart.categoryDto.id
+        categoryId: cart.categoryDto.id,
+        recurrenceType: cart.hasActiveTemplate ? cart.recurrenceType : RECURRENCE_TYPE.NONE
       })
     } else if (this.isAddMode) {
       this.form.patchValue({
-        datePurchased: this.formattedString
+        datePurchased: this.formattedString,
+        recurrenceType: RECURRENCE_TYPE.NONE
       });
     }
   }
@@ -214,6 +238,46 @@ export class NewEditCartPage implements OnInit {
       this.form.controls['datePurchased'].setValue(this.formattedString);
       this.showPicker = false;
     }
+
+    this.updateNextExecutionDate();
+  }
+
+  updateNextExecutionDate() {
+    const lastDate = this.getDateFromString(this.form.value.datePurchased);
+
+    if (this.isAddMode && this.form.value.recurrenceType !== RECURRENCE_TYPE.NONE) {
+      this.calculateNextDate(lastDate, this.form.value.recurrenceType);
+      return;
+    }
+
+    // Edit-Mode
+    const cart: Cart | undefined = this.cartList().find(c => c.id === +this.cartId!);
+    if (!cart) return;
+
+    const changedRecurrenceType = this.form.value.recurrenceType;
+    const hasRecurrenceChanged = cart.recurrenceType !== changedRecurrenceType;
+    const updateTemplate = this.form.value.templateUpdateSelected;
+
+    if (hasRecurrenceChanged || updateTemplate) {
+      this.calculateNextDate(lastDate, this.form.value.recurrenceType);
+    } else {
+      this.nextExecutionDate = cart.nextExecutionDate!;
+    }
+  }
+
+  recurrenceTypeChanged(value: RECURRENCE_TYPE) {
+    if (!value || value === RECURRENCE_TYPE.NONE) {
+      return;
+    }
+    this.updateNextExecutionDate();
+  }
+
+  templateUpdateSelectedChange() {
+    this.updateNextExecutionDate();
+  }
+
+  openDatePicker() {
+    this.showPicker = true;
   }
 
   close() {
@@ -250,4 +314,44 @@ export class NewEditCartPage implements OnInit {
     const date = new Date(dateString);
     return date.toISOString().split('T')[0] + 'T00:00:00'
   }
+
+  private calculateNextDate(lastExecutionDate: Date, recurrenceType: RECURRENCE_TYPE): void {
+    let next = new Date(lastExecutionDate);
+    const today = new Date();
+
+    switch (recurrenceType) {
+      case RECURRENCE_TYPE.DAILY:
+        next.setDate(next.getDate() + 1);
+        while (next <= today) {
+          next.setDate(next.getDate() + 1);
+        }
+        break;
+
+      case RECURRENCE_TYPE.WEEKLY:
+        next.setDate(next.getDate() + 7);
+        while (next <= today) {
+          next.setDate(next.getDate() + 7);
+        }
+        break;
+
+      case RECURRENCE_TYPE.MONTHLY:
+        next.setMonth(next.getMonth() + 1);
+        while (next <= today) {
+          next.setMonth(next.getMonth() + 1);
+        }
+        break;
+
+      case RECURRENCE_TYPE.YEARLY:
+        next.setFullYear(next.getFullYear() + 1);
+        while (next <= today) {
+          next.setFullYear(next.getFullYear() + 1);
+        }
+        break;
+
+      default:
+        throw new Error("Unsupported recurrence type: " + recurrenceType);
+    }
+    this.nextExecutionDate = next;
+  }
+
 }

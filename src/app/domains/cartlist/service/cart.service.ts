@@ -8,6 +8,7 @@ import { INIT_VALUES } from 'src/app/constants/default-values';
 import { AlertService } from 'src/app/service/alert.service';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
 import { SettlementPaymentDto } from 'src/app/settlement-payment/model/settlement-payment-dto';
+import { RECURRENCE_TYPE } from 'src/app/constants/recurrence-type';
 
 @Injectable({
   providedIn: 'root'
@@ -82,7 +83,10 @@ export class CartService {
             groupId: result.groupId,
             userDto: result.userDto,
             categoryDto: result.categoryDto,
-            deleted: result.deleted
+            deleted: result.deleted,
+            recurrenceType: result.recurrenceType,
+            hasActiveTemplate: result.hasActiveTemplate,
+            nextExecutionDate: result.nextExecutionDate
           }
 
           this.cartList.update(carts => {
@@ -128,16 +132,61 @@ export class CartService {
             userDto: result.userDto,
             categoryDto: result.categoryDto,
             deleted: result.deleted,
+            recurrenceType: result.recurrenceType,
+            hasActiveTemplate: result.hasActiveTemplate,
+            nextExecutionDate: result.nextExecutionDate,
+            templateUpdateSelected: cart.templateUpdateSelected,
+            templateId: result.templateId
           }
 
           this.cartList.update(carts => {
-            const updatedCarts = carts.map(c => (c.id === result.id ? { ...c, ...updatedCart } : c));
-            return updatedCarts.sort((a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime());
+            const oldCart = carts.find(c => c.id === result.id);
+
+            const recurrenceTypeChanged =
+              oldCart && oldCart.recurrenceType !== result.recurrenceType;
+
+            let updatedCarts = carts.map(c => {
+              if (c.id === result.id) {
+                // das geänderte Cart updaten
+                return { ...c, ...updatedCart };
+              }
+              
+              if ((recurrenceTypeChanged || updatedCart?.templateUpdateSelected) && result.hasTemplateChanged &&
+                  c.templateId && c.templateId === oldCart?.templateId) {
+                return { ...c, recurrenceType: RECURRENCE_TYPE.NONE, hasActiveTemplate: false};
+              }
+
+              return c;
+            });
+
+            return updatedCarts.sort(
+              (a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime()
+            );
           });
 
           this.initCartList.update(carts => {
-            const updatedCarts = carts.map(c => (c.id === result.id ? { ...c, ...updatedCart } : c));
-            return updatedCarts.sort((a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime());
+            const oldCart = carts.find(c => c.id === result.id);
+
+            const recurrenceTypeChanged =
+              oldCart && oldCart.recurrenceType !== result.recurrenceType;
+
+            let updatedCarts = carts.map(c => {
+              if (c.id === result.id) {
+                // das geänderte Cart updaten
+                return { ...c, ...updatedCart };
+              }
+
+              if ((recurrenceTypeChanged || updatedCart?.templateUpdateSelected) && result.hasTemplateChanged && 
+                  c.templateId && c.templateId === oldCart?.templateId) {
+                return { ...c, recurrenceType: RECURRENCE_TYPE.NONE, hasActiveTemplate: false};
+              }
+
+              return c;
+            });
+
+            return updatedCarts.sort(
+              (a, b) => new Date(b.datePurchased).getTime() - new Date(a.datePurchased).getTime()
+            );
           });
 
           this.triggerUpdate();

@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { take, switchMap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { AlertService } from '../service/alert.service';
-import { Device } from '@capacitor/device';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +10,7 @@ import { Device } from '@capacitor/device';
 export class AuthHttpInterceptorService {
 
   constructor(
-    private authService: AuthService,
-    private alertService: AlertService
+    private authService: AuthService
   ) { }
 
   intercept(request: HttpRequest<any>, next: HttpHandler) {

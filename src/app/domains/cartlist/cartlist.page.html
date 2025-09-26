@@ -22,7 +22,7 @@
                 <ion-label>Download</ion-label>
               </ion-item>
               <ion-item size="small" [button]="true" [detail]="false" (click)="settlementPayment()">
-                <ion-icon class="pop-icon" name="repeat-outline" slot="start"></ion-icon>
+                <ion-icon class="pop-icon" name="swap-horizontal-outline" slot="start"></ion-icon>
                 <ion-label>Ausgleichszahlung</ion-label>
               </ion-item>
               <ion-item size="small" [button]="true" [detail]="false" (click)="filterModal()">
@@ -94,16 +94,19 @@
                   </div>
                   <p *ngIf="isDescriptionVisible(i)" class="ion-text-wrap">{{cart.description}}</p>
                   <div class="cart-details">
-                    <ion-text *ngIf="cart.userDto.userName !== user?.name && cart.deleted === false" (click)="onFilter('user', cart.userDto.userName)" color="medium" >
-                      {{ (cart.userDto.userName.length > 10) ? (cart.userDto.userName | slice:0:10) + '...' : cart.userDto.userName }}
-                    </ion-text>
-                    <ion-text *ngIf="cart.userDto.userName === user?.name && cart.deleted === false" (click)="onFilter('user', cart.userDto.userName)" color="primary" >
-                      <strong>{{ (cart.userDto.userName.length > 10) ? (cart.userDto.userName | slice:0:10) + '...' : cart.userDto.userName }}</strong>
-                    </ion-text>
-                    <ion-text *ngIf="cart.deleted === true" (click)="onFilter('user', cart.userDto.userName)" color="medium" >
-                      <!-- <em>{{ cart.userDto.userName.includes(DELETED) ? cart.userDto.userName : cart.userDto.userName + ' entfernt' }}</em> -->
-                      <em>{{ cart.userDto.userName.includes(DELETED) ? cart.userDto.userName : 'Nutzer entfernt' }}</em>
-                    </ion-text>
+                    <div class="cart-repeat">
+                      <ion-text *ngIf="cart.userDto.userName !== user?.name && cart.deleted === false" (click)="onFilter('user', cart.userDto.userName)" color="medium" >
+                        {{ (cart.userDto.userName.length > 10) ? (cart.userDto.userName | slice:0:10) + '...' : cart.userDto.userName }}
+                      </ion-text>
+                      <ion-text *ngIf="cart.userDto.userName === user?.name && cart.deleted === false" (click)="onFilter('user', cart.userDto.userName)" color="primary" >
+                        <strong>{{ (cart.userDto.userName.length > 10) ? (cart.userDto.userName | slice:0:10) + '...' : cart.userDto.userName }}</strong>
+                      </ion-text>
+                      <ion-icon *ngIf="cart.recurrenceType !== 'NONE' && cart.hasActiveTemplate === true && cart.deleted === false" name="repeat" slot="icon-only" color="medium" title="wiederkehrend"></ion-icon>
+                      <ion-text *ngIf="cart.deleted === true" (click)="onFilter('user', cart.userDto.userName)" color="medium" >
+                        <!-- <em>{{ cart.userDto.userName.includes(DELETED) ? cart.userDto.userName : cart.userDto.userName + ' entfernt' }}</em> -->
+                        <em>{{ cart.userDto.userName.includes(DELETED) ? cart.userDto.userName : 'Nutzer entfernt' }}</em>
+                      </ion-text>
+                    </div>
                     <div class="cart-name-date">
                       <ion-text color="medium">{{ cart.datePurchased | date: "dd.MM.yyyy" }}</ion-text>
                     </div>

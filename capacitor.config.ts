@@ -1,12 +1,14 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
+const isDev = process.env["APP_ENV"] === 'dev';
+
 const config: CapacitorConfig = {
-  appId: 'de.svenfran.divvyapp',
-  appName: 'Divvy',
+  appId: isDev ? 'de.svenfran.divvyapp.dev' : 'de.svenfran.divvyapp',
+  appName: isDev ? 'Divvy-Dev' : 'Divvy',
   webDir: 'www',
   server: {
-    cleartext: false,
-    androidScheme: "https"
+    cleartext: isDev ? true : false,
+    androidScheme: isDev ? 'http' : 'https'
   },
   plugins: {
     StatusBar: {
