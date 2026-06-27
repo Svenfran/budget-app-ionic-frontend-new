@@ -1,5 +1,5 @@
 import { Component, effect, Renderer2 } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { AuthService } from './auth/auth.service';
 import { Router } from '@angular/router';
 import { User } from './auth/user';
@@ -17,6 +17,8 @@ import { CategoryDto } from './model/category-dto';
 import { CategoryService } from './service/category.service';
 import { INIT_NUMBERS, INIT_VALUES } from './constants/default-values';
 import { HealthCheckService } from './service/healthcheck.service';
+import { TranslateService } from '@ngx-translate/core';
+import { LanguageService } from './service/language.service';
 
 @Component({
   selector: 'app-root',
@@ -53,7 +55,9 @@ export class AppComponent {
     private storageService: StorageService,
     private websocketService: WebSocketService,
     private categoryService: CategoryService,
-    private healthService: HealthCheckService
+    private healthService: HealthCheckService,
+    private translate: TranslateService,
+    private langService: LanguageService
   ) {
     this.initializeApp();
 
@@ -85,15 +89,15 @@ export class AppComponent {
 
   onCreateGroup() {
     this.alertCtrl.create({
-      header: "Neue Gruppe:",
+      header: this.translate.instant('alerts.group.new.header'),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant('alerts.group.new.cancel'),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant('alerts.group.new.ok'),
         handler: (data) => {
           this.loadingCtrl.create({
-            message: "Erstelle Gruppe..."
+            message: this.translate.instant('alerts.group.new.loading')
           }).then(loadingEl => {
             if (!data) return;
             const trimmedGroupName = data.groupName.trim();
@@ -108,7 +112,7 @@ export class AppComponent {
       inputs: [
         {
           name: "groupName",
-          placeholder: "Gruppenname",
+          placeholder: this.translate.instant('alerts.group.new.placeholder'),
           attributes: {
             maxlength: INIT_NUMBERS.MAX_LENGTH
           }
@@ -124,15 +128,15 @@ export class AppComponent {
 
   onCreateCategory() {
     this.alertCtrl.create({
-      header: "Neue Kategorie:",
+      header: this.translate.instant('alerts.category.new.header'),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant('alerts.category.new.cancel'),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant('alerts.category.new.ok'),
         handler: (data) => {
           this.loadingCtrl.create({
-            message: "Erstelle Kategorie..."
+            message: this.translate.instant('alerts.category.new.loading')
           }).then(loadingEl => {
             if (!data) return;
             const trimmedCategoryName = data.categoryName.trim();
@@ -150,7 +154,7 @@ export class AppComponent {
       inputs: [
         {
           name: "categoryName",
-          placeholder: "Name der Kategorie",
+          placeholder: this.translate.instant('alerts.category.new.placeholder'),
           attributes: {
             maxlength: INIT_NUMBERS.MAX_LENGTH
           }
@@ -184,6 +188,14 @@ export class AppComponent {
     });
     this.initBackButton();
     this.initUser();
+  }
+
+  switchLanguage(lang: string) {
+    this.langService.setLanguage(lang);
+  }
+
+  get currentLang() {
+    return this.langService.currentLang()
   }
 
   initUser() {

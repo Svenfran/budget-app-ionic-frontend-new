@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { FilterModalPageRoutingModule } from './filter-modal-routing.module';
 
 import { FilterModalPage } from './filter-modal.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import { FilterModalPage } from './filter-modal.page';
     FormsModule,
     IonicModule,
     FilterModalPageRoutingModule,
+    TranslateModule,
     ReactiveFormsModule
   ],
   declarations: [FilterModalPage]

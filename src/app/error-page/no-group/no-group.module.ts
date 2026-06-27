@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { NoGroupPageRoutingModule } from './no-group-routing.module';
 
 import { NoGroupPage } from './no-group.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    NoGroupPageRoutingModule
+    NoGroupPageRoutingModule,
+    TranslateModule
   ],
   declarations: [NoGroupPage]
 })

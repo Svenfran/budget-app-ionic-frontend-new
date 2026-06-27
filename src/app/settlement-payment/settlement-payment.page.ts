@@ -4,8 +4,9 @@ import { IonDatetime, ModalController } from '@ionic/angular';
 import { AuthService } from '../auth/auth.service';
 import { GroupService } from '../service/group.service';
 import { User } from '../auth/user';
-import * as moment from 'moment';
+import moment from 'moment';
 import { SettlementPaymentDto } from './model/settlement-payment-dto';
+import { LanguageService } from '../service/language.service';
 
 @Component({
   selector: 'app-settlement-payment',
@@ -26,12 +27,14 @@ export class SettlementPaymentPage implements OnInit {
   public showPicker = false;
   public dateValue = "";
   public zeitraeume = this.groupService.groupMembershipHistory;
+  public currentLang = this.langService.currentLang
 
   constructor(
     private fb: UntypedFormBuilder,
     private groupService: GroupService,
     private modalCtrl: ModalController,
-    private authService: AuthService
+    private authService: AuthService,
+    private langService: LanguageService
   ) { }
 
   ngOnInit() {

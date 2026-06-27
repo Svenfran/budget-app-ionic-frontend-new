@@ -9,6 +9,7 @@ import { AlertService } from 'src/app/service/alert.service';
 import { FileOpener, FileOpenerOptions } from '@capacitor-community/file-opener';
 import { SettlementPaymentDto } from 'src/app/settlement-payment/model/settlement-payment-dto';
 import { RECURRENCE_TYPE } from 'src/app/constants/recurrence-type';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +35,8 @@ export class CartService {
   
   constructor(
     private http: HttpClient,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private translate: TranslateService
   ) {}
 
   triggerUpdate() {
@@ -107,8 +109,8 @@ export class CartService {
           this.initCartList.set(currentInitCartList);
 
           if (err.error.includes('not within membership period')) {
-            const header = "Datum nicht im Zeitraum der Mitgliedschaft";
-            const message = "Du warst zu dem gewählten Zeitpunkt kein Mitglied der Gruppe. Bitte wähle ein anderes Datum."
+            const header = this.translate.instant("alerts.cart.invalid_membership.header");
+            const message = this.translate.instant("alerts.cart.invalid_membership.message_new_edit");
             this.alertService.showErrorAlert(header, message);
           }
         }
@@ -197,8 +199,8 @@ export class CartService {
           this.initCartList.set(currentInitCartList);
 
           if (err.error.includes('not within membership period')) {
-            const header = "Datum nicht im Zeitraum der Mitgliedschaft";
-            const message = "Du warst zu dem gewählten Zeitpunkt kein Mitglied der Gruppe. Bitte wähle ein anderes Datum."
+            const header = this.translate.instant("alerts.cart.invalid_membership.header");
+            const message = this.translate.instant("alerts.cart.invalid_membership.message_new_edit");
             this.alertService.showErrorAlert(header, message);
           }
         }
@@ -256,8 +258,8 @@ export class CartService {
 
           if (err.error.includes('not within membership period')) {
             this.alertService.showErrorAlert(
-              'Datum nicht im Zeitraum der Mitgliedschaft',
-              `Der Nutzer "${payment.member.userName}" war zu dem gewählten Zeitpunkt kein Mitglied der Gruppe. Bitte wähle ein anderes Datum.`
+              this.translate.instant("alerts.cart.invalid_membership.header"),
+              this.translate.instant("alerts.cart.invalid_membership.message_settlementpayment", { userName: payment.member.userName })
             )
           }
         }
@@ -286,7 +288,7 @@ export class CartService {
             });
             const path = savedFile.uri;
             const mimeType = this.getMimeType(fileName);
-            let message = "Datei erfolgreich heruntergeladen.";
+            let message = this.translate.instant('domains.spendings.toast.message');
             this.alertService.showToast(message);
             
             try {

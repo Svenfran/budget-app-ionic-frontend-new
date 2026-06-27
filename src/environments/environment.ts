@@ -2,11 +2,12 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-import { BASE_URL } from "src/app/constants/default-values";
+import { appConfig } from "src/config/config";
 
 export const environment = {
   production: false,
-  apiBaseUrl: BASE_URL
+  apiBaseUrl: `${appConfig.baseUrl}`,
+  websocketUrl: `${appConfig.baseUrl}/ws`
 };
 
 /*

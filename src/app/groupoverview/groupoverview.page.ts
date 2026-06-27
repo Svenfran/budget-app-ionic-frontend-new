@@ -10,6 +10,7 @@ import { INIT_NUMBERS } from '../constants/default-values';
 import { Router } from '@angular/router';
 import { EmailValidator } from '../Validator/email-validator';
 import { AlertService } from '../service/alert.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-groupoverview',
@@ -30,7 +31,8 @@ export class GroupoverviewPage implements OnInit {
     private loadingCtrl: LoadingController,
     private modalCtrl: ModalController,
     private router: Router,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -49,15 +51,15 @@ export class GroupoverviewPage implements OnInit {
 
   onCreateGroup() {
     this.alertCtrl.create({
-      header: "Neue Gruppe:",
+      header: this.translate.instant("alerts.group.new.header"),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant("alerts.group.new.cancel"),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant("alerts.group.new.ok"),
         handler: (data) => {
           this.loadingCtrl.create({
-            message: "Erstelle Gruppe..."
+            message: this.translate.instant("alerts.group.new.loading")
           }).then(loadingEl => {
             if (!data) return;
             const trimmedGroupName = data.groupName.trim();
@@ -72,7 +74,7 @@ export class GroupoverviewPage implements OnInit {
       inputs: [
         {
           name: "groupName",
-          placeholder: "Gruppenname",
+          placeholder: this.translate.instant("alerts.group.new.placeholder"),
           attributes: {
             maxlength: INIT_NUMBERS.MAX_LENGTH
           }
@@ -89,15 +91,15 @@ export class GroupoverviewPage implements OnInit {
   onUpdateGroup(group: Group, slidingItem: IonItemSliding) {
     slidingItem.close();
     this.alertCtrl.create({
-      header: "Gruppenname:",
+      header: this.translate.instant("alerts.group.edit.header"),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant("alerts.group.edit.cancel"),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant("alerts.group.edit.ok"),
         handler: (data) => {
           this.loadingCtrl.create({
-            message: "Bearbeite Gruppe..."
+            message: this.translate.instant("alerts.group.edit.loading")
           }).then(loadingEl => {
             if (!data) return;
             const trimmedGroupName = data.groupName.trim();
@@ -129,15 +131,16 @@ export class GroupoverviewPage implements OnInit {
   onDeleteGroup(group: Group, slidingItem: IonItemSliding) {
     slidingItem.close();
     this.alertCtrl.create({
-      header: 'Löschen',
-      message: `Möchtest du die Gruppe "${group.name}" wirklich löschen inkl. aller Mitglieder und gespeicherten Ausgaben?`,
+      header: this.translate.instant("alerts.group.delete.header"),
+      message: this.translate.instant("alerts.group.delete.message", {groupName: group.name}),
       buttons: [{
-        text: 'Nein'
+        text: this.translate.instant("alerts.group.delete.cancel"),
+        role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant("alerts.group.delete.ok"),
         handler: () => {
           this.loadingCtrl.create({
-            message: "Lösche Gruppe..."
+            message: this.translate.instant("alerts.group.delete.loading")
           }).then(loadingEl => {
             this.groupService.deleteGroup(group);
             loadingEl.dismiss();
@@ -155,21 +158,21 @@ export class GroupoverviewPage implements OnInit {
   onAddMember(group: Group, slidingItem: IonItemSliding) {
     slidingItem.close();
     this.alertCtrl.create({
-      header: "Neues Gruppenmitglied:",
+      header: this.translate.instant("alerts.group.add_member.header"),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant("alerts.group.add_member.cancel"),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant("alerts.group.add_member.ok"),
         handler: (data) => {
           this.loadingCtrl.create({
-            message: "Füge Benutzer hinzu..."
+            message: this.translate.instant("alerts.group.add_member.loading")
           }).then(loadingEl => {
             if (!data) return;
             const trimmedEmail = data.memberEmail.trim();
             if (EmailValidator.isNotValid(trimmedEmail)) {
-              let header = "Fehlerhafte E-Mail-Adresse!";
-              let message = "Bitte gib eine gültige E-mail-Adresse an.";
+              let header = this.translate.instant("alerts.group.add_member.error_message_page.header");
+              let message = this.translate.instant("alerts.group.add_member.error_message_page.message");
               this.alertService.showErrorAlert(header, message);
               return
             }
@@ -186,7 +189,7 @@ export class GroupoverviewPage implements OnInit {
       }],
       inputs: [
         {
-          placeholder: "E-Mail Adresse",
+          placeholder: this.translate.instant("alerts.group.add_member.placeholder"),
           name: "memberEmail",
           type: "email",
           attributes: {

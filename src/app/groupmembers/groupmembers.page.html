@@ -1,6 +1,6 @@
 <ion-content>
   <ion-toolbar>
-    <ion-title>Gruppenmitglieder</ion-title>
+    <ion-title>{{ 'groups.group_members.title' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="onDismiss()">
         <ion-icon *ngIf="!isSelected" name="close-outline" slot="icon-only"></ion-icon>
@@ -11,13 +11,13 @@
   <ion-list class="ion-text-center" *ngIf="groupMembers().members.length === 0">
     <ion-text class="ion-text-wrap">{{ groupMembers().name }}</ion-text>
     <ion-item class="ion-text-center" lines="none">
-      <ion-label><small>Keine Mitglieder vorhanden!</small></ion-label>
+      <ion-label><small>{{ 'groups.group_members.no_members' | translate }}</small></ion-label>
     </ion-item>
   </ion-list>
   <ion-list class="ion-text-center ion-padding" *ngIf="groupMembers().members.length > 0">
     <ion-text class="ion-text-wrap">{{ groupMembers().name }}</ion-text>
     <div *ngIf="groupOwnerName === user?.name" (click)="toggleVisability()" class="select-owner">
-      <ion-text><small>Gruppenadmin ändern</small></ion-text>
+      <ion-text><small>{{ 'groups.group_members.change_admin' | translate }}</small></ion-text>
       <ion-icon *ngIf="isNotVisible" name="chevron-forward-outline" slot="icon-only" size="small"></ion-icon>
       <ion-icon *ngIf="!isNotVisible" name="chevron-back-outline" slot="icon-only" size="small"></ion-icon>
     </div>

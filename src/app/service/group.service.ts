@@ -14,6 +14,7 @@ import { GroupMembers } from '../groupmembers/model/groupmembers-dto';
 import { RemoveMemberDto } from '../groupoverview/model/remove-member';
 import { ChangeGroupOwnerDto } from '../groupmembers/model/change-group-owner-dto';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -47,7 +48,8 @@ export class GroupService {
     private storageService: StorageService,
     private authService: AuthService,
     private alertService: AlertService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService
   ) {
     this.authService.user.pipe().subscribe(user => {
       if (user) this.user = user;
@@ -251,7 +253,7 @@ export class GroupService {
             gr.id === result.id ? {...gr, memberCount: result.members.length} : gr
           ));
 
-          const message = "Benutzer wurde zur Gruppe hinzugefügt";
+          const message = this.translate.instant("alerts.group.add_member.error_message_service.message_success");
           this.alertService.showToast(message);
           this.triggerUpdate();
         },
@@ -261,13 +263,13 @@ export class GroupService {
           let message = "";
 
           if (err.error.includes(newMemberDto.newMemberEmail)) {
-            message = "Benutzer existiert nicht."
+            message = this.translate.instant("alerts.group.add_member.error_message_service.message_no_exists");
           } else if (err.error.includes("New member equals group owner")) {
-            message = "Neues Mitglied und Gruppenersteller sind identisch"
+            message = this.translate.instant("alerts.group.add_member.error_message_service.message_admin_is_member");
           } else if (err.error.includes("Member already exists")) {
-            message = "Der Benutzer ist bereits Mitglied"
+            message = this.translate.instant("alerts.group.add_member.error_message_service.message_already_member");
           } else {
-            message = "Es ist ein Fehler aufgetreten"
+            message = this.translate.instant("alerts.group.add_member.error_message_service.message_default");
           }
           this.alertService.showToast(message);
         }

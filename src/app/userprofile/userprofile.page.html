@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/domains/tabs/overview"></ion-back-button>
     </ion-buttons>
-    <ion-title>Profil bearbeiten</ion-title>
+    <ion-title>{{ 'user_profile.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -14,7 +14,7 @@
        
           <ion-list-header>
             <div class="profil-header">
-              <ion-text color="medium">MEIN PROFIL</ion-text>
+              <ion-text color="medium">{{ 'user_profile.header' | translate }}</ion-text>
             </div>
           </ion-list-header>
 
@@ -45,7 +45,7 @@
           <ion-item>
             <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
             <ion-label>
-              <p class="ion-text-wrap">Passwort ändern</p>
+              <p class="ion-text-wrap">{{ 'user_profile.label_change_pw' | translate }}</p>
             </ion-label>
             <ion-buttons>
               <ion-button routerLink="/password-change">
@@ -57,7 +57,7 @@
           <ion-item>
             <ion-icon name="person-circle-outline" slot="start"></ion-icon>
             <ion-label>
-              <p class="ion-text-wrap">Profil löschen</p>
+              <p class="ion-text-wrap">{{ 'user_profile.label_delete_profile' | translate }}</p>
             </ion-label>
             <ion-buttons>
               <ion-button (click)="deleteUserProfile()">

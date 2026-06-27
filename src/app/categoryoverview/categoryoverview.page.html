@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/domains/tabs/cartlist"></ion-back-button>
     </ion-buttons>
-    <ion-title>Kategorien bearbeiten</ion-title>
+    <ion-title>{{ 'categories.title' | translate}}</ion-title>
     <ion-buttons slot="primary">
       <ion-button (click)="onCreateCategory()">
         <ion-icon name="add" slot="icon-only"></ion-icon>
@@ -22,7 +22,7 @@
         <ion-spinner color="primary"></ion-spinner>
       </ion-col>
       <ion-col class="ion-text-center" size-md="6" offset-md="3" *ngIf="!isLoading && (!categories() || categories().length === 0)">
-        <p>Keine Kategorien vorhanden!</p>
+        <p>{{ 'categories.empty' | translate }}</p>
       </ion-col>
     </ion-row>
     <ion-row>
@@ -30,8 +30,8 @@
         <ion-list *ngIf="!isLoading && categories().length > 0">
           <ion-list-header>
             <div class="category-header">
-              <ion-text color="medium">GRUPPE: {{ activeGroup().name }}</ion-text>
-              <ion-label>Kategorien ({{ categories().length }})</ion-label>
+              <ion-text color="medium">{{ 'categories.header' | translate }} {{ activeGroup().name }}</ion-text>
+              <ion-label>{{ 'categories.subheader' | translate }} ({{ categories().length }})</ion-label>
             </div>
           </ion-list-header>
 
@@ -39,8 +39,8 @@
             <ion-item [lines]="i == categories().length - 1 ? 'none' : 'inset'">
               <ion-avatar slot="start">
                 <div class="category-circle">
-                  <p *ngIf="cat.name != 'Ausgleichszahlung'">{{ cat.name.substring(0, 2) | uppercase }}</p>
-                  <ion-icon *ngIf="cat.name == 'Ausgleichszahlung'" name="repeat-outline" color="medium"></ion-icon>
+                  <p *ngIf="!isSettlementpayment(cat.name)">{{ cat.name.substring(0, 2) | uppercase }}</p>
+                  <ion-icon *ngIf="isSettlementpayment(cat.name)" name="swap-horizontal-outline" color="medium"></ion-icon>
                 </div>
               </ion-avatar>
               <ion-label (click)="onUpdateCategory(cat)">

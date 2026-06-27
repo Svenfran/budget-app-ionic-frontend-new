@@ -1,6 +1,6 @@
 <ion-content [fullscreen]="true">
   <ion-toolbar>
-    <ion-title>Filter</ion-title>
+    <ion-title>{{ 'domains.spendings.overlay.filter.header' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="onDismiss()" [disabled]="!form.valid">
       <!-- <ion-button (click)="close()"> -->
@@ -17,7 +17,7 @@
           <ion-row>
             <ion-col size-sm="6" offset-sm="3">
               <ion-item>
-                <ion-label position="floating">Titel</ion-label>
+                <ion-label position="floating">{{ 'domains.spendings.overlay.filter.title' | translate }}</ion-label>
                 <ion-input
                   type="text"
                   formControlName="title"
@@ -29,7 +29,7 @@
           <ion-row>
             <ion-col size-sm="6" offset-sm="3">
               <ion-item>
-                <ion-label position="floating">Beschreibung</ion-label>
+                <ion-label position="floating">{{ 'domains.spendings.overlay.filter.description' | translate }}</ion-label>
                 <ion-input
                   type="text"
                   formControlName="description"
@@ -42,7 +42,11 @@
             <ion-col size-sm="6" offset-sm="3">
               <ion-list>
                 <ion-item>
-                  <ion-select aria-label="Kategorie" placeholder="Kategorie" [multiple]="true" formControlName="categories">
+                  <ion-select 
+                    aria-label="Kategorie" 
+                    [placeholder]="'domains.spendings.overlay.filter.placeholder_category' | translate" 
+                    [multiple]="true" 
+                    formControlName="categories">
                     <div *ngFor="let category of categoryList()">
                       <ion-select-option value="{{category.name}}">{{category.name}}</ion-select-option>
                     </div>
@@ -55,7 +59,11 @@
             <ion-col size-sm="6" offset-sm="3">
               <ion-list>
                 <ion-item>
-                  <ion-select aria-label="Ersteller" placeholder="Ersteller" [multiple]="true" formControlName="members">
+                  <ion-select 
+                    aria-label="Ersteller" 
+                    [placeholder]="'domains.spendings.overlay.filter.placeholder_cart_owner' | translate" 
+                    [multiple]="true" 
+                    formControlName="members">
                     <div *ngFor="let member of groupMembersWithOwner()">
                       <ion-select-option value="{{member.userName}}">
                         {{ (member.userName.length > 10) ? (member.userName | slice:0:10) + '...' : member.userName}}
@@ -69,10 +77,11 @@
           <ion-row>
             <ion-col size-sm="6" offset-sm="3">
               <ion-item id="open-modal-start">
-                <ion-label position="floating">Datum von</ion-label>
+                <ion-label position="floating">{{ 'domains.spendings.overlay.filter.date_from' | translate }}</ion-label>
                 <ion-input
                 type="text"
                 [value]="formattedDateFrom"
+                readonly
                 formControlName="startDate"
                 ></ion-input>
               </ion-item>
@@ -81,6 +90,7 @@
                   <ion-content>
                     <ion-datetime
                       #datetimeStart
+                      [locale]="currentLang()"
                       size="cover"
                       presentation="date"
                       [firstDayOfWeek]="1"
@@ -89,9 +99,9 @@
                       (ionChange)="onDateChange($event, 'startDate')"
                       (ionCancel)="showPicker = false;">
                       <ion-buttons slot="buttons">
-                        <ion-button color="primary" (click)="clearInput('startDate')">Reset</ion-button>
-                        <ion-button color="primary" (click)="closeDatePicker('startDate')">Abbrechen</ion-button>
-                        <ion-button color="primary" (click)="select('startDate')">Speichern</ion-button>
+                        <ion-button color="primary" (click)="clearInput('startDate')">{{ 'global.date_picker.btn_reset' | translate }}</ion-button>
+                        <ion-button color="primary" (click)="closeDatePicker('startDate')">{{ 'global.date_picker.btn_cancel' | translate }}</ion-button>
+                        <ion-button color="primary" (click)="select('startDate')">{{ 'global.date_picker.btn_ok' | translate }}</ion-button>
                       </ion-buttons>
                     </ion-datetime>
                   </ion-content>
@@ -100,10 +110,11 @@
             </ion-col>
             <ion-col size-sm="6" offset-sm="3">
               <ion-item id="open-modal-end">
-                <ion-label position="floating">Datum bis</ion-label>
+                <ion-label position="floating">{{ 'domains.spendings.overlay.filter.date_to' | translate }}</ion-label>
                 <ion-input
                 type="text"
                 [value]="formattedDateTo"
+                readonly
                 formControlName="endDate"
                 ></ion-input>
               </ion-item>
@@ -112,6 +123,7 @@
                   <ion-content>
                     <ion-datetime
                       #datetimeEnd
+                      [locale]="currentLang()"
                       size="cover"
                       presentation="date"
                       [firstDayOfWeek]="1"
@@ -120,9 +132,9 @@
                       (ionChange)="onDateChange($event, 'endDate')"
                       (ionCancel)="showPicker = false;">
                       <ion-buttons slot="buttons">
-                        <ion-button color="primary" (click)="clearInput('endDate')">Reset</ion-button>
-                        <ion-button color="primary" (click)="closeDatePicker('endDate')">Abbrechen</ion-button>
-                        <ion-button color="primary" (click)="select('endDate')">Speichern</ion-button>
+                        <ion-button color="primary" (click)="clearInput('endDate')">{{ 'global.date_picker.btn_reset' | translate }}</ion-button>
+                        <ion-button color="primary" (click)="closeDatePicker('endDate')">{{ 'global.date_picker.btn_cancel' | translate }}</ion-button>
+                        <ion-button color="primary" (click)="select('endDate')">{{ 'global.date_picker.btn_ok' | translate }}</ion-button>
                       </ion-buttons>
                     </ion-datetime>
                   </ion-content>
@@ -134,13 +146,13 @@
             <ion-col>
               <ion-toolbar>
                 <ion-buttons slot="start">
-                  <ion-button (click)="reset()" color="primary">RESET</ion-button>
+                  <ion-button (click)="reset()" color="primary">{{ 'domains.spendings.overlay.filter.btn_reset' | translate }}</ion-button>
                   <!-- <ion-button (click)="close()" color="primary">ABBRECHEN</ion-button> -->
                 </ion-buttons>
                 <ion-buttons slot="end">
                   <!-- <ion-button (click)="reset()" color="primary">RESET</ion-button> -->
                   <!-- <ion-button (click)="onDismiss()" [disabled]="!form.valid" color="primary">SPEICHERN</ion-button> -->
-                  <ion-button (click)="close()" color="primary">ABBRECHEN</ion-button>
+                  <ion-button (click)="close()" color="primary">{{ 'domains.spendings.overlay.filter.btn_cancel' | translate }}</ion-button>
                 </ion-buttons>
               </ion-toolbar>
             </ion-col>

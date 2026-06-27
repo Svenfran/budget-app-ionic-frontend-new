@@ -6,9 +6,10 @@ import { User } from 'src/app/auth/user';
 import { AuthService } from 'src/app/auth/auth.service';
 import { INIT_VALUES } from 'src/app/constants/default-values';
 import { SpendingsOverviewUserDto } from './model/spendings-overview-user-dto';
+import { TranslateService } from '@ngx-translate/core';
 
-const DELETED = "gelöscht";
-const REMOVED = "entfernt";
+const DELETED = 'DELETED';
+const REMOVED = 'REMOVED';
 
 @Component({
   selector: 'app-overview',
@@ -35,12 +36,14 @@ export class OverviewPage implements OnInit {
   public currentYear = new Date().getFullYear();
   public hidden: boolean = true;
   public user: User | undefined;
+  public translatedRemoved!: string;
 
   constructor(
     private groupService: GroupService,
     private overviewService: OverviewService,
     private cartService: CartService,
-    private authService: AuthService
+    private authService: AuthService,
+    private translate: TranslateService
   ) { 
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
@@ -66,10 +69,21 @@ export class OverviewPage implements OnInit {
         this.user = user;
       }
     });
+
+    this.loadTranslations();
+    // Sprache wechseln -> Werte aktualisieren
+    this.translate.onLangChange.subscribe(() => this.loadTranslations());
   }
 
   get spendingsUsers(): SpendingsOverviewUserDto[] {
     return this.segment === 'year' ? this.spendingsTotalYearYearly().spendingsTotalUser : this.spendingsTotalYearMonthly().spendingsTotalUser;
+  }
+
+  
+  private loadTranslations() {
+    this.translate.get(['global.user.removed']).subscribe(translations => {
+      this.translatedRemoved = translations['global.user.removed'];
+    });
   }
 
   isDeletedUser(userName: string): boolean {
@@ -78,11 +92,13 @@ export class OverviewPage implements OnInit {
 
   getShortUserName(userName: string): string {
     if (userName.includes(DELETED)) {
-      return `${userName.slice(0, 10)}.`;
+        const userDeleted = this.translate.instant('global.user.deleted');
+        return userDeleted.length > 10 ? `${userDeleted.slice(0, 10)}...` : userDeleted;
     } else if (userName.includes(REMOVED)) {
-      return `${userName.slice(0, 11)}.`;
+        const userRemoved = userName.split(' ')[0]
+        return userRemoved.length > 10 ? `${userRemoved.slice(0, 10)}...` : userRemoved;
     } else {
-      return userName.length > 10 ? `${userName.slice(0, 10)}...` : userName;
+        return userName.length > 10 ? `${userName.slice(0, 10)}...` : userName;
     }
   }
 

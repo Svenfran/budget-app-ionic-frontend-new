@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { NewEditCartPageRoutingModule } from './new-edit-cart-routing.module';
 
 import { NewEditCartPage } from './new-edit-cart.page';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -14,7 +15,8 @@ import { NewEditCartPage } from './new-edit-cart.page';
     FormsModule,
     IonicModule,
     NewEditCartPageRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TranslateModule
   ],
   declarations: [NewEditCartPage]
 })

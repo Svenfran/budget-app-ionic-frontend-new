@@ -4,6 +4,8 @@ import { CategoryDto } from '../model/category-dto';
 import { HttpClient } from '@angular/common/http';
 import { Group } from '../model/group';
 import { AlertService } from './alert.service';
+import { TranslateService } from '@ngx-translate/core';
+import { SETTLEMENTPAYMENT_CATEGORIES } from '../constants/default-values';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +22,8 @@ export class CategoryService {
 
   constructor(
     private http: HttpClient,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private translate: TranslateService
   ) {}
 
   triggerUpdate() {
@@ -88,11 +91,17 @@ export class CategoryService {
           console.error("Error deleting category:", err);
           this.categories.set(currentCategories);
           if (err.status === 404) {
-            let header = "Löschen fehlgeschlagen";
-            let message = "Kategorie kann nicht gelöscht werden, diese ist bereits einigen deiner Ausgaben zugeordnet!"
+            let header = this.translate.instant("alerts.category.delete.error_message_service.header");
+            let message = this.translate.instant("alerts.category.delete.error_message_service.message", {categoryName: category.name});
             this.alertService.showErrorAlert(header, message);
           }
         }
       })
   };
+
+isSettlementpayment(category: string): boolean {
+  let pattern = new RegExp(SETTLEMENTPAYMENT_CATEGORIES.join('|')); 
+  let currentSettlementCategory = this.translate.instant('domains.spendings.settlement');
+  return (pattern.test(currentSettlementCategory) && SETTLEMENTPAYMENT_CATEGORIES.includes(category));
+}
 }

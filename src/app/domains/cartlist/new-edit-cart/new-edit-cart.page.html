@@ -3,8 +3,8 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/domains/tabs/cartlist"></ion-back-button>
     </ion-buttons>
-    <ion-title *ngIf="isAddMode">Einkauf hinzufügen</ion-title>
-    <ion-title *ngIf="!isAddMode">Einkauf bearbeiten</ion-title>
+    <ion-title *ngIf="isAddMode">{{ 'carts.title_add' | translate }}</ion-title>
+    <ion-title *ngIf="!isAddMode">{{ 'carts.title_edit' | translate }}</ion-title>
     <ion-buttons slot="primary">
       <ion-button (click)="onSubmit()" [disabled]="!form.valid">
         <ion-icon name="checkmark" slot="icon-only"></ion-icon>
@@ -19,7 +19,7 @@
       <ion-row>
         <ion-col size-sm="6" offset-sm="3">
           <ion-item lines="none">
-            <ion-label position="floating">Titel*</ion-label>
+            <ion-label position="floating">{{ 'carts.form.title' | translate }}</ion-label>
             <ion-input
               type="text"
               maxlength="200"
@@ -27,12 +27,12 @@
             ></ion-input>
           </ion-item>
           <ion-item lines="none" *ngIf="title?.invalid && title?.touched">
-            <ion-label color="danger"><small>Pflichtfeld!</small></ion-label>
+            <ion-label color="danger"><small>{{ 'global.errors.required' | translate }}</small></ion-label>
           </ion-item>
         </ion-col>
         <ion-col size-sm="6" offset-sm="3">
           <ion-item lines="none">
-            <ion-label position="floating">Betrag in €*</ion-label>
+            <ion-label position="floating">{{ 'carts.form.amount' | translate }}</ion-label>
             <ion-input
               type="number"
               min="-99999"
@@ -42,8 +42,8 @@
           </ion-item>
           <ion-item lines="none" *ngIf="amount?.invalid && (amount?.dirty || amount?.touched)">
             <ion-label color="danger">
-              <small *ngIf="amount?.errors?.['required']">Pflichtfeld!</small>
-              <small *ngIf="amount?.errors?.['pattern']" class="text-danger">Dezimalstelle mit Punkt trennen: ##.##</small>
+              <small *ngIf="amount?.errors?.['required']">{{ 'global.errors.required' | translate }}</small>
+              <small *ngIf="amount?.errors?.['pattern']" class="text-danger">{{ 'global.errors.invalid_amount' | translate }}</small>
             </ion-label>
           </ion-item>
         </ion-col>
@@ -51,7 +51,7 @@
       <ion-row>
         <ion-col size-sm="6" offset-sm="3">
           <ion-item lines="none">
-            <ion-label position="floating">Beschreibung</ion-label>
+            <ion-label position="floating">{{ 'carts.form.description' | translate }}</ion-label>
             <ion-textarea
               type="text"
               auto-grow="true"
@@ -65,35 +65,36 @@
       <ion-row>
         <ion-col size-sm="6" offset-sm="3">
           <ion-item lines="none">
-            <ion-label position="floating">Kategorie*</ion-label>
+            <ion-label position="floating">{{ 'carts.form.category' | translate }}</ion-label>
             <ion-select
               type="text"
               formControlName="categoryId"
-              okText="Ok" cancelText="Abbrechen">
+              [okText]="'global.selections.btn_ok' | translate" 
+              [cancelText]="'global.selections.btn_cancel' | translate">
               <ion-select-option *ngFor="let category of categories()" [value]="category.id">{{ category.name }}</ion-select-option>
             </ion-select>
           </ion-item>
           <ion-item lines="none" *ngIf="categoryId?.invalid && categoryId?.touched">
-            <ion-label color="danger"><small>Pflichtfeld!</small></ion-label>
+            <ion-label color="danger"><small>{{ 'global.errors.required' | translate }}</small></ion-label>
           </ion-item>
         </ion-col>
         <ion-col size-sm="6" offset-sm="3">
           <ion-item lines="none" id="open-modal">
-            <ion-label position="floating">Datum*</ion-label>
+            <ion-label position="floating">{{ 'carts.form.date_purchased' | translate }}</ion-label>
             <ion-input
               type="text"
               placeholder="dd.MM.yyyy"
               [value]="formattedString"
-              (click)="openDatePicker()"
               readonly
               formControlName="datePurchased"
             ></ion-input>
           </ion-item>
-          <ion-modal [isOpen]="showPicker">
+          <ion-modal trigger="open-modal">
             <ng-template>
               <ion-content>
                 <ion-datetime
                   #datetime
+                  [locale]="currentLang()"
                   size="cover"
                   presentation="date"
                   [isDateEnabled]="isDateSelectable"
@@ -105,8 +106,8 @@
                   (ionChange)="dateChanged($event.detail.value)"
                   (ionCancel)="showPicker = false;">
                   <ion-buttons slot="buttons">
-                    <ion-button color="primary" (click)="close()">Abbrechen</ion-button>
-                    <ion-button color="primary" (click)="select()">Speichern</ion-button>
+                    <ion-button color="primary" (click)="close()">{{ 'global.date_picker.btn_cancel' | translate }}</ion-button>
+                    <ion-button color="primary" (click)="select()">{{ 'global.date_picker.btn_ok' | translate }}</ion-button>
                   </ion-buttons>
                 </ion-datetime>
               </ion-content>
@@ -114,8 +115,8 @@
           </ion-modal>
           <ion-item lines="none" *ngIf="datePurchased?.invalid && (datePurchased?.dirty || datePurchased?.touched)">
             <ion-label color="danger">
-              <small *ngIf="datePurchased?.errors?.['required']">Pflichtfeld!</small>
-              <small *ngIf="datePurchased?.errors?.['pattern']">Datumsformat beachten: dd.MM.yyyy</small>
+              <small *ngIf="datePurchased?.errors?.['required']">{{ 'global.errors.required' | translate }}</small>
+              <small *ngIf="datePurchased?.errors?.['pattern']">{{ 'global.error.invalid_date' | translate }}</small>
             </ion-label>
           </ion-item>
         </ion-col>
@@ -123,12 +124,13 @@
       <ion-row>
         <ion-col size-sm="6" offset-sm="3">
           <ion-item lines="none">
-            <ion-label position="floating">Eintrag regelmäßig wiederholen?</ion-label>
+            <ion-label position="floating">{{ 'carts.form.recurrence' | translate }}</ion-label>
             <ion-select
               type="text"
               formControlName="recurrenceType"
               (ionChange)="recurrenceTypeChanged($event.detail.value)"
-              okText="Ok" cancelText="Abbrechen">
+              [okText]="'global.selections.btn_ok' | translate" 
+              [cancelText]="'global.selections.btn_cancel' | translate">
               <ion-select-option *ngFor="let type of recurrenceTypes" [value]="type.value">{{ type.label }}</ion-select-option>
             </ion-select>
           </ion-item>
@@ -137,16 +139,14 @@
       <ion-row *ngIf="form.value.recurrenceType !== 'NONE'">
         <ion-col class="ion-padding-horizontal" size-sm="6" offset-sm="3">
           <ion-text class="ion-text-wrap" style="font-size: small;" color="medium">
-            Einträge werden nicht in der Vergangenheit angelegt. 
-            Das nächste Ausführungsdatum liegt immer in der Zukunft 
-            und wird aus dem oben angegebenen Kaufdatum berechnet.
+            {{ 'carts.form.recurrence_messages.text_info' | translate }}
           </ion-text>
         </ion-col>
       </ion-row>
       <ion-row *ngIf="form.value.recurrenceType !== 'NONE'">
         <ion-col class="ion-padding-horizontal ion-padding-top" size-sm="6" offset-sm="3">
           <ion-text class="ion-text-wrap" style="font-size: small;">
-            Nächste Ausführung am: <strong>{{ nextExecutionDate | date: 'dd.MM.yyyy' }}</strong>
+            {{ 'carts.form.recurrence_messages.next_execution' | translate }} <strong>{{ nextExecutionDate | date: 'dd.MM.yyyy' }}</strong>
           </ion-text>
         </ion-col>
       </ion-row>
@@ -158,11 +158,10 @@
               labelPlacement="end"
               (ionChange)="templateUpdateSelectedChange()"
               formControlName="templateUpdateSelected">
-            <ion-text class="ion-text-wrap">Änderungen für alle zukünftigen Einträge übernehmen</ion-text>
-          </ion-checkbox>
+          <ion-text class="ion-text-wrap">{{ 'carts.form.recurrence_messages.apply_changes' | translate }}</ion-text>
+          </ion-checkbox><br>
           <ion-text class="ion-text-wrap" style="font-size: small;" color="medium">
-            Die Änderung des Intervalltyps gilt automatisch für alle zukünftigen Einträge, 
-            auch ohne Auswahl der Checkbox.
+            {{ 'carts.form.recurrence_messages.apply_changes_info' | translate }}
           </ion-text>
         </ion-col>
       </ion-row>

@@ -18,3 +18,5 @@ export enum INIT_NUMBERS {
     MAX_LENGTH = 200,
     MAX_LENGTH_50 = 50
 }
+
+export const SETTLEMENTPAYMENT_CATEGORIES = ['Ausgleichszahlung', 'Settlement payment', 'Pago de ajuste'];

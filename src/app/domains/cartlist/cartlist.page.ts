@@ -1,4 +1,4 @@
-import { Component, effect, OnInit, signal } from '@angular/core';
+import { Component, effect, OnInit, signal, ViewChild } from '@angular/core';
 import { CartService } from './service/cart.service';
 import { GroupService } from 'src/app/service/group.service';
 import { User } from 'src/app/auth/user';
@@ -8,11 +8,13 @@ import { Cart } from './model/cart';
 import { Router } from '@angular/router';
 import { OverviewService } from '../overview/service/overview.service';
 import { CategoryService } from 'src/app/service/category.service';
-import * as moment from 'moment';
+import moment from 'moment';
 import { SettlementPaymentPage } from 'src/app/settlement-payment/settlement-payment.page';
 import { INIT_VALUES } from 'src/app/constants/default-values';
 import { FilterModalPage } from 'src/app/filter-modal/filter-modal.page';
 import { CartFilter } from 'src/app/filter-modal/model/CartFilter';
+import { TranslateService } from '@ngx-translate/core';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
 @Component({
   selector: 'app-cartlist',
@@ -21,8 +23,7 @@ import { CartFilter } from 'src/app/filter-modal/model/CartFilter';
   standalone: false
 })
 export class CartlistPage implements OnInit {
-
-  public DELETED: string = "gelöscht";
+  @ViewChild('viewport', { static: false }) viewport!: CdkVirtualScrollViewport;
   
   public cartList = this.cartService.cartList;
   public initCartList = this.cartService.initCartList;
@@ -37,6 +38,8 @@ export class CartlistPage implements OnInit {
   public hidden: boolean = true;
   public cartFilter: CartFilter = {};
   public cartVisible: boolean = false;
+  public isAtTop: boolean = true;
+  public viewportInitialized: boolean = false;
 
   constructor(
     private cartService: CartService,
@@ -47,7 +50,8 @@ export class CartlistPage implements OnInit {
     private router: Router,
     private overviewService: OverviewService,
     private categoryService: CategoryService,
-    private modalCtrl: ModalController
+    private modalCtrl: ModalController,
+    private translate: TranslateService
   ) { 
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
@@ -75,6 +79,30 @@ export class CartlistPage implements OnInit {
     })
   }
 
+  ngAfterViewChecked() {
+  if (this.viewport && !this.viewportInitialized) {
+    this.viewportInitialized = true;
+
+    this.viewport.elementScrolled().subscribe(() => {
+      const scrollOffset = this.viewport.measureScrollOffset();
+      this.isAtTop = scrollOffset <= 100;
+    });
+  }
+}
+  
+  onScrollChange() {
+    setTimeout(() => {
+      if (!this.viewport) return;
+      const offset = this.viewport.measureScrollOffset();
+      this.isAtTop = offset <= 100;
+    }, 50);
+  }
+
+  getTranslationKey() {
+    let key = this.translate.instant('global.user.removed');
+    return ` (${key.split(' ')[1]})`;
+  }
+
   // TODO: Evtl. nur option in Filtermodal -> Gelöschte Nutzer -> if true -> filter carts?!
   toggleCartVisability() {
     if (!this.cartVisible) {
@@ -88,6 +116,10 @@ export class CartlistPage implements OnInit {
       )
       this.cartVisible = false;
     }
+  }
+
+  isSettlementpayment(category: string): boolean {
+    return this.categoryService.isSettlementpayment(category);
   }
 
   resetFilterParams() {
@@ -120,15 +152,16 @@ export class CartlistPage implements OnInit {
   onDeleteCart(cart: Cart, slidingItem: IonItemSliding) {
     slidingItem.close();
     this.alertCtrl.create({
-      header: 'Löschen',
-      message: `Möchtest du den Eintrag "${cart.title}" wirklich löschen?`,
+      header: this.translate.instant('alerts.cart.delete.header'),
+      message: this.translate.instant('alerts.cart.delete.message', { cartTitle: cart.title }),
       buttons: [{
-        text: 'Nein'
+        text: this.translate.instant('alerts.cart.delete.cancel'),
+        role: "cancel"
       }, {
-        text: 'Ja',
+        text: this.translate.instant('alerts.cart.delete.ok'),
         handler: () => {
           this.loadingCtrl.create({
-            message: 'Lösche Einkauf...'
+            message: this.translate.instant('alerts.cart.delete.loading')
           }).then(loadingEl => {
             loadingEl.present(),
             this.cartService.deleteCart(cart.id!)
@@ -145,7 +178,8 @@ export class CartlistPage implements OnInit {
   }
 
   download() {
-    let filename = "Ausgaben_" + this.activeGroup.name.replace(/ /g, "-") + "_" + moment().format('YYYYMMDDHHmmss') + ".xlsx";
+    let suffix = `${this.translate.instant('domains.spendings.title')}_`
+    let filename = suffix + this.activeGroup.name.replace(/ /g, "-") + "_" + moment().format('YYYYMMDDHHmmss') + ".xlsx";
     this.cartService.getExcelFile(this.activeGroup, filename);
   }
 

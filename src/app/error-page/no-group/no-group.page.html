@@ -9,11 +9,11 @@
     <ion-row class="h-full ion-align-items-center ion-justify-content-center">
       <ion-col>
         <ion-icon name="people-outline" size="large" color="medium"></ion-icon>
-        <h2>Oops! Keine Gruppen</h2>
-        <p>Füge eine neue Gruppe hinzu, um loszulegen..</p>
+        <h2>{{ 'error_pages.no_group.title' | translate }}</h2>
+        <p>{{ 'error_pages.no_group.message' | translate }}</p>
         <ion-button shape="round" (click)="onCreateGroup()">
           <ion-icon slot="start" name="add-circle"></ion-icon>
-          Gruppe erstellen
+          {{ 'error_pages.no_group.btn_text' | translate }}
         </ion-button>
       </ion-col>
     </ion-row>
@@ -22,7 +22,7 @@
 
 <ion-footer class="ion-no-border">
   <ion-toolbar class="ion-padding-horizontal">
-    <ion-text slot="start" routerLink="/userprofile">Profil</ion-text>
-    <ion-text slot="end" (click)="exitApp()">Exit</ion-text>
+    <ion-text slot="start" routerLink="/userprofile">{{ 'error_pages.no_group.footer.link_profile' | translate }}</ion-text>
+    <ion-text slot="end" (click)="exitApp()">{{ 'error_pages.no_group.footer.exit_app' | translate }}</ion-text>
   </ion-toolbar>
 </ion-footer>

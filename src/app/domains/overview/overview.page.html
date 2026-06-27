@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button menu="m1"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Übersicht</ion-title>
+    <ion-title>{{ 'domains.overview.title' | translate }}</ion-title>
     <ion-buttons slot="primary">
       <ion-text class="ion-padding group-name" routerLink="/groupoverview">
         <small>{{ getShortGroupName(activeGroup.name) }}</small>
@@ -31,10 +31,10 @@
 
   <ion-segment [(ngModel)]="segment">
     <ion-segment-button value="year">
-      <ion-label>jährlich</ion-label>
+      <ion-label>{{ 'domains.overview.segment.yearly' | translate }}</ion-label>
     </ion-segment-button>
     <ion-segment-button value="month">
-      <ion-label>monatlich</ion-label>
+      <ion-label>{{ 'domains.overview.segment.monthly' | translate }}</ion-label>
     </ion-segment-button>
   </ion-segment>
 
@@ -44,10 +44,10 @@
         <ion-spinner color="primary"></ion-spinner>
       </ion-col>
       <ion-col class="ion-text-center" size-md="6" offset-md="3" *ngIf="!isLoading && segment == 'year' && (!spendingsPerYear() || spendingsPerYear()?.length === 0)">
-        <p>Keine Ausgaben vorhanden!</p>
+        <p>{{ 'domains.overview.segment.no_spendings_yearly' | translate }}</p>
       </ion-col>
-      <ion-col class="ion-text-center" size-md="6" offset-md="3" *ngIf="!isLoading && segment == 'month' && (!spendingsPerMonth() || spendingsPerMonth()?.length === 0)">
-        <p>Keine Ausgaben vorhanden <br> für das aktuelle Jahr!</p>
+      <ion-col class="ion-text-center ion-text-wrap" size-md="6" offset-md="3" *ngIf="!isLoading && segment == 'month' && (!spendingsPerMonth() || spendingsPerMonth()?.length === 0)">
+        <p>{{ 'domains.overview.segment.no_spendings_monthly' | translate }}</p>
       </ion-col>
     </ion-row>
 
@@ -61,7 +61,7 @@
               <div class="spendings-details">
                 <div class="spendings-date">
                   <ion-text class="month" *ngIf="segment == 'month' && spendingsPerMonth()?.length">
-                    {{ spendingsPerMonth()![spendingsPerMonth()!.length - 1].monthName }} - {{ spendingsPerMonth()![0].monthName }}
+                    {{ spendingsPerMonth()![spendingsPerMonth()!.length - 1].month | monthName }} - {{ spendingsPerMonth()![0].month | monthName }}
                   </ion-text>
                   
                   <ion-text *ngIf="segment == 'month'">
@@ -120,7 +120,7 @@
                 
       
                 <div *ngIf="(segment === 'year' ? spendingsTotalYearYearly().spendingsTotalUser.length : spendingsTotalYearMonthly().spendingsTotalUser.length) > 1" class="spendings-total">
-                  <ion-text class="bold" color="medium">Gesamt:</ion-text>
+                  <ion-text class="bold" color="medium">{{ 'domains.overview.total' | translate }}</ion-text>
                   <ion-text class="bold">
                     {{ (segment === 'year' ? spendingsTotalYearYearly().sumTotalYear : spendingsTotalYearMonthly().sumTotalYear)  | scientificCurrency }}
                   </ion-text>
@@ -144,7 +144,7 @@
           
           <ion-list-header (click)="hide()">
             <ion-text class="space-right">
-              {{ segment === 'year' ? 'Jährliche Ausgaben' : 'Monatliche Ausgaben' }}
+              {{ (segment === 'year' ? 'domains.overview.segment.spendings_yearly' : 'domains.overview.segment.spendings_monthly') | translate }}
             </ion-text>
             <ion-icon *ngIf="hidden" name="chevron-down-outline"></ion-icon>
             <ion-icon *ngIf="!hidden" name="chevron-up-outline"></ion-icon>
@@ -210,7 +210,7 @@
                     *ngIf="spendingsTotalYearYearly().spendingsTotalUser.length > 1" 
                     class="spendings-total"
                   >
-                    <ion-text class="bold" color="medium">Gesamt:</ion-text>
+                    <ion-text class="bold" color="medium">{{ 'domains.overview.total' | translate }}</ion-text>
                     <ion-text class="bold">
                       {{ spendings.sumTotalYear | scientificCurrency }}
                     </ion-text>
@@ -227,7 +227,7 @@
                 <div class="spendings-details">
                   <div class="spendings-date">
                     <ion-text class="month">
-                      {{ spendings.monthName }}
+                      {{ spendings.month | monthName }}
                     </ion-text>
                   </div>
 
@@ -280,7 +280,7 @@
                     *ngIf="spendingsTotalYearMonthly().spendingsTotalUser.length > 1" 
                     class="spendings-total"
                   >
-                    <ion-text class="bold" color="medium">Gesamt:</ion-text>
+                    <ion-text class="bold" color="medium">{{ 'domains.overview.total' | translate }}</ion-text>
                     <ion-text class="bold">
                       {{ spendings.sumTotalMonth | scientificCurrency }}
                     </ion-text>

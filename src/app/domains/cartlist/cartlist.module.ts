@@ -9,6 +9,7 @@ import { CartlistPageRoutingModule } from './cartlist-routing.module';
 
 import { CartlistPage } from './cartlist.page';
 import { ScientificCurrencyPipe } from 'src/app/pipe/scientific.pipe';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   imports: [
@@ -17,6 +18,7 @@ import { ScientificCurrencyPipe } from 'src/app/pipe/scientific.pipe';
     IonicModule,
     CartlistPageRoutingModule,
     ScrollingModule,
+    TranslateModule,
     ScientificCurrencyPipe
   ],
   declarations: [CartlistPage]

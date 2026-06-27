@@ -1,26 +1,25 @@
 import { Injectable } from '@angular/core';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { INIT_NUMBERS } from '../constants/default-values';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AlertService {
 
-  private HEADER_SERVER_UNAVAILABLE: string = "Es ist ein Fehler aufgetreten";
-  private MESSAGE_SERVER_UNAVAILABLE: string = "Der Server ist momentan nicht erreichbar. Bitte versuche es in ein paar Minuten noch einmal.";
-
   constructor(
     private alertController: AlertController,
     private loadingController: LoadingController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private translate: TranslateService
   ) {}
 
   async presentInputAlert({
     header,
     placeholder,
-    okText = 'OK',
-    cancelText = 'Abbrechen',
+    okText = this.translate.instant("alerts.server_unavailable.btn_ok"),
+    cancelText = this.translate.instant("alerts.server_unavailable.btn_cancel"),
     onConfirm,
   }: {
     header: string;
@@ -83,8 +82,8 @@ export class AlertService {
   showAlertSeverUnavailable() {
     this.alertController
       .create({
-        header: this.HEADER_SERVER_UNAVAILABLE,
-        message: this.MESSAGE_SERVER_UNAVAILABLE,
+        header: this.translate.instant("alerts.server_unavailable.header"),
+        message: this.translate.instant("alerts.server_unavailable.message"),
         buttons: ['Ok']
       })
       .then(alertEl => alertEl.present());

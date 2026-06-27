@@ -8,6 +8,7 @@ import { UserDto } from '../model/user-dto';
 import { ChangeGroupOwnerDto } from './model/change-group-owner-dto';
 import { GroupMembers } from './model/groupmembers-dto';
 import { RemoveMemberDto } from '../groupoverview/model/remove-member';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-groupmembers',
@@ -35,7 +36,8 @@ export class GroupmembersPage implements OnInit {
     private authService: AuthService,
     private modalCtrl: ModalController,
     private fb: FormBuilder,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -119,15 +121,13 @@ export class GroupmembersPage implements OnInit {
     };
 
     this.alertCtrl.create({
-      header: "Löschen",
-      message: `Möchtest du den Nutzer "${member.userName}" 
-                wirklich aus der Gruppe "${groupWithMembers.name}" entfernen 
-                inkl. aller gespeicherten Ausgaben?`,
+      header: this.translate.instant("alerts.group.remove_member.header"),
+      message: this.translate.instant("alerts.group.remove_member.message", { memberName: member.userName, group: groupWithMembers.name }),
       buttons: [{
-        text: "Nein",
+        text: this.translate.instant("alerts.group.remove_member.cancel"),
         role: "cancel"
       }, {
-        text: "Ja",
+        text: this.translate.instant("alerts.group.remove_member.ok"),
         handler: () => {
           this.groupService.removeMemberFromGroup(memberToRemove);
           this.groupMembers.update(group => {

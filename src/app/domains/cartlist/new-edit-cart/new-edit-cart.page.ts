@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, effect, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonDatetime, LoadingController, MenuController } from '@ionic/angular';
@@ -8,10 +8,12 @@ import { CartService } from '../service/cart.service';
 import { Cart } from '../model/cart';
 import { User } from 'src/app/auth/user';
 import { AuthService } from 'src/app/auth/auth.service';
-import * as moment from 'moment';
+import moment from 'moment';
 import { CategoryDto } from 'src/app/model/category-dto';
 import { INIT_VALUES } from 'src/app/constants/default-values';
 import { RECURRENCE_TYPE } from 'src/app/constants/recurrence-type';
+import { TranslateService } from '@ngx-translate/core';
+import { LanguageService } from 'src/app/service/language.service';
 
 
 @Component({
@@ -38,14 +40,15 @@ export class NewEditCartPage implements OnInit {
   public cartList = this.cartService.cartList;
   public zeitraeume = this.groupService.groupMembershipHistory;
   public recurrenceTypes = [
-    { value: RECURRENCE_TYPE.DAILY, label: 'täglich' },
-    { value: RECURRENCE_TYPE.WEEKLY, label: 'wöchentlich' },
-    { value: RECURRENCE_TYPE.MONTHLY, label: 'monatlich' },
-    { value: RECURRENCE_TYPE.YEARLY, label: 'jährlich' },
-    { value: RECURRENCE_TYPE.NONE, label: 'keine Wiederholung' }
+    { value: RECURRENCE_TYPE.DAILY, label: this.translate.instant("carts.recurrence_types.daily") },
+    { value: RECURRENCE_TYPE.WEEKLY, label: this.translate.instant("carts.recurrence_types.weekly") },
+    { value: RECURRENCE_TYPE.MONTHLY, label: this.translate.instant("carts.recurrence_types.monthly") },
+    { value: RECURRENCE_TYPE.YEARLY, label: this.translate.instant("carts.recurrence_types.yearly") },
+    { value: RECURRENCE_TYPE.NONE, label: this.translate.instant("carts.recurrence_types.none") }
   ];
   public hasActiveTemplate: boolean = false;
   public nextExecutionDate: Date | null = null;
+  public currentLang = this.langService.currentLang;
 
   constructor(
     private route: ActivatedRoute,
@@ -56,7 +59,9 @@ export class NewEditCartPage implements OnInit {
     private authService: AuthService,
     private menuCtrl: MenuController,
     private loadingCtrl: LoadingController,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService,
+    private langService: LanguageService
   ) {
     effect(() => {
       const activeGroup = this.groupService.activeGroup();
@@ -125,7 +130,7 @@ export class NewEditCartPage implements OnInit {
 
   onCreateCart() {
     this.loadingCtrl.create({
-      message: "Füge Einkauf hinzu..."
+      message: this.translate.instant("carts.loading_add")
     }).then(loadingEl => {
       const category = this.categories().find(cat => cat.id === this.form.value.categoryId)!;
       const categoryDto: CategoryDto = {
@@ -154,7 +159,7 @@ export class NewEditCartPage implements OnInit {
 
   onUpdateCart() {
     this.loadingCtrl.create({
-      message: "Bearbeite Einkauf ..."
+      message: this.translate.instant("carts.loading_update")
     }).then(loadingEl => {
       const category = this.categories().find(cat => cat.id === this.form.value.categoryId)!;
       const categoryDto: CategoryDto = {
@@ -274,10 +279,6 @@ export class NewEditCartPage implements OnInit {
 
   templateUpdateSelectedChange() {
     this.updateNextExecutionDate();
-  }
-
-  openDatePicker() {
-    this.showPicker = true;
   }
 
   close() {

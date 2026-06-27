@@ -1,6 +1,7 @@
-import { BASE_URL } from "src/app/constants/default-values";
+import { appConfig } from "src/config/config";
 
 export const environment = {
   production: true,
-  apiBaseUrl: BASE_URL
+  apiBaseUrl: `${appConfig.baseUrl}`,
+  websocketUrl: `${appConfig.baseUrl}/wss`
 };

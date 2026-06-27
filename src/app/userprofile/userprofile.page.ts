@@ -9,6 +9,7 @@ import { EmailValidator } from '../Validator/email-validator';
 import { INIT_NUMBERS } from '../constants/default-values';
 import { Router } from '@angular/router';
 import { GroupService } from '../service/group.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-userprofile',
@@ -29,7 +30,8 @@ export class UserprofilePage implements OnInit {
     private alertService: AlertService,
     private menuCtrl: MenuController,
     private router: Router,
-    private groupService: GroupService
+    private groupService: GroupService,
+    private translate: TranslateService
   ) { }
 
   ngOnInit() {
@@ -50,21 +52,21 @@ export class UserprofilePage implements OnInit {
 
   changeUserName() {
     this.alertCtrl.create({
-      header: "Benutzername ändern:",
+      header: this.translate.instant("alerts.user_profile.change_username.header"),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant("alerts.user_profile.change_username.cancel"),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant("alerts.user_profile.change_username.ok"),
         handler: (data) => {
           if (data.userName === undefined || data.userName === null || data.userName.trim() === "") {
-            let header = "Fehlerhafter Benutzername!";
-            let message = `Der Benutzername darf nicht leer sein.`
+            let header = this.translate.instant("alerts.user_profile.change_username.error_message_page.header");
+            let message = this.translate.instant("alerts.user_profile.change_username.error_message_page.message");
             this.alertService.showErrorAlert(header, message);
             return
           }
           this.loadingCtrl.create({
-            message: "Ändere Benutzername..."
+            message: this.translate.instant("alerts.user_profile.change_username.loading")
           }).then(loadingEl => {
             loadingEl.present();
             const user: UserDto = {
@@ -80,7 +82,7 @@ export class UserprofilePage implements OnInit {
       inputs: [
         {
           name: "userName",
-          placeholder: "Benutzername",
+          placeholder: this.translate.instant("alerts.user_profile.change_username.placeholder"),
           attributes: {
             maxlength: INIT_NUMBERS.MAX_LENGTH_50
           }
@@ -96,22 +98,22 @@ export class UserprofilePage implements OnInit {
 
   changeUserEmail() {
     this.alertCtrl.create({
-      header: "E-Mail Adresse ändern:",
+      header: this.translate.instant("alerts.user_profile.change_email.header"),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant("alerts.user_profile.change_email.cancel"),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant("alerts.user_profile.change_email.ok"),
         handler: (data) => {
           const email = data.email.trim();
           if (EmailValidator.isNotValid(email)) {
-            let header = "Fehlerhafte E-Mail-Adresse!";
-            let message = "Bitte gib eine gültige E-mail-Adresse an.";
+            let header = this.translate.instant("alerts.user_profile.change_email.error_message_page.header");
+            let message = this.translate.instant("alerts.user_profile.change_email.error_message_page.message");
             this.alertService.showErrorAlert(header, message);
             return
           }
           this.loadingCtrl.create({
-            message: "Ändere E-Mail-Adresse..."
+            message: this.translate.instant("alerts.user_profile.change_email.loading")
           }).then(loadingEl => {
             loadingEl.present();
             const user: UserDto = {
@@ -127,7 +129,7 @@ export class UserprofilePage implements OnInit {
       inputs: [
         {
           name: "email",
-          placeholder: "E-Mail-Adresse",
+          placeholder: this.translate.instant("alerts.user_profile.change_email.placeholder"),
           type: "email",
           attributes: {
             maxlength: INIT_NUMBERS.MAX_LENGTH_50
@@ -144,15 +146,16 @@ export class UserprofilePage implements OnInit {
 
   deleteUserProfile() {
     this.alertCtrl.create({
-      header: "Profil löschen",
-      message: "Möchtest du dein Profil wirklich löschen inkl. aller Gruppen und Ausgaben?",
+      header: this.translate.instant("alerts.user_profile.delete_profile.header"),
+      message: this.translate.instant("alerts.user_profile.delete_profile.message"),
       buttons: [{
-        text: 'Nein'
+        text: this.translate.instant("alerts.user_profile.delete_profile.cancel"),
+        role: "cancel"
       }, {
-        text: 'Ja',
+        text: this.translate.instant("alerts.user_profile.delete_profile.ok"),
         handler: () => {
           this.loadingCtrl.create({
-            message: 'Lösche Profil...'
+            message: this.translate.instant("alerts.user_profile.delete_profile.loading")
           }).then(loadingEl => {
             loadingEl.present();
             this.userProfileService.deleteUserProfile(this.user.id);

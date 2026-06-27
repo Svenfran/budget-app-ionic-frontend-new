@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/domains/tabs/cartlist"></ion-back-button>
     </ion-buttons>
-    <ion-title>Gruppen bearbeiten</ion-title>
+    <ion-title>{{ 'groups.title' | translate }}</ion-title>
     <ion-buttons slot="primary">
       <ion-button (click)="onCreateGroup()">
         <ion-icon name="add" slot="icon-only"></ion-icon>
@@ -22,14 +22,14 @@
         <ion-spinner color="primary"></ion-spinner>
       </ion-col>
       <ion-col class="ion-text-center" size-md="6" offset-md="3" *ngIf="!isLoading && (!groupOverviewList() || groupOverviewList().length <= 0)">
-        <p>Keine Gruppen vorhanden!</p>
+        <p>{{ 'groups.empty' | translate }}</p>
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col>
         <ion-list *ngIf="!isLoading && groupOverviewList().length > 0">
           <ion-list-header>
-            <ion-label color="medium">MEINE GRUPPEN</ion-label>
+            <ion-label color="medium">{{ 'groups.header' | translate }}</ion-label>
           </ion-list-header>
           <ion-item-sliding *ngFor="let group of groupOverviewList(), let i = index" #slidingItem>
             <ion-item [lines]="i == groupOverviewList().length - 1 ? 'none' : 'inset'">
@@ -45,7 +45,7 @@
                     </ion-text>
                   </div>
                   <div class="group-members">
-                    <ion-text color="medium">Mitglieder: {{ group.memberCount }}</ion-text>
+                    <ion-text color="medium">{{ 'groups.group.members' | translate }} {{ group.memberCount }}</ion-text>
                   </div>
                 </div>
               </ion-label>

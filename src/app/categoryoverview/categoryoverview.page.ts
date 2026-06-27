@@ -3,8 +3,9 @@ import { CategoryService } from '../service/category.service';
 import { CategoryDto } from '../model/category-dto';
 import { GroupService } from '../service/group.service';
 import { AlertController, LoadingController } from '@ionic/angular';
-import { INIT_NUMBERS, INIT_VALUES } from '../constants/default-values';
+import { INIT_NUMBERS, INIT_VALUES, SETTLEMENTPAYMENT_CATEGORIES } from '../constants/default-values';
 import { CartService } from '../domains/cartlist/service/cart.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-categoryoverview',
@@ -23,7 +24,8 @@ export class CategoryoverviewPage implements OnInit {
     private groupService: GroupService,
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
-    private cartService: CartService
+    private cartService: CartService,
+    private translate: TranslateService
   ) { 
     effect(() => {
       this.activeGroup = this.groupService.activeGroup;
@@ -45,17 +47,21 @@ export class CategoryoverviewPage implements OnInit {
     }, 2000);
   }
 
+  isSettlementpayment(category: string): boolean {
+    return this.categoryService.isSettlementpayment(category);
+  }
+
   onCreateCategory() {
     this.alertCtrl.create({
-      header: "Neue Kategorie:",
+      header: this.translate.instant("alerts.category.new.header"),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant("alerts.category.new.cancel"),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant("alerts.category.new.ok"),
         handler: (data) => {
           this.loadingCtrl.create({
-            message: "Erstelle Kategorie..."
+            message: this.translate.instant("alerts.category.new.loading")
           }).then(loadingEl => {
             if (!data) return;
             const trimmedCategoryName = data.categoryName.trim();
@@ -73,7 +79,7 @@ export class CategoryoverviewPage implements OnInit {
       inputs: [
         {
           name: "categoryName",
-          placeholder: "Name der Kategorie",
+          placeholder: this.translate.instant("alerts.category.new.placeholder"),
           attributes: {
             maxlength: INIT_NUMBERS.MAX_LENGTH
           }
@@ -89,15 +95,15 @@ export class CategoryoverviewPage implements OnInit {
 
   onUpdateCategory(category: CategoryDto) {
     this.alertCtrl.create({
-      header: "Kategorie bearbeiten:",
+      header: this.translate.instant("alerts.category.edit.header"),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant("alerts.category.edit.cancel"),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant("alerts.category.edit.ok"),
         handler: (data) => {
           this.loadingCtrl.create({
-            message: "Bearbeite Kategorie..."
+            message: this.translate.instant("alerts.category.edit.loading")
           }).then(loadingEl => {
             const foundCategory = this.categories().find(c => c.id === category.id);
 
@@ -135,16 +141,16 @@ export class CategoryoverviewPage implements OnInit {
   
   onDeleteCategory(category: CategoryDto) {
     this.alertCtrl.create({
-      header: "Löschen",
-      message: `Möchtest du die Kategorie "${category.name}" wirklich löschen?`,
+      header: this.translate.instant("alerts.category.delete.header"),
+      message: this.translate.instant("alerts.category.delete.message", {categoryName: category.name}),
       buttons: [{
-        text: "Nein",
+        text: this.translate.instant("alerts.category.delete.cancel"),
         role: "cancel"
       }, {
-        text: "Ja",
+        text: this.translate.instant("alerts.category.delete.ok"),
         handler: () => {
           this.loadingCtrl.create({
-            message: "Lösche Kategorie..."
+            message: this.translate.instant("alerts.category.delete.loading")
           }).then(loadingEl => {
             const deletedCategory = this.categories().find(c => c.id === category.id);
             this.categoryService.deleteCategory(deletedCategory!);

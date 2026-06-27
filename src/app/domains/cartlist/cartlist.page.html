@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button menu="m1"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Ausgaben</ion-title>
+    <ion-title>{{ 'domains.spendings.title' | translate }}</ion-title>
 
     <ion-buttons slot="primary">
       <ion-text class="ion-padding group-name" routerLink="/groupoverview"><small>{{ (activeGroup.name.length > 20)? (activeGroup.name | slice:0:20) + '...' : (activeGroup.name) }}</small></ion-text>
@@ -19,15 +19,15 @@
             <ion-list lines="none">
               <ion-item size="small" [button]="true" [detail]="false" (click)="download()">
                 <ion-icon class="pop-icon" name="download-outline" slot="start"></ion-icon>
-                <ion-label>Download</ion-label>
+                <ion-label>{{ 'domains.spendings.download' | translate }}</ion-label>
               </ion-item>
               <ion-item size="small" [button]="true" [detail]="false" (click)="settlementPayment()">
                 <ion-icon class="pop-icon" name="swap-horizontal-outline" slot="start"></ion-icon>
-                <ion-label>Ausgleichszahlung</ion-label>
+                <ion-label>{{ 'domains.spendings.settlement' | translate }}</ion-label>
               </ion-item>
               <ion-item size="small" [button]="true" [detail]="false" (click)="filterModal()">
                 <ion-icon class="pop-icon" name="filter-circle-outline" slot="start"></ion-icon>
-                <ion-label>Filter</ion-label>
+                <ion-label>{{ 'domains.spendings.filter' | translate }}</ion-label>
               </ion-item>
               <!-- <ion-item size="small" [button]="true" [detail]="false" (click)="toggleCartVisability()">
                 <ion-icon *ngIf="!cartVisible" class="pop-icon" name="chevron-expand-outline" slot="start"></ion-icon>
@@ -42,11 +42,10 @@
   </ion-toolbar>
 </ion-header>
 
-
 <ion-list-header color="light">
   <ion-label>
     <div class="total">
-      <ion-text>{{ filterTerm() == "" ? "Gesamt" : (filterTerm().length > 10 ? (filterTerm() | slice:0:10) + '...' : (filterTerm()))  }} ({{ count() }})</ion-text>
+      <ion-text>{{ (filterTerm() == "" ? 'domains.spendings.total' : (filterTerm().length > 10 ? (filterTerm() | slice:0:10) + '...' : (filterTerm()))) | translate  }} ({{ count() }})</ion-text>
         <ion-chip color="primary" *ngIf="filterMode()">
           <ion-label (click)="filterModal()">filter</ion-label>
           <ion-icon name="close" (click)="deleteFilter()"></ion-icon>
@@ -60,10 +59,11 @@
   </ion-label>
 </ion-list-header>
 
-
-
 <ion-content>
-  <ion-refresher slot="fixed" (ionRefresh)="refreshCartList($event)">
+  <ion-refresher 
+      slot="fixed"
+      [disabled]="!isAtTop"
+      (ionRefresh)="refreshCartList($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
   <ion-grid class="ion-padding">
@@ -72,19 +72,25 @@
         <ion-spinner color="primary"></ion-spinner>
       </ion-col>
       <ion-col class="ion-text-center" size-md="6" offset-md="3" *ngIf="!isLoading && cartList().length === 0">
-        <p>Keine Ausgaben vorhanden!</p>
+        <p>{{ 'domains.spendings.no_spendings' | translate }}</p>
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col size-md="6" offset-md="3" *ngIf="!isLoading && cartList() && cartList().length > 0">
-        <cdk-virtual-scroll-viewport itemSize="56" minBufferPx="900" maxBufferPx="1350">
+        <cdk-virtual-scroll-viewport 
+            itemSize="56" 
+            minBufferPx="900" 
+            maxBufferPx="1350"
+            (scrolledIndexChange)="onScrollChange()"
+            class="cart-scroll"
+            #viewport>
           <ion-list *ngIf="!isLoading && cartList().length > 0">
             <ion-item-sliding *cdkVirtualFor="let cart of cartList(), let i = index" #slidingItem>
               <ion-item [lines]="i == cartList().length - 1 ? 'none' : 'inset'"  [disabled]="cart.deleted === true">
                 <ion-avatar slot="start" (click)="onFilter('category', cart.categoryDto.name)">
                   <div class="category-circle">
-                    <p *ngIf="cart.categoryDto.name !== 'Ausgleichszahlung'">{{ cart.categoryDto.name.substring(0, 2) | uppercase }}</p>
-                    <ion-icon *ngIf="cart.categoryDto.name === 'Ausgleichszahlung'" name="repeat-outline" color="medium"></ion-icon>
+                    <p *ngIf="!isSettlementpayment(cart.categoryDto.name)">{{ cart.categoryDto.name.substring(0, 2) | uppercase }}</p>
+                    <ion-icon *ngIf="isSettlementpayment(cart.categoryDto.name)" name="swap-horizontal-outline" color="medium"></ion-icon>
                   </div>
                 </ion-avatar>
                 <ion-label>
@@ -103,8 +109,7 @@
                       </ion-text>
                       <ion-icon *ngIf="cart.recurrenceType !== 'NONE' && cart.hasActiveTemplate === true && cart.deleted === false" name="repeat" slot="icon-only" color="medium" title="wiederkehrend"></ion-icon>
                       <ion-text *ngIf="cart.deleted === true" (click)="onFilter('user', cart.userDto.userName)" color="medium" >
-                        <!-- <em>{{ cart.userDto.userName.includes(DELETED) ? cart.userDto.userName : cart.userDto.userName + ' entfernt' }}</em> -->
-                        <em>{{ cart.userDto.userName.includes(DELETED) ? cart.userDto.userName : 'Nutzer entfernt' }}</em>
+                        <em>{{ cart.userDto.userName.includes('DELETED') ? ('global.user.deleted' | translate) : cart.userDto.userName + getTranslationKey() }}</em>
                       </ion-text>
                     </div>
                     <div class="cart-name-date">

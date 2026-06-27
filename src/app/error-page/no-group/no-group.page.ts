@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { App } from '@capacitor/app';
 import { AlertController, LoadingController, MenuController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { INIT_NUMBERS } from 'src/app/constants/default-values';
 import { Group } from 'src/app/model/group';
 import { GroupService } from 'src/app/service/group.service';
@@ -19,7 +20,8 @@ export class NoGroupPage implements OnInit {
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
     private groupService: GroupService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService
   ) {}
 
   ngOnInit() {
@@ -40,15 +42,15 @@ export class NoGroupPage implements OnInit {
 
   onCreateGroup() {
     this.alertCtrl.create({
-      header: "Neue Gruppe:",
+      header: this.translate.instant("alerts.group.new.header"),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant("alerts.group.new.cancel"),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant("alerts.group.new.ok"),
         handler: (data) => {
           this.loadingCtrl.create({
-            message: "Erstelle Gruppe..."
+            message: this.translate.instant("alerts.group.new.loading")
           }).then(loadingEl => {
             if (!data) return;
             const trimmedGroupName = data.groupName.trim();
@@ -63,7 +65,7 @@ export class NoGroupPage implements OnInit {
       inputs: [
         {
           name: "groupName",
-          placeholder: "Gruppenname",
+          placeholder: this.translate.instant("alerts.group.new.placeholder"),
           attributes: {
             maxlength: INIT_NUMBERS.MAX_LENGTH
           }

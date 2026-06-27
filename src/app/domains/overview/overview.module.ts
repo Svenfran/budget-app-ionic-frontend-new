@@ -8,6 +8,8 @@ import { OverviewPageRoutingModule } from './overview-routing.module';
 
 import { OverviewPage } from './overview.page';
 import { ScientificCurrencyPipe } from 'src/app/pipe/scientific.pipe';
+import { TranslateModule } from '@ngx-translate/core';
+import { MonthNamePipe } from 'src/app/pipe/month-name.pipe';
 
 @NgModule({
   imports: [
@@ -15,7 +17,9 @@ import { ScientificCurrencyPipe } from 'src/app/pipe/scientific.pipe';
     FormsModule,
     IonicModule,
     OverviewPageRoutingModule,
-    ScientificCurrencyPipe
+    TranslateModule,
+    ScientificCurrencyPipe,
+    MonthNamePipe
   ],
   declarations: [OverviewPage]
 })

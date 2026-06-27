@@ -6,6 +6,7 @@ import { AlertService } from '../service/alert.service';
 import { UserprofileService } from '../userprofile/service/userprofile.service';
 import { User } from '../auth/user';
 import { PasswordChangeDto } from '../userprofile/model/password-change-dto';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-password-change',
@@ -28,7 +29,8 @@ export class PasswordChangePage implements OnInit {
     private userprofileService: UserprofileService,
     private loadingCtrl: LoadingController,
     private alertService: AlertService,
-    private menuCtrl: MenuController
+    private menuCtrl: MenuController,
+    private translate: TranslateService
   ) { }
 
   ngOnInit() {
@@ -77,8 +79,8 @@ export class PasswordChangePage implements OnInit {
       }
       this.changePassword(passwordChangeData);
     } else {
-      let header = "Falsches Passwort!";
-      let message = "Das neue Passwort konnte nicht bestätigt werden. Bitte versuche es noch einmal";
+      let header = this.translate.instant("alerts.user_profile.change_password.error_message_page.header");
+      let message = this.translate.instant("alerts.user_profile.change_password.error_message_page.message");
       this.alertService.showErrorAlert(header, message);
     }
     this.form.reset();
@@ -90,7 +92,7 @@ export class PasswordChangePage implements OnInit {
 
   changePassword(passwordChangeData: PasswordChangeDto) {
     this.isLoading = true;
-    this.loadingCtrl.create({ keyboardClose: true, message: 'Ändere Passwort...'})
+    this.loadingCtrl.create({ keyboardClose: true, message: this.translate.instant("alerts.user_profile.change_password.loading") })
     .then(loadingEl => {
       loadingEl.present();
       this.userprofileService.changePassword(passwordChangeData);

@@ -11,6 +11,7 @@ import { WebSocketService } from 'src/app/service/websocket.service';
 import { AuthService } from 'src/app/auth/auth.service';
 import { GroupService } from 'src/app/service/group.service';
 import { INIT_NUMBERS, INIT_VALUES } from 'src/app/constants/default-values';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-shoppinglist',
@@ -35,7 +36,8 @@ export class ShoppinglistPage implements OnInit {
     private loadingCtrl: LoadingController,
     private webSocketService: WebSocketService,
     private authService: AuthService,
-    private groupService: GroupService
+    private groupService: GroupService,
+    private translate: TranslateService
   ) {
     effect(() => {
       this.activeGroup = this.groupService.activeGroup();
@@ -76,13 +78,13 @@ export class ShoppinglistPage implements OnInit {
 
   onCreateList() {
     this.alertService.presentInputAlert({
-      header: 'Neue Einkaufsliste:',
-      placeholder: 'Name der Einkaufsliste',
-      okText: 'OK',
-      cancelText: 'Abbrechen',
+      header: this.translate.instant('alerts.shoppinglist.new.header'),
+      placeholder: this.translate.instant('alerts.shoppinglist.new.placeholder'),
+      okText: this.translate.instant('alerts.shoppinglist.new.ok'),
+      cancelText: this.translate.instant('alerts.shoppinglist.new.cancel'),
       onConfirm: async (listName) => {
         const loading = await this.alertService.presentLoading(
-          'Erstelle Einkaufsliste...'
+          this.translate.instant('alerts.shoppinglist.new.loading')
         );
 
         const newShoppingList: AddEditShoppinglistDto = {
@@ -99,15 +101,15 @@ export class ShoppinglistPage implements OnInit {
   onUpdateList(list: ShoppinglistDto, slidingItem: IonItemSliding) {
     slidingItem.close();
     this.alertCtrl.create({
-      header: "Einkaufsliste bearbeiten:",
+      header: this.translate.instant('alerts.shoppinglist.edit.header'),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant('alerts.shoppinglist.edit.cancel'),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant('alerts.shoppinglist.edit.ok'),
         handler: (data) => {
           this.loadingCtrl.create({
-            message: "Bearbeite Einkaufsliste..."
+            message: this.translate.instant('alerts.shoppinglist.edit.loading')
           }).then(loadingEl => {
 
             if (!data) return;
@@ -145,16 +147,16 @@ export class ShoppinglistPage implements OnInit {
   onDeleteList(list: ShoppinglistDto, slidingItem: IonItemSliding) {
     slidingItem.close();
     this.alertCtrl.create({
-      header: 'Löschen',
-      message: `Möchtest du die Einkaufsliste "${list.name}" wirklich löschen inkl. aller Einträge?`,
+      header: this.translate.instant('alerts.shoppinglist.delete.header'),
+      message: this.translate.instant('alerts.shoppinglist.delete.message', {listName: list.name}),
       buttons: [{
-        text: "Nein",
+        text: this.translate.instant('alerts.shoppinglist.delete.cancel'),
         role: "cancel"
       }, {
-        text: 'Ja',
+        text: this.translate.instant('alerts.shoppinglist.delete.ok'),
         handler: () => {
           this.loadingCtrl.create({
-            message: 'Lösche Einkaufsliste...'
+            message: this.translate.instant('alerts.shoppinglist.delete.loading')
           }).then(loadingEl => {
             const deletedShoppinglist: AddEditShoppinglistDto = {
               id: list.id,
@@ -197,15 +199,15 @@ export class ShoppinglistPage implements OnInit {
 
   onUpdateItem(list: ShoppinglistDto, item: ShoppingitemDto) {
     this.alertCtrl.create({
-      header: "Eintrag bearbeiten:",
+      header: this.translate.instant('alerts.shoppinglist.item.edit.header'),
       buttons: [{
-        text: "Abbrechen",
+        text: this.translate.instant('alerts.shoppinglist.item.edit.cancel'),
         role: "cancel"
       }, {
-        text: "ok",
+        text: this.translate.instant('alerts.shoppinglist.item.edit.ok'),
         handler: (data) => {
           this.loadingCtrl.create({
-            message: "Bearbeite Eintrag..."
+            message: this.translate.instant('alerts.shoppinglist.item.edit.loading')
           }).then(loadingEl => {
             if (!data) return;
             const trimmedItemName = data.itemName.trim();
@@ -277,6 +279,7 @@ export class ShoppinglistPage implements OnInit {
         });
       }
     })
+    if (items.length === 0) return;
     this.shoppinglistService.deleteAllCompletedShoppingItems(items);
   }
 

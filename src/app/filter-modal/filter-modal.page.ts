@@ -6,6 +6,7 @@ import { CategoryService } from '../service/category.service';
 import { GroupService } from '../service/group.service';
 import { User } from '../auth/user';
 import { CartFilter } from './model/CartFilter';
+import { LanguageService } from '../service/language.service';
 
 @Component({
   selector: 'app-filter-modal',
@@ -28,6 +29,7 @@ export class FilterModalPage implements OnInit {
   public today = new Date();
   public showPicker = false;
   public dateValue: string = '';
+  public currentLang = this.langService.currentLang
 
   constructor(
     private modalCtrl: ModalController,
@@ -35,7 +37,8 @@ export class FilterModalPage implements OnInit {
     private fb: FormBuilder,
     private categoryService: CategoryService,
     private groupService: GroupService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private langService: LanguageService
   ) { }
 
   ngOnInit() {

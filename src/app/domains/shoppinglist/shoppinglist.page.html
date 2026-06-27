@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button menu="m1"></ion-menu-button>
     </ion-buttons>
-    <ion-title>Einkaufslisten</ion-title>
+    <ion-title>{{ 'domains.shoppinglists.title' | translate }}</ion-title>
     <ion-buttons slot="primary">
       <ion-text class="ion-padding group-name" routerLink="/groupoverview"><small>{{ (activeGroup.name.length > 20)? (activeGroup.name | slice:0:20) + '...' : (activeGroup.name) }}</small></ion-text>
       <ion-button (click)="onCreateList()">
@@ -23,7 +23,7 @@
         <ion-spinner color="primary"></ion-spinner>
       </ion-col>
       <ion-col class="ion-text-center" size-md="6" offset-md="3" *ngIf="!isLoading && shoppingLists().length === 0">
-        <p>Keine Einkaufslisten vorhanden!</p>
+        <p>{{ 'domains.shoppinglists.no_shoppinglists' | translate }}</p>
       </ion-col>
     </ion-row>
     <ion-row>
@@ -75,7 +75,7 @@
                 class="input" 
                 [(ngModel)]="newItemInputs[list.id]" 
                 type="text" 
-                placeholder="Eintrag hinzufügen"></ion-input>
+                [placeholder]="'domains.shoppinglists.item_placeholder' | translate"></ion-input>
             <div class="ion-item-note">
               <ion-buttons>
                 <ion-button type="button" (click)="onCreateItem(list)" [disabled]="!newItemInputs[list.id]">
@@ -90,7 +90,7 @@
             <ion-col size-md="6" offset-md="3">
               <div class="chip">
                 <ion-chip *ngIf="list.shoppingItems.length > 0" (click)="deleteListOfItems(list)" color="primary">
-                  <ion-text><small>Erledigte löschen</small></ion-text>
+                  <ion-text><small>{{ 'domains.shoppinglists.delete_completed' | translate }}</small></ion-text>
                 </ion-chip>
               </div>
             </ion-col>
