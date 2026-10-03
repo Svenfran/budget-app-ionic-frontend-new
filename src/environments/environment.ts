@@ -1,6 +1,5 @@
-// This file can be replaced during build by using the `fileReplacements` array.
-// `ng build` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
+// Gilt für Dev und Prod. Die Backend-URL kommt aus src/config/config.ts,
+// das im Production-Build per `fileReplacements` (angular.json) durch config.prod.ts ersetzt wird.
 
 import { appConfig } from "src/config/config";
 
