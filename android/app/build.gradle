@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
 
+// Release-Signierung: Zugangsdaten liegen in android/keystore.properties (nicht in git)
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+} else {
+    logger.warn("android/keystore.properties nicht gefunden – Release-Builds werden nicht signiert.")
+}
+
 android {
     namespace "de.svenfran.divvyapp"
     compileSdk rootProject.ext.compileSdkVersion
@@ -17,8 +26,21 @@ android {
         }
     }
     flavorDimensions "environment"
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                storeFile rootProject.file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

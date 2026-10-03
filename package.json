@@ -14,7 +14,8 @@
     "build:prod": "cross-env APP_ENV=prod ionic build --configuration production",
     "check-device": "powershell -Command \"if ((adb devices | Select-String '\\s*device$')) { Write-Host '✅ Gerät gefunden' } else { Write-Error '❌ Gerät nicht erkannt!'; exit 1 }\"",
     "android:dev": "npm run check-device && cross-env APP_ENV=dev ionic cap sync android --configuration development && cd android && gradlew.bat clean assembleDevDebug installDevDebug",
-    "android:prod": "npm run check-device && cross-env APP_ENV=prod ionic cap sync android --configuration production && cd android && gradlew.bat clean assembleProdDebug installProdDebug"
+    "android:prod": "npm run check-device && cross-env APP_ENV=prod ionic cap sync android --configuration production && cd android && gradlew.bat clean assembleProdRelease installProdRelease",
+    "android:prod:apk": "cross-env APP_ENV=prod ionic cap sync android --configuration production && cd android && gradlew.bat clean assembleProdRelease"
   },
   "private": true,
   "dependencies": {
