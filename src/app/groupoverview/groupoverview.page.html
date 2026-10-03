@@ -32,7 +32,9 @@
             <ion-label color="medium">{{ 'groups.header' | translate }}</ion-label>
           </ion-list-header>
           <ion-item-sliding *ngFor="let group of groupOverviewList(), let i = index" #slidingItem>
-            <ion-item [lines]="i == groupOverviewList().length - 1 ? 'none' : 'inset'">
+            <ion-item button detail="false"
+                      (click)="onSelectGroup(group, slidingItem)"
+                      [lines]="i == groupOverviewList().length - 1 ? 'none' : 'inset'">
               <ion-icon *ngIf="group.memberCount > 0" slot="start" name="people-outline"></ion-icon>
               <ion-icon *ngIf="group.memberCount === 0" slot="start" name="person-outline"></ion-icon>
               <ion-label>

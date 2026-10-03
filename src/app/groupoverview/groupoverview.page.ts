@@ -5,6 +5,7 @@ import { AuthService } from '../auth/auth.service';
 import { AlertController, IonItemSliding, LoadingController, ModalController, Platform } from '@ionic/angular';
 import { Group } from '../model/group';
 import { NewMemberDto } from './model/new-member-dto';
+import { GroupOverview } from './model/group-overview';
 import { GroupmembersPage } from '../groupmembers/groupmembers.page';
 import { INIT_NUMBERS } from '../constants/default-values';
 import { Router } from '@angular/router';
@@ -47,6 +48,18 @@ export class GroupoverviewPage implements OnInit {
       this.groupService.getGroupsForOverview();
       (event.target as HTMLIonRefresherElement).complete();
     }, 2000);
+  }
+
+  async onSelectGroup(group: GroupOverview, slidingItem: IonItemSliding) {
+    // Ist das Item gerade aufgeswiped, nur schließen statt navigieren
+    if (await slidingItem.getOpenAmount() !== 0) {
+      slidingItem.close();
+      return;
+    }
+    if (this.groupService.activeGroup().id !== group.id) {
+      this.groupService.setActiveGroup(group);
+    }
+    this.router.navigateByUrl('/domains/tabs/overview', { replaceUrl: true });
   }
 
   onCreateGroup() {
