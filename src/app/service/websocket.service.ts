@@ -1,6 +1,6 @@
 import { effect, Injectable } from '@angular/core';
 import { Client, StompSubscription } from '@stomp/stompjs';
-import * as SockJS from 'sockjs-client';
+import SockJS from 'sockjs-client';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Group } from '../model/group';
