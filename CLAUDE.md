@@ -22,8 +22,9 @@ npm run lint               # ng lint — ESLint (angular-eslint)
 ng test --include='**/group.service.spec.ts'
 
 # Android (Windows, requires a connected device — check-device runs adb first)
-npm run android:dev        # sync + build/install Dev flavor APK (de.svenfran.divvyapp.dev)
-npm run android:prod       # sync + build/install Prod flavor APK (de.svenfran.divvyapp)
+npm run android:dev        # sync + build/install Dev flavor debug APK (de.svenfran.divvyapp.dev)
+npm run android:prod       # sync + build/install Prod flavor *release* APK (de.svenfran.divvyapp)
+npm run android:prod:apk   # sync + build Prod release APK only (no device needed, no install)
 ```
 
 ## Environment & build configuration
@@ -32,10 +33,16 @@ The backend URL is **not** taken straight from `environment.ts`. The chain is:
 
 - `src/config/config.ts` (dev: `http://192.168.178.23:9090`) and `src/config/config.prod.ts` (prod: Railway URL) hold `appConfig.baseUrl`.
 - `angular.json` `fileReplacements` swaps `config.ts` → `config.prod.ts` for the production build.
-- `environment.ts` derives `apiBaseUrl` and `websocketUrl` (`${baseUrl}/ws`) from `appConfig`.
-- `capacitor.config.ts` switches `appId`/`appName`/scheme based on the `APP_ENV` env var (`dev` vs anything else), set via `cross-env` in the npm scripts.
+- `environment.ts` (the only environment file — there is no `environment.prod.ts`) derives `apiBaseUrl` and `websocketUrl` (`${baseUrl}/ws`) from `appConfig`. Its `production` flag is always `false`; don't rely on it to detect prod.
+- `capacitor.config.ts` switches `appId`/`appName`/`cleartext`/`androidScheme` (`http` for dev, `https` otherwise) based on the `APP_ENV` env var (`dev` vs anything else), set via `cross-env` in the npm scripts.
 
 When pointing the app at a different backend, edit `src/config/config.ts` (dev) — not `environment.ts`.
+
+### Android flavors & signing
+
+- `android/app/build.gradle` defines an `environment` flavor dimension with `dev` and `prod` flavors (separate application IDs, so both can be installed side by side).
+- Cleartext HTTP (needed for the local dev backend) is enabled **only for the dev flavor** via `android/app/src/dev/AndroidManifest.xml` + `src/dev/res/xml/network_security_config.xml`. The main manifest does not allow cleartext, so the prod build can only reach HTTPS backends.
+- Release builds are signed using `android/keystore.properties` (git-ignored, as are `*.jks`/`*.keystore`). Copy `android/keystore.properties.example` and fill it in. If the file is missing, Gradle logs a warning and the release APK stays **unsigned**, so `android:prod` can't install it.
 
 ## Architecture
 
