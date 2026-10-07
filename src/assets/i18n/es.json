@@ -22,7 +22,7 @@
     },
     "navigation": {
         "welcome": "¡Hola {{name}}!",
-        "title": "¡Qué bueno verte 😊",
+        "title": "¡Qué bueno verte! 😊",
         "group": "Grupo:",
         "groups": {
             "header": "GRUPOS",
